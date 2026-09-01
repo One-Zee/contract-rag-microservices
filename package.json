@@ -7,6 +7,10 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "dep:check": "depcruise apps libs --output-type err",
+    "dep:graph": "depcruise apps libs --output-type dot | dot -T svg > docs/architecture/deps.svg",
+    "start:gateway": "nest start api-gateway --watch",
+    "start:auth": "nest start auth-service --watch",
     "build": "nest build",
     "deploy": "nest deploy",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
