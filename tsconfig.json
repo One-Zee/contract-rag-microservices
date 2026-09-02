@@ -17,39 +17,23 @@
     "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "types": [
-      "vitest/globals",
-      "node"
-    ],
+    "types": ["vitest/globals", "node"],
     "paths": {
-      "@app/common": [
-        "./libs/common/src"
-      ],
-      "@app/common/*": [
-        "./libs/common/src/*"
-      ],
-      "@app/database": [
-        "./libs/database/src"
-      ],
-      "@app/database/*": [
-        "./libs/database/src/*"
-      ],
-      "@app/messaging": [
-        "./libs/messaging/src"
-      ],
-      "@app/messaging/*": [
-        "./libs/messaging/src/*"
-      ],
-      "@app/telemetry": [
-        "./libs/telemetry/src"
-      ],
-      "@app/telemetry/*": [
-        "./libs/telemetry/src/*"
-      ]
+      "@app/common": ["./libs/common/src"],
+      "@app/common/*": ["./libs/common/src/*"],
+      "@app/database": ["./libs/database/src"],
+      "@app/database/*": ["./libs/database/src/*"],
+      "@app/messaging": ["./libs/messaging/src"],
+      "@app/messaging/*": ["./libs/messaging/src/*"],
+      "@app/telemetry": ["./libs/telemetry/src"],
+      "@app/telemetry/*": ["./libs/telemetry/src/*"]
     }
   },
   "files": [],
   "references": [
+    {
+      "path": "./tsconfig.scripts.json"
+    },
     {
       "path": "./apps/contract-rag-microservices/tsconfig.app.json"
     },
