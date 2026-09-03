@@ -7,6 +7,9 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
     "dep:check": "depcruise apps libs --output-type err",
     "dep:graph": "depcruise apps libs --output-type dot | dot -T svg > docs/architecture/deps.svg",
     "start:gateway": "nest start api-gateway --watch",
@@ -18,7 +21,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/contract-rag-microservices/main",
-    "lint": "oxlint src/ test/",
+    "lint": "oxlint apps libs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
