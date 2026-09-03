@@ -3,7 +3,9 @@ import { IndexingServiceService } from './indexing-service.service.js';
 
 @Controller()
 export class IndexingServiceController {
-  constructor(private readonly indexingServiceService: IndexingServiceService) {}
+  constructor(
+    private readonly indexingServiceService: IndexingServiceService,
+  ) {}
 
   @Get()
   getHello(): string {

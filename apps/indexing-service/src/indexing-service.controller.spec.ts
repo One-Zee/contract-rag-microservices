@@ -11,7 +11,9 @@ describe('IndexingServiceController', () => {
       providers: [IndexingServiceService],
     }).compile();
 
-    indexingServiceController = app.get<IndexingServiceController>(IndexingServiceController);
+    indexingServiceController = app.get<IndexingServiceController>(
+      IndexingServiceController,
+    );
   });
 
   describe('root', () => {

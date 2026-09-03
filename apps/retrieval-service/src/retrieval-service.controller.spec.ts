@@ -11,7 +11,9 @@ describe('RetrievalServiceController', () => {
       providers: [RetrievalServiceService],
     }).compile();
 
-    retrievalServiceController = app.get<RetrievalServiceController>(RetrievalServiceController);
+    retrievalServiceController = app.get<RetrievalServiceController>(
+      RetrievalServiceController,
+    );
   });
 
   describe('root', () => {

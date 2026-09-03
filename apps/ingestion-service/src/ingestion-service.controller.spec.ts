@@ -11,7 +11,9 @@ describe('IngestionServiceController', () => {
       providers: [IngestionServiceService],
     }).compile();
 
-    ingestionServiceController = app.get<IngestionServiceController>(IngestionServiceController);
+    ingestionServiceController = app.get<IngestionServiceController>(
+      IngestionServiceController,
+    );
   });
 
   describe('root', () => {

@@ -3,7 +3,9 @@ import { IngestionServiceService } from './ingestion-service.service.js';
 
 @Controller()
 export class IngestionServiceController {
-  constructor(private readonly ingestionServiceService: IngestionServiceService) {}
+  constructor(
+    private readonly ingestionServiceService: IngestionServiceService,
+  ) {}
 
   @Get()
   getHello(): string {
