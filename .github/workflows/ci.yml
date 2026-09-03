@@ -1,0 +1,62 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run dep:check
+      - run: npm test
+
+  db:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: dev
+          POSTGRES_DB: contracts
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U app -d contracts"
+          --health-interval 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://app:dev@localhost:5432/contracts
+      PGPASSWORD: dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run db:migrate
+
+      # Migracija 0000 mora ostati prva u nizu — bez ekstenzije tip `vector`
+      # ne postoji i sve ostalo pada.
+      - name: pgvector ekstenzija postoji
+        run: |
+          psql "$DATABASE_URL" -tAc \
+            "SELECT 1 FROM pg_extension WHERE extname = 'vector'" | grep -q 1
+
+      # Ovo je stvarna svrha posla: `drizzle-kit push` (i pokoja ručna
+      # migracija) zna regenerisati HNSW indeks bez operatorske klase, pa
+      # pretraga tiho padne na sekvencijalni skan umjesto da pukne glasno.
+      - name: HNSW indeks preživio migracije
+        run: |
+          psql "$DATABASE_URL" -tAc \
+            "SELECT indexdef FROM pg_indexes
+             WHERE tablename = 'chunks' AND indexdef LIKE '%hnsw%'" \
+            | grep -q vector_cosine_ops
+
+      - name: GIN indeks nad generisanom tsv kolonom postoji
+        run: |
+          psql "$DATABASE_URL" -tAc \
+            "SELECT indexdef FROM pg_indexes
+             WHERE tablename = 'chunks' AND indexname = 'chunks_tsv_gin'" \
+            | grep -q gin
