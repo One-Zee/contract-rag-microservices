@@ -1,8 +1,10 @@
 import { NestFactory } from '@nestjs/core';
+import { AppConfigService } from '@app/config';
 import { ApiGatewayModule } from './api-gateway.module.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
-  await app.listen(process.env.port ?? 3000);
+  const config = app.get(AppConfigService);
+  await app.listen(config.gatewayPort);
 }
 await bootstrap();

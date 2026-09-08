@@ -19,13 +19,15 @@
     "strictPropertyInitialization": false,
     "types": ["vitest/globals", "node"],
     "paths": {
-      "@app/common": ["./libs/common/src"],
+      "@app/common": ["./libs/common/src/index.ts"],
       "@app/common/*": ["./libs/common/src/*"],
-      "@app/database": ["./libs/database/src"],
+      "@app/config": ["./libs/config/src/index.ts"],
+      "@app/config/*": ["./libs/config/src/*"],
+      "@app/database": ["./libs/database/src/index.ts"],
       "@app/database/*": ["./libs/database/src/*"],
-      "@app/messaging": ["./libs/messaging/src"],
+      "@app/messaging": ["./libs/messaging/src/index.ts"],
       "@app/messaging/*": ["./libs/messaging/src/*"],
-      "@app/telemetry": ["./libs/telemetry/src"],
+      "@app/telemetry": ["./libs/telemetry/src/index.ts"],
       "@app/telemetry/*": ["./libs/telemetry/src/*"]
     }
   },
@@ -54,6 +56,9 @@
     },
     {
       "path": "./libs/common/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/config/tsconfig.lib.json"
     },
     {
       "path": "./libs/database/tsconfig.lib.json"
