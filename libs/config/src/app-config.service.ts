@@ -3,20 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { AppEnvironment } from './enums/app-environment.enum.js';
 import type { LlmProvider } from './schemas/llm.schema.js';
 
-/**
- * Tipizirano čitanje env varijabli. Nijedan servis ne smije zvati `ConfigService`
- * direktno niti dirati `process.env` — sve ide kroz ove getere.
- *
- * Pravilo koje se drži bez izuzetka: **getter s defaultom ⟺ šema s istim defaultom.**
- * Varijabla koja je u šemi `.required()` čita se kroz `getOrThrow`, pa ako je servis
- * nije validirao (nije uključio taj fragment u svoju šemu), poziv pukne odmah i glasno
- * umjesto da vrati `undefined` sakriven iza `!`.
- */
 @Injectable()
 export class AppConfigService {
   constructor(private readonly configService: ConfigService) {}
 
-  // ── Runtime okruženje ──────────────────────────────────────────────────────
+  // ── Runtime environment ────────────────────────────────────────────────────
   get nodeEnv(): AppEnvironment {
     return this.configService.get<AppEnvironment>(
       'NODE_ENV',
@@ -36,13 +27,17 @@ export class AppConfigService {
     return this.nodeEnv === AppEnvironment.TEST;
   }
 
-  // ── Portovi (svi imaju default u baseSchema) ───────────────────────────────
+  // ── Ports (all defaulted in baseSchema) ────────────────────────────────────
   get gatewayPort(): number {
     return this.configService.get<number>('GATEWAY_PORT', 3000);
   }
 
   get authPort(): number {
     return this.configService.get<number>('AUTH_PORT', 3001);
+  }
+
+  get authHost(): string {
+    return this.configService.get<string>('AUTH_HOST', '127.0.0.1');
   }
 
   get ingestionPort(): number {
@@ -61,7 +56,7 @@ export class AppConfigService {
     return this.configService.get<number>('LLM_PORT', 3005);
   }
 
-  // ── Baza ───────────────────────────────────────────────────────────────────
+  // ── Database ───────────────────────────────────────────────────────────────
   get databaseUrl(): string {
     return this.configService.getOrThrow<string>('DATABASE_URL');
   }
@@ -75,7 +70,7 @@ export class AppConfigService {
     return this.configService.getOrThrow<string>('REDIS_URL');
   }
 
-  // ── Skladište objekata (MinIO / S3) ────────────────────────────────────────
+  // ── Object storage (MinIO / S3) ────────────────────────────────────────────
   get s3Endpoint(): string {
     return this.configService.getOrThrow<string>('S3_ENDPOINT');
   }
@@ -92,9 +87,30 @@ export class AppConfigService {
     return this.configService.getOrThrow<string>('S3_BUCKET');
   }
 
-  // ── Autentikacija ──────────────────────────────────────────────────────────
-  get jwtSecret(): string {
-    return this.configService.getOrThrow<string>('JWT_SECRET');
+  // ── Authentication ─────────────────────────────────────────────────────────
+  /**
+   * Verification key — read by the gateway and every protected service. The
+   * environment holds base64(PEM); see the comment in `auth.schema.ts`.
+   */
+  get jwtPublicKey(): string {
+    return this.decodePem('JWT_PUBLIC_KEY');
+  }
+
+  /**
+   * Signing key. Only `authSigningSchema` validates it, and only `auth-service`
+   * composes that fragment — so if anything else calls this getter, `getOrThrow`
+   * fails immediately instead of handing back `undefined`.
+   */
+  get jwtPrivateKey(): string {
+    return this.decodePem('JWT_PRIVATE_KEY');
+  }
+
+  get jwtIssuer(): string {
+    return this.configService.get<string>('JWT_ISSUER', 'clauseiq-auth');
+  }
+
+  get jwtAudience(): string {
+    return this.configService.get<string>('JWT_AUDIENCE', 'clauseiq-api');
   }
 
   get jwtExpiresIn(): string {
@@ -105,7 +121,14 @@ export class AppConfigService {
     return this.configService.get<string>('REFRESH_EXPIRES_IN', '7d');
   }
 
-  // ── AI sloj ────────────────────────────────────────────────────────────────
+  private decodePem(key: string): string {
+    return Buffer.from(
+      this.configService.getOrThrow<string>(key),
+      'base64',
+    ).toString('utf8');
+  }
+
+  // ── AI layer ───────────────────────────────────────────────────────────────
   get llmProvider(): LlmProvider {
     return this.configService.get<LlmProvider>('LLM_PROVIDER', 'ollama');
   }
