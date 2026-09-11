@@ -1,3 +1,2 @@
 export * from './schema/index.js';
-export * from './database.module.js';
-export * from './database.service.js';
+export * from './drizzle.module.js';

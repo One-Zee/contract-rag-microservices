@@ -22,6 +22,13 @@
       "when": 1788346798593,
       "tag": "0002_chunks_tsv",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788967625050,
+      "tag": "0003_last_black_bird",
+      "breakpoints": true
     }
   ]
 }
