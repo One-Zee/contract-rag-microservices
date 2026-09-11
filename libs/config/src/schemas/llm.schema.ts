@@ -8,9 +8,10 @@ export const llmSchema = Joi.object({
     .valid(...LLM_PROVIDERS)
     .default('ollama'),
 
-  // Drizzle šema hardkoduje `vector(1024)` u libs/database/src/schema/chunks.ts, a
-  // migracija 0001 je to zapečatila u bazi. Druga vrijednost ovdje bi značila da
-  // embedding servis proizvodi vektore koje INSERT odbija — pa je zaključavamo.
-  // Promjena dimenzije = izmjena šeme + nova migracija + reindeksiranje korpusa.
+  // The Drizzle schema hardcodes `vector(1024)` in
+  // libs/database/src/schema/chunks.ts, and migration 0001 sealed that into the
+  // database. Any other value here would mean the embedding service produces
+  // vectors that INSERT rejects — so it is locked. Changing the dimension means
+  // a schema change, a new migration, and reindexing the whole corpus.
   EMBEDDING_DIMENSIONS: Joi.number().valid(1024).default(1024),
 });

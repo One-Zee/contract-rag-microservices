@@ -10,8 +10,8 @@ import { IndexingServiceController } from './indexing-service.controller.js';
 import { IndexingServiceService } from './indexing-service.service.js';
 
 @Module({
-  // Konzumira document.chunked (RabbitMQ), generiše embeddinge (llm) i upisuje
-  // vektore u pgvector (baza).
+  // Consumes document.chunked (RabbitMQ), generates embeddings (llm) and writes
+  // vectors into pgvector (database).
   imports: [
     AppConfigModule.forRoot(
       baseSchema

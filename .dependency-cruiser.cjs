@@ -1,15 +1,12 @@
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
   forbidden: [
-    // ── Granice modula (plan.md §3.4) ────────────────────────────────────────
-    // Ova tri pravila su razlog zašto se monorepo drži bez Nx-a (ADR 002).
-    // Provjeravaju se u CI-ju kroz `npm run dep:check`, koji je korak u poslu
-    // `build` — servis koji importuje tuđi kod ne može biti mergovan.
     {
       name: 'no-cross-app-imports',
       comment:
-        'Servis ne smije importovati kod drugog servisa — dijeljeni kod ide u libs/. ' +
-        'Bez ovog pravila tvrdnja da su servisi nezavisni nije provjerljiva.',
+        "A service must not import another service's code — shared code goes in " +
+        'libs/. Without this rule, the claim that the services are independent ' +
+        'is not checkable.',
       severity: 'error',
       from: { path: '^apps/([^/]+)/' },
       to: {
@@ -20,8 +17,8 @@ module.exports = {
     {
       name: 'libs-not-to-apps',
       comment:
-        'Dijeljena biblioteka ne smije zavisiti od aplikacije — zavisnost ide samo ' +
-        'u smjeru apps/ → libs/.',
+        'A shared library must not depend on an application — the dependency ' +
+        'only goes in the apps/ → libs/ direction.',
       severity: 'error',
       from: { path: '^libs/' },
       to: { path: '^apps/' },
@@ -206,7 +203,6 @@ module.exports = {
       },
     },
   ],
-
 
   options: {
     // Which modules not to follow further when encountered

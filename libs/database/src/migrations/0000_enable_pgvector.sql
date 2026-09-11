@@ -1,4 +1,5 @@
--- Drizzle ne kreira ekstenzije sam, a tip `vector` mora postojati prije
--- DDL-a koji ga koristi. Zato je ovo zasebna prva migracija, a ne dopisan
--- red na vrh generisanog fajla — preživi svaki budući `drizzle-kit generate`.
+-- Drizzle does not create extensions itself, and the `vector` type has to exist
+-- before any DDL that uses it. Hence a separate first migration rather than a
+-- line appended to a generated file — this survives every future
+-- `drizzle-kit generate`.
 CREATE EXTENSION IF NOT EXISTS vector;

@@ -1,6 +1,7 @@
 /**
- * Jedini izvor istine za NODE_ENV — koriste ga i Joi šema (`base.schema.ts`)
- * i geteri (`AppConfigService.isProduction`), pa se vrijednosti ne mogu razići.
+ * The single source of truth for NODE_ENV — used by both the Joi schema
+ * (`base.schema.ts`) and the getters (`AppConfigService.isProduction`), so the
+ * two cannot drift apart.
  */
 export enum AppEnvironment {
   DEVELOPMENT = 'development',

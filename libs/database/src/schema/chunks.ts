@@ -9,14 +9,16 @@ import {
 import { documents } from './documents.js';
 
 /**
- * Segmenti dokumenta — jedinica pretrage u RAG pipelineu.
+ * Document chunks — the unit of retrieval in the RAG pipeline.
  *
- * Dimenzija 1024 odgovara modelu `voyage-law-2` i namjerno je literal:
- * ulazi u DDL i u generisanu migraciju, pa se ne smije čitati iz okruženja.
+ * The dimension 1024 matches the `voyage-law-2` model and is deliberately a
+ * literal: it goes into the DDL and the generated migration, so it must not be
+ * read from the environment.
  *
- * Kolona `tsv` (`tsvector GENERATED`) i njen GIN indeks NISU ovdje jer
- * Drizzle nema generisane kolone u šemi — žive u ručnoj migraciji
- * `migrations/0002_chunks_tsv.sql`. Nisu zaboravljene.
+ * The `tsv` column (`tsvector GENERATED`) and its GIN index are NOT here
+ * because Drizzle has no generated columns in the schema — they live in the
+ * hand-written migration `migrations/0002_chunks_tsv.sql`. They are not
+ * forgotten.
  */
 export const chunks = pgTable(
   'chunks',
