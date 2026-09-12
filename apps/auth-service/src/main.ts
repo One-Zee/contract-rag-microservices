@@ -39,6 +39,11 @@ async function bootstrap() {
     { transport: Transport.TCP, options },
   );
 
+  // Without this Nest registers no SIGTERM/SIGINT listener, so no shutdown hook
+  // runs on Ctrl-C or `docker stop` — the Postgres pool in `DrizzleModule` would
+  // never be closed and in-flight queries would be cut off mid-statement.
+  app.enableShutdownHooks();
+
   await app.listen();
   Logger.log(
     `auth-service listening on tcp://${options.host}:${options.port}`,

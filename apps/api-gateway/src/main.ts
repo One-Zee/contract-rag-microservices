@@ -32,6 +32,12 @@ async function bootstrap() {
     SwaggerModule.createDocument(app, swagger),
   );
 
+  // The gateway has no database of its own yet, but the call belongs here all
+  // the same: it is what makes every `onApplicationShutdown` hook run on a
+  // signal, so the services of phases 2-5 inherit the behaviour instead of
+  // needing it retrofitted one by one.
+  app.enableShutdownHooks();
+
   await app.listen(config.gatewayPort);
   Logger.log(
     `api-gateway listening on http://localhost:${config.gatewayPort} ` +
