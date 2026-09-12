@@ -12,8 +12,16 @@
     "db:studio": "drizzle-kit studio",
     "dep:check": "depcruise apps libs --output-type err",
     "dep:graph": "depcruise apps libs --output-type dot | dot -T svg > docs/architecture/deps.svg",
+    "infra:up": "docker compose -f docker/docker-compose.yaml up -d",
+    "infra:down": "docker compose -f docker/docker-compose.yaml down",
+    "dev": "npm run infra:up && npm run start:all",
     "start:gateway": "nest start api-gateway --watch",
     "start:auth": "nest start auth-service --watch",
+    "start:ingestion": "nest start ingestion-service --watch",
+    "start:indexing": "nest start indexing-service --watch",
+    "start:retrieval": "nest start retrieval-service --watch",
+    "start:llm": "nest start llm-service --watch",
+    "start:all": "concurrently -k -n gateway,auth,ingestion,indexing,retrieval,llm -c blue,green,yellow,magenta,cyan,red \"npm:start:gateway\" \"npm:start:auth\" \"npm:start:ingestion\" \"npm:start:indexing\" \"npm:start:retrieval\" \"npm:start:llm\"",
     "build": "nest build",
     "deploy": "nest deploy",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
@@ -26,7 +34,7 @@
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
-    "test:e2e": "viapps/contract-rag-microservices/test run --config ./vitest.config.e2e.ts"
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1123.0",
@@ -72,6 +80,7 @@
     "@types/pg": "^8.23.1",
     "@types/supertest": "^7.0.0",
     "@vitest/coverage-v8": "^4.1.2",
+    "concurrently": "^10.0.5",
     "dependency-cruiser": "^18.2.0",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
