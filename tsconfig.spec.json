@@ -1,17 +1,4 @@
 {
-  // Exists so tests get type-checked: every `tsconfig.app.json` /
-  // `tsconfig.lib.json` excludes `**/*spec.ts` so tests do not land in `dist/`,
-  // which means `tsc` would otherwise never look at them. Not in the root
-  // tsconfig's `references` and emits nothing.
-  //
-  // This file does NOT resolve the aliases in tests — `vitest.aliases.ts` does;
-  // the plugin and the native `resolve.tsconfigPaths` tie resolution to the
-  // project that owns a file, and no project owns the spec files.
-  //
-  // The boilerplate e2e tests of the phase 2-5 services are left out: they
-  // import `supertest/types`, which does not resolve under
-  // `moduleResolution: nodenext`. A pre-existing error; those files go away when
-  // those services get real tests.
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": true,

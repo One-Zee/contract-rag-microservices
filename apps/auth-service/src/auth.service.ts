@@ -19,19 +19,7 @@ import {
 } from './repositories/users.repository.js';
 import { RefreshTokensRepository } from './repositories/refresh-tokens.repository.js';
 
-/**
- * bcrypt cost 12: ~250 ms per hash on this hardware. Slow enough to make an
- * offline attack on a stolen database expensive, fast enough not to hurt login.
- * This is the only deliberately slow operation in the system.
- */
 const BCRYPT_ROUNDS = 12;
-
-/**
- * The same message for an unknown user and for a wrong password.
- *
- * If they differed, the endpoint would be an account-enumeration oracle: the
- * response alone would tell an attacker which e-mail addresses exist.
- */
 const INVALID_CREDENTIALS = 'Invalid e-mail or password';
 
 @Injectable()
@@ -80,12 +68,6 @@ export class AuthService {
 
   /**
    * Refresh token rotation with reuse detection.
-   *
-   * The third case is the important one: an already-used token arriving again
-   * means two copies exist — the legitimate user and whoever stole it. There is
-   * no way to tell which is which, so the whole family is revoked and both must
-   * log in again. Without this a stolen token would stay valid until expiry, and
-   * legitimate rotation would keep extending it (ADR 005).
    */
   async refresh(dto: RefreshTokenDto): Promise<AuthTokensDto> {
     const record = await this.refreshTokens.findByHash(
@@ -170,7 +152,6 @@ export class AuthService {
     };
   }
 
-  /** Without normalization `Ana@x.ba` and `ana@x.ba` would be two accounts. */
   private static normalizeEmail(email: string): string {
     return email.trim().toLowerCase();
   }

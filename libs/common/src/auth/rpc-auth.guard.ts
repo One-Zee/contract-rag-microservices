@@ -13,13 +13,6 @@ import { rpcUnauthorized } from '../contracts/rpc-error.js';
  * The second layer of defence (OWASP defence in depth): the service verifies
  * the token the gateway forwarded **again**, rather than assuming the gateway
  * already did.
- *
- * Without this, anyone who reaches the service's TCP port could send an
- * arbitrary payload and be whoever they liked. As it stands they need a valid
- * signature, and the private key exists only in `auth-service`.
- *
- * The cost is 44 µs per call (measured, RS256 verification) and no network hop —
- * which is why the `auth.validate` pattern was never implemented (ADR 004).
  */
 @Injectable()
 export class RpcAuthGuard implements CanActivate {

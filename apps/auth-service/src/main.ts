@@ -6,8 +6,7 @@ import { AuthServiceModule } from './auth-service.module.js';
 
 /**
  * The transport is configured before the module exists, so host and port have to
- * be read up front. Instead of `process.env` (which CLAUDE.md forbids) a minimal
- * context is booted over `baseSchema` alone — no database, no keys. Validation
+ * be read up front. Instead of `process.env`. Validation
  * stays in one place and the ports keep their defaults.
  */
 async function readTransportOptions() {

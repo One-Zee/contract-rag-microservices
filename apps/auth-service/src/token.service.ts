@@ -30,16 +30,9 @@ export class TokenService {
     private readonly refreshTokens: RefreshTokensRepository,
   ) {}
 
-  /**
-   * Signs an access token with the private key. `iss`, `aud` and `expiresIn`
-   * come from `signOptions` in the module, so they cannot be forgotten at a call
-   * site.
-   *
-   * `roles` goes into the claims as an **array** even though a user has a single
-   * role — that way the contract survives a move to multiple roles without any
-   * consumer changing (`AuthContext`).
-   */
-  signAccessToken(user: Pick<UserRecord, 'id' | 'email' | 'role'>): Promise<string> {
+  signAccessToken(
+    user: Pick<UserRecord, 'id' | 'email' | 'role'>,
+  ): Promise<string> {
     return this.jwtService.signAsync({
       sub: user.id,
       email: user.email,
@@ -47,14 +40,6 @@ export class TokenService {
     });
   }
 
-  /**
-   * The refresh token is an **opaque random value, not a JWT.** It is checked by
-   * looking it up in the database, so a signature would add nothing — and a JWT
-   * would invite trusting the claims without a query, which is exactly what
-   * would destroy single-use semantics.
-   *
-   * 32 bytes from the CSPRNG; the hash stored is SHA-256 (rationale in ADR 005).
-   */
   async issueRefreshToken(
     userId: string,
   ): Promise<{ token: string; id: string }> {

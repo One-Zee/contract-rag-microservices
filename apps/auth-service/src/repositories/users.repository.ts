@@ -21,8 +21,7 @@ export interface CreateUserInput {
 
 /**
  * A thin layer over Drizzle. It exists so `AuthService` depends on this
- * interface rather than on the database — unit tests replace it with an object
- * of `vi.fn()`s and cover the business rules without a single SQL query.
+ * interface rather than on the database
  */
 @Injectable()
 export class UsersRepository {

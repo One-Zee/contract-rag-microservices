@@ -10,15 +10,6 @@ import { users } from './users.js';
 
 /**
  * Refresh tokens — the only session state the system stores.
- *
- * **Access tokens are never written to the database.** They are self-contained
- * (RS256 signature) and verified locally; storing them would reintroduce the
- * per-request query this whole architecture avoids (ADR 004).
- *
- * What is stored is a **SHA-256 hash, never the token itself**: whoever reads
- * the database gets nothing usable. SHA-256 rather than bcrypt because the token
- * carries 32 bytes of full entropy — bcrypt protects low-entropy passwords, and
- * here it would add ~100 ms per refresh for nothing (ADR 005).
  */
 export const refreshTokens = pgTable(
   'refresh_tokens',

@@ -23,10 +23,6 @@ export interface AccessTokenPayload {
   exp: number;
 }
 
-/**
- * The identity as guards and business code see it. Derived **only** from
- * verified claims — never from a field the client supplied.
- */
 export interface AuthContext {
   userId: string;
   email: string;
@@ -42,13 +38,6 @@ export const toAuthContext = (claims: AccessTokenPayload): AuthContext => ({
 
 /**
  * The key under which `RpcAuthGuard` attaches the context to a TCP payload.
- *
- * **A symbol rather than a string, and that is a security decision.** An RPC
- * handler has no `request` object, so the context has to ride on the payload
- * itself. Were the key a string, a client could send it in the JSON and pose as
- * an admin against any handler that happens to be missing a guard. A symbol
- * cannot come out of JSON deserialization, so that hole does not exist. See the
- * "a payload cannot inject a context" case in `rpc-auth.guard.spec.ts`.
  */
 export const AUTH_CONTEXT = Symbol.for('clauseiq.auth.context');
 

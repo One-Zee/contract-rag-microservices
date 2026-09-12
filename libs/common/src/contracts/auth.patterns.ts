@@ -2,7 +2,7 @@
  * The message contract between the gateway and `auth-service`.
  *
  * `dependency-cruiser` only sees static imports, so runtime coupling over TCP is
- * not covered by the `no-cross-app-imports` rule (ADR 002). These constants are
+ * not covered by the `no-cross-app-imports` rule. These constants are
  * therefore the only place that coupling exists — it changes here or nowhere.
  */
 export const AUTH_PATTERNS = {

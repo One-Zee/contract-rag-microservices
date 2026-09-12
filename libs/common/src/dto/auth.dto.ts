@@ -9,20 +9,6 @@ import {
 } from 'class-validator';
 import { USER_ROLES, type UserRoleName } from '../auth/auth-context.js';
 
-/**
- * The DTOs live in `@app/common` rather than in the gateway because both
- * services use them: the gateway for HTTP validation and Swagger,
- * `auth-service` as the type of the TCP payload. Were they in the gateway,
- * `auth-service` would have to import from `apps/api-gateway/` and break the
- * `no-cross-app-imports` rule (ADR 002).
- */
-
-/**
- * The password upper bound is not arbitrary: **bcrypt silently truncates
- * anything past 72 bytes.** Without it two different long passwords would share
- * a hash and a user could log in with the wrong one — so it is rejected instead
- * of quietly cut short.
- */
 const PASSWORD_MAX = 72;
 const PASSWORD_MIN = 12;
 
@@ -61,7 +47,9 @@ export class LoginDto {
 }
 
 export class RefreshTokenDto {
-  @ApiProperty({ description: 'Refresh token issued at login or by a previous refresh' })
+  @ApiProperty({
+    description: 'Refresh token issued at login or by a previous refresh',
+  })
   @IsString()
   @IsNotEmpty()
   refreshToken: string;
@@ -85,7 +73,9 @@ export class UserDto {
 }
 
 export class AuthTokensDto {
-  @ApiProperty({ description: 'RS256 JWT, valid for JWT_EXPIRES_IN (15m by default)' })
+  @ApiProperty({
+    description: 'RS256 JWT, valid for JWT_EXPIRES_IN (15m by default)',
+  })
   accessToken: string;
 
   @ApiProperty({
