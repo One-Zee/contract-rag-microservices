@@ -37,9 +37,7 @@ export const documents = pgTable(
       .defaultNow(),
   },
   (t) => [
-    // RBAC filter iz plan.md §6.2 filtrira dozvoljene dokumente po vlasniku.
     index('documents_uploaded_by_idx').on(t.uploadedBy),
-    // Ingestion pipeline traži dokumente po statusu.
     index('documents_status_idx').on(t.status),
   ],
 );

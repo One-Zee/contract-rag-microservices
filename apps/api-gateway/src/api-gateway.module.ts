@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { AppConfigModule, authSchema, baseSchema } from '@app/config';
-import { ApiGatewayController } from './api-gateway.controller.js';
-import { ApiGatewayService } from './api-gateway.service.js';
+import { HealthController } from './api-gateway.controller.js';
+import { AuthClientModule } from './clients/auth-client.module.js';
+import { AuthController } from './auth/auth.controller.js';
+import { JwtStrategy } from './auth/jwt.strategy.js';
+import { UsersController } from './users/users.controller.js';
 
 @Module({
-  // Gateway verifikuje JWT, ali sam ne dira bazu, skladište ni brokera.
-  imports: [AppConfigModule.forRoot(baseSchema.concat(authSchema))],
-  controllers: [ApiGatewayController],
-  providers: [ApiGatewayService],
+  imports: [
+    AppConfigModule.forRoot(baseSchema.concat(authSchema)),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    AuthClientModule,
+  ],
+  controllers: [HealthController, AuthController, UsersController],
+  providers: [JwtStrategy],
 })
 export class ApiGatewayModule {}

@@ -1,13 +1,14 @@
 import { defineConfig } from 'vitest/config';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import { appAliases } from './vitest.aliases.js';
 
 export default defineConfig({
-  // Resolves the path aliases declared in tsconfig.json, including the ones
-  // added by `nest g library`.
-  plugins: [tsconfigPaths()],
+  resolve: { alias: appAliases },
   test: {
     globals: true,
     root: './',
     include: ['**/*.spec.ts'],
+    // Without this, `**/*.spec.ts` would also pick up the e2e tests, which need
+    // a running Postgres and have their own config.
+    exclude: ['**/node_modules/**', '**/dist/**', '**/*.e2e-spec.ts'],
   },
 });

@@ -2,10 +2,11 @@ import { defineConfig } from 'drizzle-kit';
 import 'dotenv/config';
 
 const url = process.env.DATABASE_URL;
-if (!url) throw new Error('DATABASE_URL nije postavljen');
+if (!url) throw new Error('DATABASE_URL is not set');
 
-// NIKAD `drizzle-kit push` — push regeneriše HNSW indeks bez operatorske klase
-// i Postgres odbije CREATE INDEX. Samo `generate` → `migrate`.
+// NEVER `drizzle-kit push` — push regenerates the HNSW index without its
+// operator class and Postgres rejects the CREATE INDEX. Only `generate` →
+// `migrate`.
 export default defineConfig({
   schema: './libs/database/src/schema/index.ts',
   out: './libs/database/src/migrations',

@@ -4,12 +4,12 @@ import type { ObjectSchema } from 'joi';
 import { AppConfigService } from './app-config.service.js';
 
 /**
- * Jedini ulaz za env varijable u cijelom monorepou.
+ * The single entry point for environment variables across the monorepo.
  *
- * Svaki servis prosljeđuje svoju šemu — spoj `baseSchema` i fragmenata koje stvarno
- * koristi — pa se `auth-service` diže bez S3 ključeva, a `llm-service` bez
- * `DATABASE_URL`. Kompozicija namjerno živi u modulu servisa, a ne ovdje: `libs/`
- * ne smije nabrajati `apps/`.
+ * Each service passes its own schema — `baseSchema` composed with the fragments
+ * it actually uses — so `auth-service` boots without S3 keys and `llm-service`
+ * boots without `DATABASE_URL`. The composition deliberately lives in the
+ * service's module rather than here: `libs/` must not enumerate `apps/`.
  *
  * @example
  * imports: [AppConfigModule.forRoot(baseSchema.concat(authSchema))]
@@ -23,16 +23,16 @@ export class AppConfigModule {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          // Putanja se razrješava u odnosu na process.cwd(); `nest start <app>` se
-          // pokreće iz korijena repoa, gdje jedan .env opslužuje sve servise.
+          // Resolved relative to process.cwd(); `nest start <app>` runs from the
+          // repo root, where a single .env serves every service.
           envFilePath: ['.env'],
-          // @nestjs/config v12 validira kroz Standard Schema, pa `validationOptions`
-          // više ne prima Joi opcije — moraju stajati na samoj šemi. Postavljamo ih
-          // ovdje, centralno, da ih nijedan servis ne može zaboraviti:
-          //   allowUnknown: true  → servis ne pada zbog varijable koju ne koristi.
-          //                         Bez ovoga bi svaki servis pucao na tuđim ključevima
-          //                         iz zajedničkog .env-a.
-          //   abortEarly: false   → sve greške odjednom, a ne samo prva.
+          // @nestjs/config v12 validates through Standard Schema, so
+          // `validationOptions` no longer accepts Joi options — they must sit on
+          // the schema itself. Set centrally here so no service can forget them:
+          //   allowUnknown: true  → a service does not fail over a variable it
+          //                         does not use. Without it every service would
+          //                         choke on the others' keys in the shared .env.
+          //   abortEarly: false   → report all errors at once, not just the first.
           validationSchema: validationSchema.options({
             abortEarly: false,
             allowUnknown: true,
