@@ -1,20 +1,15 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppConfigService } from '@app/config';
 import { ApiGatewayModule } from './api-gateway.module.js';
+import { createValidationPipe } from './validation.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
   const config = app.get(AppConfigService);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  app.useGlobalPipes(createValidationPipe());
 
   const swagger = new DocumentBuilder()
     .setTitle('ClauseIQ API')
