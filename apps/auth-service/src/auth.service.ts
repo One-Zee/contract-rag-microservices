@@ -79,12 +79,7 @@ export class AuthService {
     }
 
     if (record.revokedAt) {
-      const revoked = await this.refreshTokens.revokeAllForUser(record.userId);
-      this.logger.warn(
-        `Refresh token reuse detected for user ${record.userId} — ` +
-          `revoked ${revoked} active tokens`,
-      );
-      throw rpcUnauthorized('Refresh token has already been used');
+      await this.onRefreshTokenReuse(record.userId);
     }
 
     if (record.expiresAt.getTime() <= Date.now()) {
@@ -96,21 +91,39 @@ export class AuthService {
       throw rpcUnauthorized('Invalid refresh token');
     }
 
-    const [accessToken, refresh] = await Promise.all([
-      this.tokens.signAccessToken(user),
-      this.tokens.issueRefreshToken(user.id),
-    ]);
+    const { token: refreshToken, ...row } = this.tokens.mintRefreshToken();
+    const rotated = await this.refreshTokens.rotate(record.id, {
+      userId: user.id,
+      ...row,
+    });
 
-    // Only now is the old one revoked, with a pointer to its successor. The
-    // order matters: revoking before the new one exists would leave the user
-    // with no valid token at all if the insert failed.
-    await this.refreshTokens.revoke(record.id, refresh.id);
+    // Spent between our read above and the compare-and-swap inside `rotate`:
+    // a concurrent request carrying the same token got there first. Two
+    // holders of one token is the same situation as the `revokedAt` branch,
+    // so it gets the same treatment.
+    if (!rotated) {
+      await this.onRefreshTokenReuse(record.userId);
+    }
 
     return {
-      accessToken,
-      refreshToken: refresh.token,
+      accessToken: await this.tokens.signAccessToken(user),
+      refreshToken,
       user: AuthService.toUserDto(user),
     };
+  }
+
+  /**
+   * An already-spent token arriving again means two copies exist — the
+   * legitimate user and whoever took it — and there is no telling which is
+   * which. The whole family is revoked and both must log in again (ADR 005).
+   */
+  private async onRefreshTokenReuse(userId: string): Promise<never> {
+    const revoked = await this.refreshTokens.revokeAllForUser(userId);
+    this.logger.warn(
+      `Refresh token reuse detected for user ${userId} — ` +
+        `revoked ${revoked} active tokens`,
+    );
+    throw rpcUnauthorized('Refresh token has already been used');
   }
 
   /**

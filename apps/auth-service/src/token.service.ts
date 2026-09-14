@@ -3,7 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AppConfigService } from '@app/config';
 import type { UserRoleName } from '@app/common';
-import { RefreshTokensRepository } from './repositories/refresh-tokens.repository.js';
+import {
+  type CreateRefreshTokenInput,
+  RefreshTokensRepository,
+} from './repositories/refresh-tokens.repository.js';
 import type { UserRecord } from './repositories/users.repository.js';
 
 /** Milliseconds per unit in the `15m` / `7d` notation; the Joi schema guarantees the format. */
@@ -13,6 +16,13 @@ const UNIT_MS: Record<string, number> = {
   h: 3_600_000,
   d: 86_400_000,
 };
+
+export interface MintedRefreshToken extends Omit<
+  CreateRefreshTokenInput,
+  'userId'
+> {
+  token: string;
+}
 
 export const parseDuration = (value: string): number => {
   const match = /^(\d+)([smhd])$/.exec(value);
@@ -40,18 +50,27 @@ export class TokenService {
     });
   }
 
-  async issueRefreshToken(
-    userId: string,
-  ): Promise<{ token: string; id: string }> {
+  /**
+   * Generates the token material without touching the database. `token` goes
+   * to the client, everything else goes into the row — split out so rotation
+   * can hand the row to `RefreshTokensRepository.rotate` inside its transaction.
+   */
+  mintRefreshToken(): MintedRefreshToken {
     const token = randomBytes(32).toString('base64url');
-    const record = await this.refreshTokens.create({
-      userId,
+    return {
+      token,
       tokenHash: TokenService.hash(token),
       expiresAt: new Date(
         Date.now() + parseDuration(this.config.refreshExpiresIn),
       ),
-    });
-    // The caller needs `id` to set `replaced_by` and keep the rotation chain.
+    };
+  }
+
+  async issueRefreshToken(
+    userId: string,
+  ): Promise<{ token: string; id: string }> {
+    const { token, ...row } = this.mintRefreshToken();
+    const record = await this.refreshTokens.create({ userId, ...row });
     return { token, id: record.id };
   }
 

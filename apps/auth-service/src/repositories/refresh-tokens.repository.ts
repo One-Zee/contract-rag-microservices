@@ -12,15 +12,17 @@ export interface RefreshTokenRecord {
   createdAt: Date;
 }
 
+export interface CreateRefreshTokenInput {
+  userId: string;
+  tokenHash: string;
+  expiresAt: Date;
+}
+
 @Injectable()
 export class RefreshTokensRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDatabase) {}
 
-  async create(input: {
-    userId: string;
-    tokenHash: string;
-    expiresAt: Date;
-  }): Promise<RefreshTokenRecord> {
+  async create(input: CreateRefreshTokenInput): Promise<RefreshTokenRecord> {
     const [row] = await this.db.insert(refreshTokens).values(input).returning();
     return row;
   }
@@ -34,12 +36,41 @@ export class RefreshTokensRepository {
     return row;
   }
 
-  /** Marks the token used and, if it was rotated, records its successor. */
-  async revoke(id: string, replacedBy?: string): Promise<void> {
-    await this.db
-      .update(refreshTokens)
-      .set({ revokedAt: new Date(), replacedBy: replacedBy ?? null })
-      .where(eq(refreshTokens.id, id));
+  /**
+   * Spends `oldId` and issues `next` in its place, atomically.
+   *
+   * Returns `undefined` when `oldId` was already spent — the compare-and-swap
+   * on `revoked_at IS NULL` matched no row. Under READ COMMITTED a concurrent
+   * UPDATE blocks on the row lock, re-evaluates the WHERE after the first
+   * transaction commits, and sees `revoked_at` set. Two requests carrying the
+   * same token can therefore never both succeed (ADR 005).
+   */
+  async rotate(
+    oldId: string,
+    next: CreateRefreshTokenInput,
+  ): Promise<RefreshTokenRecord | undefined> {
+    return this.db.transaction(async (tx) => {
+      const spent = await tx
+        .update(refreshTokens)
+        .set({ revokedAt: new Date() })
+        .where(
+          and(eq(refreshTokens.id, oldId), isNull(refreshTokens.revokedAt)),
+        )
+        .returning({ id: refreshTokens.id });
+
+      if (spent.length === 0) {
+        return undefined;
+      }
+
+      const [created] = await tx.insert(refreshTokens).values(next).returning();
+
+      await tx
+        .update(refreshTokens)
+        .set({ replacedBy: created.id })
+        .where(eq(refreshTokens.id, oldId));
+
+      return created;
+    });
   }
 
   /**
@@ -52,10 +83,7 @@ export class RefreshTokensRepository {
       .update(refreshTokens)
       .set({ revokedAt: new Date() })
       .where(
-        and(
-          eq(refreshTokens.userId, userId),
-          isNull(refreshTokens.revokedAt),
-        ),
+        and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)),
       )
       .returning({ id: refreshTokens.id });
     return revoked.length;
