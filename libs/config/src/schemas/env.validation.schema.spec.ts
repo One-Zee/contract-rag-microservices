@@ -3,8 +3,12 @@ import type { ObjectSchema } from 'joi';
 import { AppEnvironment } from '../enums/app-environment.enum.js';
 import { authSchema, authSigningSchema } from './auth.schema.js';
 import { baseSchema } from './base.schema.js';
+import { chunkingSchema } from './chunking.schema.js';
 import { databaseSchema } from './database.schema.js';
 import { llmSchema } from './llm.schema.js';
+import { messagingSchema } from './messaging.schema.js';
+import { storageSchema } from './storage.schema.js';
+import { uploadSchema } from './upload.schema.js';
 
 /**
  * The same options AppConfigModule.forRoot sets centrally. Without them Joi
@@ -36,7 +40,28 @@ describe('env validation schemas', () => {
       .concat(databaseSchema),
   );
   // The same composition as in apps/api-gateway/src/api-gateway.module.ts.
-  const gatewaySchema = withOptions(baseSchema.concat(authSchema));
+  const gatewaySchema = withOptions(
+    baseSchema.concat(authSchema).concat(uploadSchema),
+  );
+  // The same composition as in apps/ingestion-service/src/ingestion-service.module.ts.
+  const ingestionSchema = withOptions(
+    baseSchema
+      .concat(authSchema)
+      .concat(databaseSchema)
+      .concat(storageSchema)
+      .concat(messagingSchema)
+      .concat(uploadSchema)
+      .concat(chunkingSchema),
+  );
+  const ingestionEnv = {
+    DATABASE_URL: validEnv.DATABASE_URL,
+    JWT_PUBLIC_KEY: validEnv.JWT_PUBLIC_KEY,
+    S3_ENDPOINT: 'http://localhost:9000',
+    S3_ACCESS_KEY: 'minioadmin',
+    S3_SECRET_KEY: 'minioadmin',
+    S3_BUCKET: 'contracts',
+    RABBITMQ_URL: 'amqp://guest:guest@localhost:5672',
+  };
 
   it('accepts a valid environment and applies the defaults', () => {
     const { error, value } = authServiceSchema.validate(validEnv);
@@ -101,6 +126,85 @@ describe('env validation schemas', () => {
     const schema = withOptions(baseSchema.concat(llmSchema));
 
     expect(schema.validate({}).error).toBeUndefined();
+  });
+
+  describe('ingestion-service (phase 2)', () => {
+    it('accepts a valid environment and applies the defaults', () => {
+      const { error, value } = ingestionSchema.validate(ingestionEnv);
+
+      expect(error).toBeUndefined();
+      expect(value.INGESTION_HOST).toBe('127.0.0.1');
+      expect(value.INGESTION_PORT).toBe(3002);
+      expect(value.S3_REGION).toBe('us-east-1');
+      expect(value.S3_FORCE_PATH_STYLE).toBe(true);
+      expect(value.UPLOAD_MAX_BYTES).toBe(10_485_760);
+      expect(value.CHUNK_SIZE_TOKENS).toBe(800);
+      expect(value.CHUNK_OVERLAP_TOKENS).toBe(120);
+      expect(value.INGESTION_CONCURRENCY).toBe(2);
+    });
+
+    it('boots without REDIS_URL — it never touches the cache', () => {
+      const { error } = ingestionSchema.validate(ingestionEnv);
+
+      expect(error).toBeUndefined();
+      expect(ingestionEnv).not.toHaveProperty('REDIS_URL');
+    });
+
+    it('names every missing infrastructure variable at once', () => {
+      const { error } = ingestionSchema.validate({});
+
+      for (const name of [
+        'DATABASE_URL',
+        'JWT_PUBLIC_KEY',
+        'S3_ENDPOINT',
+        'S3_ACCESS_KEY',
+        'S3_SECRET_KEY',
+        'S3_BUCKET',
+        'RABBITMQ_URL',
+      ]) {
+        expect(error!.message).toContain(name);
+      }
+    });
+
+    it('coerces S3_FORCE_PATH_STYLE from the string dotenv delivers', () => {
+      const { value } = ingestionSchema.validate({
+        ...ingestionEnv,
+        S3_FORCE_PATH_STYLE: 'false',
+      });
+
+      expect(value.S3_FORCE_PATH_STYLE).toBe(false);
+    });
+
+    it('rejects an overlap that is not smaller than the chunk size', () => {
+      const { error } = ingestionSchema.validate({
+        ...ingestionEnv,
+        CHUNK_SIZE_TOKENS: 200,
+        CHUNK_OVERLAP_TOKENS: 200,
+      });
+
+      expect(error).toBeDefined();
+      expect(error!.message).toContain('CHUNK_OVERLAP_TOKENS');
+    });
+
+    it('rejects a zero upload limit and a zero concurrency', () => {
+      expect(
+        ingestionSchema.validate({ ...ingestionEnv, UPLOAD_MAX_BYTES: 0 })
+          .error,
+      ).toBeDefined();
+      expect(
+        ingestionSchema.validate({ ...ingestionEnv, INGESTION_CONCURRENCY: 0 })
+          .error,
+      ).toBeDefined();
+    });
+
+    it('lets the gateway boot without any S3 or RabbitMQ variable', () => {
+      const { error, value } = gatewaySchema.validate({
+        JWT_PUBLIC_KEY: validEnv.JWT_PUBLIC_KEY,
+      });
+
+      expect(error).toBeUndefined();
+      expect(value.UPLOAD_MAX_BYTES).toBe(10_485_760);
+    });
   });
 
   describe('key separation (ADR 004)', () => {
