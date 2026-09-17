@@ -20,6 +20,9 @@ export const rpcError = (
 ): RpcException =>
   new RpcException({ statusCode, message, error } satisfies RpcErrorShape);
 
+export const rpcBadRequest = (message: string) =>
+  rpcError(400, message, 'Bad Request');
+
 export const rpcUnauthorized = (message: string) =>
   rpcError(401, message, 'Unauthorized');
 
@@ -31,3 +34,9 @@ export const rpcNotFound = (message: string) =>
 
 export const rpcConflict = (message: string) =>
   rpcError(409, message, 'Conflict');
+
+export const rpcPayloadTooLarge = (message: string) =>
+  rpcError(413, message, 'Payload Too Large');
+
+export const rpcUnsupportedMediaType = (message: string) =>
+  rpcError(415, message, 'Unsupported Media Type');
