@@ -3,6 +3,7 @@ import {
   integer,
   pgTable,
   text,
+  uniqueIndex,
   uuid,
   vector,
 } from 'drizzle-orm/pg-core';
@@ -39,6 +40,9 @@ export const chunks = pgTable(
       'hnsw',
       t.embedding.op('vector_cosine_ops'),
     ),
-    index('chunks_doc_idx').on(t.documentId, t.chunkIndex),
+    // Unique so a document that is processed twice (crash recovery, re-run)
+    // cannot end up with two chunks at the same position — the pipeline
+    // replaces a document's chunks inside one transaction and relies on this.
+    uniqueIndex('chunks_doc_idx').on(t.documentId, t.chunkIndex),
   ],
 );
