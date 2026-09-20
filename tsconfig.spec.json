@@ -8,7 +8,8 @@
   "include": [
     "libs/**/*.spec.ts",
     "apps/api-gateway/**/*.spec.ts",
-    "test/**/*.e2e-spec.ts",
-    "apps/auth-service/**/*.spec.ts"
+    "apps/auth-service/**/*.spec.ts",
+    "apps/ingestion-service/**/*.spec.ts",
+    "test/**/*.ts"
   ]
 }
