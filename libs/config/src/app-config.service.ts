@@ -40,6 +40,10 @@ export class AppConfigService {
     return this.configService.get<string>('AUTH_HOST', '127.0.0.1');
   }
 
+  get ingestionHost(): string {
+    return this.configService.get<string>('INGESTION_HOST', '127.0.0.1');
+  }
+
   get ingestionPort(): number {
     return this.configService.get<number>('INGESTION_PORT', 3002);
   }
@@ -66,6 +70,7 @@ export class AppConfigService {
     return this.configService.getOrThrow<string>('RABBITMQ_URL');
   }
 
+  // ── Cache ──────────────────────────────────────────────────────────────────
   get redisUrl(): string {
     return this.configService.getOrThrow<string>('REDIS_URL');
   }
@@ -85,6 +90,31 @@ export class AppConfigService {
 
   get s3Bucket(): string {
     return this.configService.getOrThrow<string>('S3_BUCKET');
+  }
+
+  get s3Region(): string {
+    return this.configService.get<string>('S3_REGION', 'us-east-1');
+  }
+
+  get s3ForcePathStyle(): boolean {
+    return this.configService.get<boolean>('S3_FORCE_PATH_STYLE', true);
+  }
+
+  // ── Upload and segmentation ────────────────────────────────────────────────
+  get uploadMaxBytes(): number {
+    return this.configService.get<number>('UPLOAD_MAX_BYTES', 10_485_760);
+  }
+
+  get chunkSizeTokens(): number {
+    return this.configService.get<number>('CHUNK_SIZE_TOKENS', 800);
+  }
+
+  get chunkOverlapTokens(): number {
+    return this.configService.get<number>('CHUNK_OVERLAP_TOKENS', 120);
+  }
+
+  get ingestionConcurrency(): number {
+    return this.configService.get<number>('INGESTION_CONCURRENCY', 2);
   }
 
   // ── Authentication ─────────────────────────────────────────────────────────
