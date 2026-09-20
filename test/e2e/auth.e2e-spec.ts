@@ -10,9 +10,8 @@
  * migrations applied. Everything else — the RS256 key pair, the ports — is
  * generated here so the test does not depend on anyone's `.env`.
  */
-import { generateKeyPairSync, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import type { INestApplication, INestMicroservice } from '@nestjs/common';
-import { JwtService, type JwtSignOptions } from '@nestjs/jwt';
 import { Transport } from '@nestjs/microservices';
 import { Test } from '@nestjs/testing';
 import { and, count, eq, inArray, isNull, sql } from 'drizzle-orm';
@@ -24,47 +23,19 @@ import {
   refreshTokens,
   users,
 } from '@app/database';
-
-const ISSUER = 'clauseiq-auth';
-const AUDIENCE = 'clauseiq-api';
-const PASSWORD = 'correct-horse-battery-staple';
-
-const rsaPair = () =>
-  generateKeyPairSync('rsa', {
-    modulusLength: 2048,
-    publicKeyEncoding: { type: 'spki', format: 'pem' },
-    privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
-  });
-
-const keys = rsaPair();
-// Away from 3001 so a dev auth-service running alongside does not collide.
-const AUTH_PORT = 30_000 + Math.floor(Math.random() * 10_000);
+import {
+  bearer,
+  configureAuthEnv,
+  PASSWORD,
+  rsaPair,
+  signWith,
+} from './helpers.js';
 
 // `AppConfigModule.forRoot()` validates the environment when it is called,
 // which is when a module file is imported — so the environment has to be in
 // place before the dynamic imports in `beforeAll`, and static imports of the
 // app modules would be too early.
-process.env.JWT_PRIVATE_KEY = Buffer.from(keys.privateKey).toString('base64');
-process.env.JWT_PUBLIC_KEY = Buffer.from(keys.publicKey).toString('base64');
-process.env.JWT_ISSUER = ISSUER;
-process.env.JWT_AUDIENCE = AUDIENCE;
-process.env.JWT_EXPIRES_IN = '15m';
-process.env.AUTH_HOST = '127.0.0.1';
-process.env.AUTH_PORT = String(AUTH_PORT);
-
-const signWith = (
-  privateKey: string,
-  options: { audience?: string; expiresIn?: JwtSignOptions['expiresIn'] } = {},
-) =>
-  new JwtService({
-    privateKey,
-    signOptions: {
-      algorithm: 'RS256',
-      expiresIn: options.expiresIn ?? '15m',
-      issuer: ISSUER,
-      audience: options.audience ?? AUDIENCE,
-    },
-  });
+const { keys, authPort: AUTH_PORT } = configureAuthEnv();
 
 describe('auth (e2e)', () => {
   let gateway: INestApplication;
@@ -73,7 +44,6 @@ describe('auth (e2e)', () => {
   const createdUserIds: string[] = [];
 
   const http = () => request(gateway.getHttpServer());
-  const bearer = (token: string) => ({ Authorization: `Bearer ${token}` });
 
   const email = `e2e-${randomUUID()}@example.test`;
   const otherEmail = `e2e-${randomUUID()}@example.test`;
