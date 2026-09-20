@@ -18,9 +18,13 @@ const isRpcErrorShape = (value: unknown): value is RpcErrorShape =>
 /**
  * Translates an error from TCP back into an HTTP response.
  *
- * Without this every error from `auth-service` reaches the client as a 500.
+ * Without this every error from a service reaches the client as a 500.
+ * `service` only names the culprit in the 503 for anything that is not an
+ * `RpcErrorShape` — a connection refused, a timeout, a crash.
  */
-export function rpcToHttp<T>(): OperatorFunction<T, T> {
+export function rpcToHttp<T>(
+  service: 'authentication' | 'ingestion' = 'authentication',
+): OperatorFunction<T, T> {
   return catchError<T, Observable<never>>((error: unknown) => {
     if (isRpcErrorShape(error)) {
       return throwError(
@@ -37,14 +41,14 @@ export function rpcToHttp<T>(): OperatorFunction<T, T> {
     }
 
     logger.error(
-      `Unexpected error on TCP call: ${
+      `Unexpected error on TCP call to the ${service} service: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
     return throwError(
       () =>
         new HttpException(
-          'The authentication service is currently unavailable',
+          `The ${service} service is currently unavailable`,
           HttpStatus.SERVICE_UNAVAILABLE,
         ),
     );
