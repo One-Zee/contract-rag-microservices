@@ -25,6 +25,8 @@
       "@app/config/*": ["./libs/config/src/*"],
       "@app/database": ["./libs/database/src/index.ts"],
       "@app/database/*": ["./libs/database/src/*"],
+      "@app/embeddings": ["./libs/embeddings/src/index.ts"],
+      "@app/embeddings/*": ["./libs/embeddings/src/*"],
       "@app/messaging": ["./libs/messaging/src/index.ts"],
       "@app/messaging/*": ["./libs/messaging/src/*"],
       "@app/telemetry": ["./libs/telemetry/src/index.ts"],
@@ -62,6 +64,9 @@
     },
     {
       "path": "./libs/database/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/embeddings/tsconfig.lib.json"
     },
     {
       "path": "./libs/messaging/tsconfig.lib.json"

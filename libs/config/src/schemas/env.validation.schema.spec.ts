@@ -5,6 +5,7 @@ import { authSchema, authSigningSchema } from './auth.schema.js';
 import { baseSchema } from './base.schema.js';
 import { chunkingSchema } from './chunking.schema.js';
 import { databaseSchema } from './database.schema.js';
+import { embeddingsSchema } from './embeddings.schema.js';
 import { llmSchema } from './llm.schema.js';
 import { messagingSchema } from './messaging.schema.js';
 import { storageSchema } from './storage.schema.js';
@@ -112,20 +113,114 @@ describe('env validation schemas', () => {
     expect(error).toBeUndefined();
   });
 
-  it('locks EMBEDDING_DIMENSIONS to 1024 (vector(1024) in migration 0001)', () => {
-    const schema = withOptions(baseSchema.concat(llmSchema));
-
-    expect(schema.validate({ EMBEDDING_DIMENSIONS: 768 }).error).toBeDefined();
-    expect(
-      schema.validate({ EMBEDDING_DIMENSIONS: 1024 }).error,
-    ).toBeUndefined();
-    expect(schema.validate({}).value.EMBEDDING_DIMENSIONS).toBe(1024);
-  });
-
-  it('lets llm-service boot without DATABASE_URL', () => {
+  it('lets llm-service boot without DATABASE_URL or any EMBEDDING_* variable', () => {
     const schema = withOptions(baseSchema.concat(llmSchema));
 
     expect(schema.validate({}).error).toBeUndefined();
+  });
+
+  describe('indexing-service (phase 3)', () => {
+    // The same composition as in apps/indexing-service/src/indexing-service.module.ts.
+    const indexingSchema = withOptions(
+      baseSchema
+        .concat(databaseSchema)
+        .concat(messagingSchema)
+        .concat(embeddingsSchema),
+    );
+    const indexingEnv = {
+      DATABASE_URL: validEnv.DATABASE_URL,
+      RABBITMQ_URL: 'amqp://guest:guest@localhost:5672',
+      VOYAGE_API_KEY: 'pa-test-key',
+    };
+
+    it('accepts a valid environment and applies the defaults', () => {
+      const { error, value } = indexingSchema.validate(indexingEnv);
+
+      expect(error).toBeUndefined();
+      expect(value.EMBEDDING_PROVIDER).toBe('voyage');
+      expect(value.EMBEDDING_MODEL).toBe('voyage-law-2');
+      expect(value.EMBEDDING_DIMENSIONS).toBe(1024);
+      expect(value.EMBEDDING_BATCH_SIZE).toBe(100);
+    });
+
+    it('locks EMBEDDING_DIMENSIONS to 1024 (vector(1024) in migration 0001)', () => {
+      expect(
+        indexingSchema.validate({ ...indexingEnv, EMBEDDING_DIMENSIONS: 768 })
+          .error!.message,
+      ).toContain('EMBEDDING_DIMENSIONS');
+      expect(
+        indexingSchema.validate({ ...indexingEnv, EMBEDDING_DIMENSIONS: 1024 })
+          .error,
+      ).toBeUndefined();
+    });
+
+    it('requires VOYAGE_API_KEY when the provider is voyage — also by default', () => {
+      const { VOYAGE_API_KEY: _omitted, ...withoutKey } = indexingEnv;
+
+      expect(indexingSchema.validate(withoutKey).error!.message).toContain(
+        'VOYAGE_API_KEY',
+      );
+      expect(
+        indexingSchema.validate({
+          ...withoutKey,
+          EMBEDDING_PROVIDER: 'voyage',
+        }).error!.message,
+      ).toContain('VOYAGE_API_KEY');
+    });
+
+    it('lets the fake provider boot without a key', () => {
+      const { VOYAGE_API_KEY: _omitted, ...withoutKey } = indexingEnv;
+      const { error, value } = indexingSchema.validate({
+        ...withoutKey,
+        EMBEDDING_PROVIDER: 'fake',
+      });
+
+      expect(error).toBeUndefined();
+      expect(value.EMBEDDING_PROVIDER).toBe('fake');
+    });
+
+    it('refuses the fake provider in production', () => {
+      const { error } = indexingSchema.validate({
+        ...indexingEnv,
+        NODE_ENV: AppEnvironment.PRODUCTION,
+        EMBEDDING_PROVIDER: 'fake',
+      });
+
+      expect(error).toBeDefined();
+      expect(error!.message).toContain('EMBEDDING_PROVIDER');
+    });
+
+    it('rejects an unknown provider', () => {
+      const { error } = indexingSchema.validate({
+        ...indexingEnv,
+        EMBEDDING_PROVIDER: 'openai',
+      });
+
+      expect(error!.message).toContain('EMBEDDING_PROVIDER');
+    });
+
+    it('keeps the batch size inside what one Voyage request accepts', () => {
+      expect(
+        indexingSchema.validate({ ...indexingEnv, EMBEDDING_BATCH_SIZE: 0 })
+          .error,
+      ).toBeDefined();
+      expect(
+        indexingSchema.validate({ ...indexingEnv, EMBEDDING_BATCH_SIZE: 1001 })
+          .error,
+      ).toBeDefined();
+      expect(
+        indexingSchema.validate({ ...indexingEnv, EMBEDDING_BATCH_SIZE: '250' })
+          .value.EMBEDDING_BATCH_SIZE,
+      ).toBe(250);
+    });
+
+    it('names every missing infrastructure variable at once', () => {
+      const { error } = indexingSchema.validate({});
+
+      for (const name of ['DATABASE_URL', 'RABBITMQ_URL', 'VOYAGE_API_KEY']) {
+        expect(error!.message).toContain(name);
+      }
+    });
   });
 
   describe('ingestion-service (phase 2)', () => {

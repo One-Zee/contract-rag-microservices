@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppEnvironment } from './enums/app-environment.enum.js';
+import type { EmbeddingProviderName } from './schemas/embeddings.schema.js';
 import type { LlmProvider } from './schemas/llm.schema.js';
 
 @Injectable()
@@ -163,7 +164,27 @@ export class AppConfigService {
     return this.configService.get<LlmProvider>('LLM_PROVIDER', 'ollama');
   }
 
+  get embeddingProvider(): EmbeddingProviderName {
+    return this.configService.get<EmbeddingProviderName>(
+      'EMBEDDING_PROVIDER',
+      'voyage',
+    );
+  }
+
+  get embeddingModel(): string {
+    return this.configService.get<string>('EMBEDDING_MODEL', 'voyage-law-2');
+  }
+
   get embeddingDimensions(): number {
     return this.configService.get<number>('EMBEDDING_DIMENSIONS', 1024);
+  }
+
+  get embeddingBatchSize(): number {
+    return this.configService.get<number>('EMBEDDING_BATCH_SIZE', 100);
+  }
+
+  /** Required by the schema whenever the provider is `voyage`, hence no default. */
+  get voyageApiKey(): string {
+    return this.configService.getOrThrow<string>('VOYAGE_API_KEY');
   }
 }

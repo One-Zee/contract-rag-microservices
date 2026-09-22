@@ -55,6 +55,15 @@
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     },
+    "embeddings": {
+      "type": "library",
+      "root": "libs/embeddings",
+      "entryFile": "index",
+      "sourceRoot": "libs/embeddings/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/embeddings/tsconfig.lib.json"
+      }
+    },
     "indexing-service": {
       "type": "application",
       "root": "apps/indexing-service",
