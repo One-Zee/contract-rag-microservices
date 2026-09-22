@@ -1,3 +1,4 @@
+export * from './consumer.js';
 export * from './event-publisher.js';
 export * from './messaging.module.js';
 export * from './rmq-options.js';
