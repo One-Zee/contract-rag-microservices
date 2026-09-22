@@ -10,6 +10,7 @@
     "apps/api-gateway/**/*.spec.ts",
     "apps/auth-service/**/*.spec.ts",
     "apps/ingestion-service/**/*.spec.ts",
+    "apps/indexing-service/**/*.spec.ts",
     "test/**/*.ts"
   ]
 }
