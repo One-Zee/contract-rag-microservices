@@ -1,6 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, count, desc, eq, inArray, or, type SQL } from 'drizzle-orm';
-import { DRIZZLE, type DrizzleDatabase, documents } from '@app/database';
+import { and, count, desc, eq, inArray } from 'drizzle-orm';
+import {
+  documentVisibilityCondition,
+  DRIZZLE,
+  type DrizzleDatabase,
+  documents,
+} from '@app/database';
 import type {
   AuthContext,
   DocumentStatus,
@@ -59,21 +64,6 @@ export interface DocumentPage {
 export class DocumentsRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDatabase) {}
 
-  /**
-   * The listing form of `canRead` in `document-policy.ts` — the two must
-   * agree. `undefined` means "no filter", which Drizzle treats as no WHERE.
-   */
-  static visibilityCondition(viewer: AuthContext): SQL | undefined {
-    if (viewer.roles.includes('admin')) {
-      return undefined;
-    }
-    const shared = eq(documents.visibility, 'shared');
-    if (viewer.roles.includes('analyst')) {
-      return or(shared, eq(documents.uploadedBy, viewer.userId));
-    }
-    return shared;
-  }
-
   async create(input: CreateDocumentInput): Promise<DocumentRecord> {
     const [row] = await this.db.insert(documents).values(input).returning();
     return row;
@@ -95,7 +85,7 @@ export class DocumentsRepository {
     limit,
   }: ListDocumentsOptions): Promise<DocumentPage> {
     const where = and(
-      DocumentsRepository.visibilityCondition(viewer),
+      documentVisibilityCondition(viewer),
       status ? eq(documents.status, status) : undefined,
     );
     const [items, [{ total }]] = await Promise.all([

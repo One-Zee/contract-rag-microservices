@@ -8,6 +8,7 @@ import { databaseSchema } from './database.schema.js';
 import { embeddingsSchema } from './embeddings.schema.js';
 import { llmSchema } from './llm.schema.js';
 import { messagingSchema } from './messaging.schema.js';
+import { retrievalSchema } from './retrieval.schema.js';
 import { storageSchema } from './storage.schema.js';
 import { uploadSchema } from './upload.schema.js';
 
@@ -220,6 +221,137 @@ describe('env validation schemas', () => {
       for (const name of ['DATABASE_URL', 'RABBITMQ_URL', 'VOYAGE_API_KEY']) {
         expect(error!.message).toContain(name);
       }
+    });
+  });
+
+  describe('retrieval-service (phase 4)', () => {
+    // The same composition as in apps/retrieval-service/src/retrieval-service.module.ts.
+    const retrievalSchemaFull = withOptions(
+      baseSchema
+        .concat(authSchema)
+        .concat(databaseSchema)
+        .concat(embeddingsSchema)
+        .concat(retrievalSchema),
+    );
+    const retrievalEnv = {
+      DATABASE_URL: validEnv.DATABASE_URL,
+      JWT_PUBLIC_KEY: validEnv.JWT_PUBLIC_KEY,
+      VOYAGE_API_KEY: 'pa-test-key',
+    };
+
+    it('accepts a valid environment and applies the defaults', () => {
+      const { error, value } = retrievalSchemaFull.validate(retrievalEnv);
+
+      expect(error).toBeUndefined();
+      expect(value.RETRIEVAL_HOST).toBe('127.0.0.1');
+      expect(value.RETRIEVAL_PORT).toBe(3004);
+      expect(value.SEARCH_CANDIDATES).toBe(20);
+      expect(value.SEARCH_FUSED).toBe(10);
+      expect(value.SEARCH_TOP_K).toBe(5);
+      expect(value.RRF_K).toBe(60);
+      expect(value.HNSW_EF_SEARCH).toBe(100);
+      expect(value.RERANK_PROVIDER).toBe('none');
+      expect(value.RERANK_MODEL).toBe('rerank-v3.5');
+    });
+
+    it('requires COHERE_API_KEY when the reranker is cohere, but not otherwise', () => {
+      expect(
+        retrievalSchemaFull.validate({
+          ...retrievalEnv,
+          RERANK_PROVIDER: 'cohere',
+        }).error!.message,
+      ).toContain('COHERE_API_KEY');
+      expect(
+        retrievalSchemaFull.validate({
+          ...retrievalEnv,
+          RERANK_PROVIDER: 'cohere',
+          COHERE_API_KEY: 'co-test-key',
+        }).error,
+      ).toBeUndefined();
+    });
+
+    it('boots without a reranking key by default', () => {
+      const { error, value } = retrievalSchemaFull.validate(retrievalEnv);
+
+      expect(error).toBeUndefined();
+      expect(value.COHERE_API_KEY).toBeUndefined();
+    });
+
+    it('rejects an unknown reranker', () => {
+      const { error } = retrievalSchemaFull.validate({
+        ...retrievalEnv,
+        RERANK_PROVIDER: 'voyage',
+      });
+
+      expect(error!.message).toContain('RERANK_PROVIDER');
+    });
+
+    // Reranking cannot rescue a candidate the branches never retrieved, and
+    // fusion cannot return more than it was given: the three limits have to
+    // narrow in that order or a run silently returns fewer results than asked.
+    it('keeps SEARCH_TOP_K ≤ SEARCH_FUSED ≤ SEARCH_CANDIDATES', () => {
+      expect(
+        retrievalSchemaFull.validate({
+          ...retrievalEnv,
+          SEARCH_CANDIDATES: 20,
+          SEARCH_FUSED: 50,
+        }).error!.message,
+      ).toContain('SEARCH_FUSED');
+      expect(
+        retrievalSchemaFull.validate({
+          ...retrievalEnv,
+          SEARCH_FUSED: 10,
+          SEARCH_TOP_K: 11,
+        }).error!.message,
+      ).toContain('SEARCH_TOP_K');
+      expect(
+        retrievalSchemaFull.validate({
+          ...retrievalEnv,
+          SEARCH_CANDIDATES: 50,
+          SEARCH_FUSED: 20,
+          SEARCH_TOP_K: 20,
+        }).error,
+      ).toBeUndefined();
+    });
+
+    // Joi applies a default without re-checking it, so plain numeric defaults
+    // would let `SEARCH_CANDIDATES=5` sit next to a fusion window of 10.
+    it('narrows the defaults when a lower candidate count is set', () => {
+      const { error, value } = retrievalSchemaFull.validate({
+        ...retrievalEnv,
+        SEARCH_CANDIDATES: 5,
+      });
+
+      expect(error).toBeUndefined();
+      expect(value.SEARCH_FUSED).toBe(5);
+      expect(value.SEARCH_TOP_K).toBe(5);
+    });
+
+    it('rejects a candidate count outside what one search may scan', () => {
+      expect(
+        retrievalSchemaFull.validate({
+          ...retrievalEnv,
+          SEARCH_CANDIDATES: 0,
+        }).error,
+      ).toBeDefined();
+      expect(
+        retrievalSchemaFull.validate({
+          ...retrievalEnv,
+          SEARCH_CANDIDATES: 201,
+        }).error,
+      ).toBeDefined();
+    });
+
+    it('needs the same embedding model as indexing — the key included', () => {
+      const { VOYAGE_API_KEY: _omitted, ...withoutKey } = retrievalEnv;
+
+      expect(retrievalSchemaFull.validate(withoutKey).error!.message).toContain(
+        'VOYAGE_API_KEY',
+      );
+    });
+
+    it('lets the gateway boot without any SEARCH_* variable', () => {
+      expect(gatewaySchema.validate(validEnv).error).toBeUndefined();
     });
   });
 

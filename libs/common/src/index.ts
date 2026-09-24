@@ -1,5 +1,6 @@
 export * from './auth/auth-context.js';
 export * from './auth/current-user.decorator.js';
+export * from './auth/document-policy.js';
 export * from './auth/jwt-verifier.module.js';
 export * from './auth/roles.decorator.js';
 export * from './auth/roles.guard.js';
@@ -8,6 +9,9 @@ export * from './contracts/auth.patterns.js';
 export * from './contracts/document.events.js';
 export * from './contracts/document.types.js';
 export * from './contracts/ingestion.patterns.js';
+export * from './contracts/retrieval.patterns.js';
 export * from './contracts/rpc-error.js';
+export * from './contracts/search.types.js';
 export * from './dto/auth.dto.js';
 export * from './dto/document.dto.js';
+export * from './dto/search.dto.js';

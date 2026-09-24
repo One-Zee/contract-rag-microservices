@@ -7,4 +7,5 @@ export * from './upload.schema.js';
 export * from './chunking.schema.js';
 export * from './auth.schema.js';
 export * from './embeddings.schema.js';
+export * from './retrieval.schema.js';
 export * from './llm.schema.js';

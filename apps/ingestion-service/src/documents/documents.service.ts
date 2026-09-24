@@ -3,6 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '@app/config';
 import {
   type AuthContext,
+  canManage,
+  canRead,
   DOCUMENT_STATUSES,
   DOCUMENT_VISIBILITIES,
   type DocumentDto,
@@ -23,7 +25,6 @@ import { sniffMimeType } from '../extraction/text-extractor.js';
 import { ProcessingQueue } from '../pipeline/processing-queue.js';
 import { StorageService, storageKeyFor } from '../storage/storage.service.js';
 import { ChunksRepository } from './chunks.repository.js';
-import { canManage, canRead } from './document-policy.js';
 import {
   type DocumentRecord,
   DocumentsRepository,

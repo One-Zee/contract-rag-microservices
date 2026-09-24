@@ -23,7 +23,7 @@ const isRpcErrorShape = (value: unknown): value is RpcErrorShape =>
  * `RpcErrorShape` — a connection refused, a timeout, a crash.
  */
 export function rpcToHttp<T>(
-  service: 'authentication' | 'ingestion' = 'authentication',
+  service: 'authentication' | 'ingestion' | 'retrieval' = 'authentication',
 ): OperatorFunction<T, T> {
   return catchError<T, Observable<never>>((error: unknown) => {
     if (isRpcErrorShape(error)) {

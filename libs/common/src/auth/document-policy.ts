@@ -1,4 +1,5 @@
-import type { AuthContext, DocumentVisibility } from '@app/common';
+import type { DocumentVisibility } from '../contracts/document.types.js';
+import type { AuthContext } from './auth-context.js';
 
 /** The slice of a document record the policy needs. */
 export interface DocumentAccess {
@@ -13,8 +14,14 @@ export interface DocumentAccess {
  *   analyst → every `shared` document, plus their own
  *   admin   → everything
  *
- * `DocumentsRepository.visibilityCondition` is the same rule as SQL for
- * listing; the two must agree, and the documents e2e checks that they do.
+ * `documentVisibilityCondition` in `@app/database` is the same rule as SQL —
+ * used both to list documents and to filter the hybrid search before ranking.
+ * The two must agree, and the documents e2e checks that they do.
+ *
+ * It lives here rather than in a service because two services apply it:
+ * ingestion decides who may read or change a document, retrieval decides whose
+ * chunks may appear in a result. `no-cross-app-imports` makes sharing it any
+ * other way impossible.
  */
 export const isAdmin = (auth: AuthContext): boolean =>
   auth.roles.includes('admin');

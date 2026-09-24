@@ -15,6 +15,8 @@ import { AuthController } from './auth/auth.controller.js';
 import { JwtStrategy } from './auth/jwt.strategy.js';
 import { DocumentsController } from './documents/documents.controller.js';
 import { createUploadOptions } from './documents/upload.options.js';
+import { RetrievalClientModule } from './clients/retrieval-client.module.js';
+import { SearchController } from './search/search.controller.js';
 import { UsersController } from './users/users.controller.js';
 
 @Module({
@@ -30,12 +32,14 @@ import { UsersController } from './users/users.controller.js';
     }),
     AuthClientModule,
     IngestionClientModule,
+    RetrievalClientModule,
   ],
   controllers: [
     HealthController,
     AuthController,
     UsersController,
     DocumentsController,
+    SearchController,
   ],
   providers: [JwtStrategy],
 })
