@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { AppEnvironment } from './enums/app-environment.enum.js';
 import type { EmbeddingProviderName } from './schemas/embeddings.schema.js';
 import type { LlmProvider } from './schemas/llm.schema.js';
+import type { RerankProviderName } from './schemas/retrieval.schema.js';
 
 @Injectable()
 export class AppConfigService {
@@ -51,6 +52,10 @@ export class AppConfigService {
 
   get indexingPort(): number {
     return this.configService.get<number>('INDEXING_PORT', 3003);
+  }
+
+  get retrievalHost(): string {
+    return this.configService.get<string>('RETRIEVAL_HOST', '127.0.0.1');
   }
 
   get retrievalPort(): number {
@@ -186,5 +191,42 @@ export class AppConfigService {
   /** Required by the schema whenever the provider is `voyage`, hence no default. */
   get voyageApiKey(): string {
     return this.configService.getOrThrow<string>('VOYAGE_API_KEY');
+  }
+
+  // ── Hybrid search ──────────────────────────────────────────────────────────
+  get searchCandidates(): number {
+    return this.configService.get<number>('SEARCH_CANDIDATES', 20);
+  }
+
+  get searchFused(): number {
+    return this.configService.get<number>('SEARCH_FUSED', 10);
+  }
+
+  get searchTopK(): number {
+    return this.configService.get<number>('SEARCH_TOP_K', 5);
+  }
+
+  get rrfK(): number {
+    return this.configService.get<number>('RRF_K', 60);
+  }
+
+  get hnswEfSearch(): number {
+    return this.configService.get<number>('HNSW_EF_SEARCH', 100);
+  }
+
+  get rerankProvider(): RerankProviderName {
+    return this.configService.get<RerankProviderName>(
+      'RERANK_PROVIDER',
+      'none',
+    );
+  }
+
+  get rerankModel(): string {
+    return this.configService.get<string>('RERANK_MODEL', 'rerank-v3.5');
+  }
+
+  /** Required by the schema whenever the provider is `cohere`, hence no default. */
+  get cohereApiKey(): string {
+    return this.configService.getOrThrow<string>('COHERE_API_KEY');
   }
 }
