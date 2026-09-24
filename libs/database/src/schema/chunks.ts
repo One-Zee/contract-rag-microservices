@@ -18,7 +18,10 @@ import { documents } from './documents.js';
  *
  * The `tsv` column (`tsvector GENERATED`) and its GIN index are NOT here
  * because Drizzle has no generated columns in the schema — they live in the
- * hand-written migration `migrations/0002_chunks_tsv.sql`. They are not
+ * hand-written migrations `migrations/0002_chunks_tsv.sql` and, since the
+ * hybrid search was built, `migrations/0005_chunks_tsv_english.sql`, which
+ * moved the column from the `simple` configuration to `english` (stemming and
+ * stopwords). Whoever queries it must say `english` too. They are not
  * forgotten.
  */
 export const chunks = pgTable(
