@@ -1,4 +1,4 @@
-import type { AuthContext, UserRoleName } from '@app/common';
+import type { AuthContext, UserRoleName } from './auth-context.js';
 import { canManage, canRead } from './document-policy.js';
 
 const as = (role: UserRoleName, userId = 'u-me'): AuthContext => ({

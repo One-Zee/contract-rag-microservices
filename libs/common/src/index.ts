@@ -1,5 +1,6 @@
 export * from './auth/auth-context.js';
 export * from './auth/current-user.decorator.js';
+export * from './auth/document-policy.js';
 export * from './auth/jwt-verifier.module.js';
 export * from './auth/roles.decorator.js';
 export * from './auth/roles.guard.js';
