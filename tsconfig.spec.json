@@ -11,6 +11,7 @@
     "apps/auth-service/**/*.spec.ts",
     "apps/ingestion-service/**/*.spec.ts",
     "apps/indexing-service/**/*.spec.ts",
+    "apps/retrieval-service/**/*.spec.ts",
     "test/**/*.ts"
   ]
 }

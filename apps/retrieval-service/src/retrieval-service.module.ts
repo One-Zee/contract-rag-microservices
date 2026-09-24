@@ -1,21 +1,43 @@
 import { Module } from '@nestjs/common';
 import {
   AppConfigModule,
+  authSchema,
   baseSchema,
   databaseSchema,
-  llmSchema,
+  embeddingsSchema,
+  retrievalSchema,
 } from '@app/config';
-import { RetrievalServiceController } from './retrieval-service.controller.js';
-import { RetrievalServiceService } from './retrieval-service.service.js';
+import { JwtVerifierModule } from '@app/common';
+import { DrizzleModule } from '@app/database';
+import { EmbeddingsModule } from '@app/embeddings';
+import { RerankModule } from './rerank/rerank.module.js';
+import { SearchController } from './search/search.controller.js';
+import { SearchRepository } from './search/search.repository.js';
+import { SearchService } from './search/search.service.js';
 
+/**
+ * Hybrid search over pgvector and Postgres full-text (database), with the
+ * question embedded by the same model that embedded the chunks (embeddings).
+ * Verifies tokens with the public key only — `JwtVerifierModule`, never the
+ * signing key — because the corpus depends on who is asking.
+ *
+ * No messaging: a search is a question with an answer, not an event.
+ */
 @Module({
-  // Hibridna pretraga nad pgvectorom; treba dimenziju embeddinga za upitni vektor.
   imports: [
     AppConfigModule.forRoot(
-      baseSchema.concat(databaseSchema).concat(llmSchema),
+      baseSchema
+        .concat(authSchema)
+        .concat(databaseSchema)
+        .concat(embeddingsSchema)
+        .concat(retrievalSchema),
     ),
+    JwtVerifierModule,
+    DrizzleModule,
+    EmbeddingsModule,
+    RerankModule,
   ],
-  controllers: [RetrievalServiceController],
-  providers: [RetrievalServiceService],
+  controllers: [SearchController],
+  providers: [SearchService, SearchRepository],
 })
 export class RetrievalServiceModule {}
