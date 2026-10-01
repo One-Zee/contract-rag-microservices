@@ -7,7 +7,7 @@ import { AppConfigService } from './app-config.service.js';
  * The single entry point for environment variables across the monorepo.
  *
  * Each service passes its own schema — `baseSchema` composed with the fragments
- * it actually uses — so `auth-service` boots without S3 keys and `llm-service`
+ * it actually uses — so `auth-service` boots without S3 keys and `api-gateway`
  * boots without `DATABASE_URL`. The composition deliberately lives in the
  * service's module rather than here: `libs/` must not enumerate `apps/`.
  *

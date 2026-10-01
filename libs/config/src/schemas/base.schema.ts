@@ -17,5 +17,6 @@ export const baseSchema = Joi.object({
   INDEXING_PORT: Joi.number().port().default(3003),
   RETRIEVAL_HOST: Joi.string().hostname().default('127.0.0.1'),
   RETRIEVAL_PORT: Joi.number().port().default(3004),
+  LLM_HOST: Joi.string().hostname().default('127.0.0.1'),
   LLM_PORT: Joi.number().port().default(3005),
 });
