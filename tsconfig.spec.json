@@ -12,6 +12,7 @@
     "apps/ingestion-service/**/*.spec.ts",
     "apps/indexing-service/**/*.spec.ts",
     "apps/retrieval-service/**/*.spec.ts",
+    "apps/llm-service/**/*.spec.ts",
     "test/**/*.ts"
   ]
 }

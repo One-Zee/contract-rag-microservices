@@ -8,6 +8,7 @@ import { databaseSchema } from './database.schema.js';
 import { embeddingsSchema } from './embeddings.schema.js';
 import { llmSchema } from './llm.schema.js';
 import { messagingSchema } from './messaging.schema.js';
+import { querySchema } from './query.schema.js';
 import { retrievalSchema } from './retrieval.schema.js';
 import { storageSchema } from './storage.schema.js';
 import { uploadSchema } from './upload.schema.js';
@@ -114,7 +115,7 @@ describe('env validation schemas', () => {
     expect(error).toBeUndefined();
   });
 
-  it('lets llm-service boot without DATABASE_URL or any EMBEDDING_* variable', () => {
+  it('lets llm-service boot without any EMBEDDING_* variable — it never embeds', () => {
     const schema = withOptions(baseSchema.concat(llmSchema));
 
     expect(schema.validate({}).error).toBeUndefined();
@@ -352,6 +353,133 @@ describe('env validation schemas', () => {
 
     it('lets the gateway boot without any SEARCH_* variable', () => {
       expect(gatewaySchema.validate(validEnv).error).toBeUndefined();
+    });
+  });
+
+  describe('llm-service (phase 5)', () => {
+    // The same composition as in apps/llm-service/src/llm-service.module.ts.
+    const llmServiceSchema = withOptions(
+      baseSchema
+        .concat(authSchema)
+        .concat(databaseSchema)
+        .concat(llmSchema)
+        .concat(querySchema),
+    );
+    const llmEnv = {
+      DATABASE_URL: validEnv.DATABASE_URL,
+      JWT_PUBLIC_KEY: validEnv.JWT_PUBLIC_KEY,
+    };
+
+    it('accepts a valid environment and applies the defaults', () => {
+      const { error, value } = llmServiceSchema.validate(llmEnv);
+
+      expect(error).toBeUndefined();
+      expect(value.LLM_HOST).toBe('127.0.0.1');
+      expect(value.LLM_PORT).toBe(3005);
+      expect(value.LLM_PROVIDER).toBe('ollama');
+      expect(value.LLM_MODEL).toBe('llama3.1:8b');
+      expect(value.OLLAMA_BASE_URL).toBe('http://127.0.0.1:11434');
+      expect(value.LLM_MAX_TOKENS).toBe(1024);
+      expect(value.LLM_IDLE_TIMEOUT_MS).toBe(60_000);
+      expect(value.QUERY_CONTEXT_CHUNKS).toBe(5);
+      expect(value.QUERY_MIN_SIMILARITY).toBe(0);
+      expect(value.QUERY_CONTEXT_MAX_TOKENS).toBe(6000);
+      expect(value.QUERY_HISTORY_PAGE_SIZE).toBe(20);
+    });
+
+    // Phase 5 gave llm-service the query log, so it now owns database rows.
+    // Before that it reached the database only through retrieval-service.
+    it('refuses to boot without DATABASE_URL — it writes the query log', () => {
+      const { JWT_PUBLIC_KEY } = llmEnv;
+      const { error } = llmServiceSchema.validate({ JWT_PUBLIC_KEY });
+
+      expect(error!.message).toContain('DATABASE_URL');
+    });
+
+    it('requires ANTHROPIC_API_KEY when the provider is anthropic, but not otherwise', () => {
+      expect(
+        llmServiceSchema.validate({ ...llmEnv, LLM_PROVIDER: 'anthropic' })
+          .error!.message,
+      ).toContain('ANTHROPIC_API_KEY');
+      expect(
+        llmServiceSchema.validate({
+          ...llmEnv,
+          LLM_PROVIDER: 'anthropic',
+          ANTHROPIC_API_KEY: 'sk-ant-test-key',
+        }).error,
+      ).toBeUndefined();
+      expect(
+        llmServiceSchema.validate(llmEnv).value.ANTHROPIC_API_KEY,
+      ).toBeUndefined();
+    });
+
+    it('defaults the model to the one the chosen provider serves', () => {
+      expect(
+        llmServiceSchema.validate({
+          ...llmEnv,
+          LLM_PROVIDER: 'anthropic',
+          ANTHROPIC_API_KEY: 'sk-ant-test-key',
+        }).value.LLM_MODEL,
+      ).toBe('claude-haiku-4-5');
+      expect(
+        llmServiceSchema.validate({ ...llmEnv, LLM_PROVIDER: 'fake' }).value
+          .LLM_MODEL,
+      ).toBe('fake-legal-assistant');
+      expect(
+        llmServiceSchema.validate({ ...llmEnv, LLM_MODEL: 'llama3.2:3b' }).value
+          .LLM_MODEL,
+      ).toBe('llama3.2:3b');
+    });
+
+    it('refuses the fake provider in production', () => {
+      const { error } = llmServiceSchema.validate({
+        ...llmEnv,
+        NODE_ENV: AppEnvironment.PRODUCTION,
+        LLM_PROVIDER: 'fake',
+      });
+
+      expect(error).toBeDefined();
+      expect(error!.message).toContain('LLM_PROVIDER');
+    });
+
+    it('rejects a provider that has no client', () => {
+      const { error } = llmServiceSchema.validate({
+        ...llmEnv,
+        LLM_PROVIDER: 'openai',
+      });
+
+      expect(error!.message).toContain('LLM_PROVIDER');
+    });
+
+    // Not every model accepts the parameter, so an unset value has to mean
+    // "omit the field", which only works if Joi leaves it unset.
+    it('leaves LLM_TEMPERATURE unset rather than defaulting it to zero', () => {
+      const { value } = llmServiceSchema.validate(llmEnv);
+
+      expect(value.LLM_TEMPERATURE).toBeUndefined();
+      expect(
+        llmServiceSchema.validate({ ...llmEnv, LLM_TEMPERATURE: '0' }).value
+          .LLM_TEMPERATURE,
+      ).toBe(0);
+      expect(
+        llmServiceSchema.validate({ ...llmEnv, LLM_TEMPERATURE: 3 }).error,
+      ).toBeDefined();
+    });
+
+    it('keeps the abstention threshold inside a cosine similarity', () => {
+      expect(
+        llmServiceSchema.validate({ ...llmEnv, QUERY_MIN_SIMILARITY: 1.5 })
+          .error,
+      ).toBeDefined();
+      expect(
+        llmServiceSchema.validate({ ...llmEnv, QUERY_MIN_SIMILARITY: '0.35' })
+          .value.QUERY_MIN_SIMILARITY,
+      ).toBe(0.35);
+    });
+
+    it('lets the gateway boot without any LLM_* or QUERY_* variable beyond the transport', () => {
+      expect(gatewaySchema.validate(validEnv).error).toBeUndefined();
+      expect(gatewaySchema.validate(validEnv).value.LLM_HOST).toBe('127.0.0.1');
     });
   });
 

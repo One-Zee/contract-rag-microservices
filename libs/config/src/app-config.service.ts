@@ -62,6 +62,10 @@ export class AppConfigService {
     return this.configService.get<number>('RETRIEVAL_PORT', 3004);
   }
 
+  get llmHost(): string {
+    return this.configService.get<string>('LLM_HOST', '127.0.0.1');
+  }
+
   get llmPort(): number {
     return this.configService.get<number>('LLM_PORT', 3005);
   }
@@ -167,6 +171,64 @@ export class AppConfigService {
   // ── AI layer ───────────────────────────────────────────────────────────────
   get llmProvider(): LlmProvider {
     return this.configService.get<LlmProvider>('LLM_PROVIDER', 'ollama');
+  }
+
+  get llmModel(): string {
+    return this.configService.getOrThrow<string>('LLM_MODEL');
+  }
+
+  /** Required by the schema whenever the provider is `anthropic`, hence no default. */
+  get anthropicApiKey(): string {
+    return this.configService.getOrThrow<string>('ANTHROPIC_API_KEY');
+  }
+
+  get anthropicVersion(): string {
+    return this.configService.get<string>('ANTHROPIC_VERSION', '2023-06-01');
+  }
+
+  get ollamaBaseUrl(): string {
+    return this.configService.get<string>(
+      'OLLAMA_BASE_URL',
+      'http://127.0.0.1:11434',
+    );
+  }
+
+  get llmMaxTokens(): number {
+    return this.configService.get<number>('LLM_MAX_TOKENS', 1024);
+  }
+
+  /** `undefined` means "do not send the field" — not every model accepts it. */
+  get llmTemperature(): number | undefined {
+    return this.configService.get<number>('LLM_TEMPERATURE');
+  }
+
+  get llmIdleTimeoutMs(): number {
+    return this.configService.get<number>('LLM_IDLE_TIMEOUT_MS', 60_000);
+  }
+
+  get llmCostInputPerMTok(): number {
+    return this.configService.get<number>('LLM_COST_INPUT_PER_MTOK', 0);
+  }
+
+  get llmCostOutputPerMTok(): number {
+    return this.configService.get<number>('LLM_COST_OUTPUT_PER_MTOK', 0);
+  }
+
+  // ── Query pipeline ─────────────────────────────────────────────────────────
+  get queryContextChunks(): number {
+    return this.configService.get<number>('QUERY_CONTEXT_CHUNKS', 5);
+  }
+
+  get queryMinSimilarity(): number {
+    return this.configService.get<number>('QUERY_MIN_SIMILARITY', 0);
+  }
+
+  get queryContextMaxTokens(): number {
+    return this.configService.get<number>('QUERY_CONTEXT_MAX_TOKENS', 6000);
+  }
+
+  get queryHistoryPageSize(): number {
+    return this.configService.get<number>('QUERY_HISTORY_PAGE_SIZE', 20);
   }
 
   get embeddingProvider(): EmbeddingProviderName {
