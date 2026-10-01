@@ -43,6 +43,13 @@
       "when": 1790093810252,
       "tag": "0005_chunks_tsv_english",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790709860100,
+      "tag": "0006_query_log",
+      "breakpoints": true
     }
   ]
 }
