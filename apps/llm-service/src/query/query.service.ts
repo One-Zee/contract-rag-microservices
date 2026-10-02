@@ -1,5 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { ClientProxy } from '@nestjs/microservices';
+import {
+  type Attributes,
+  type Span,
+  SpanKind,
+  SpanStatusCode,
+} from '@opentelemetry/api';
 import { firstValueFrom } from 'rxjs';
 import {
   RETRIEVAL_PATTERNS,
@@ -18,12 +24,14 @@ import {
   type SearchRpcPayload,
 } from '@app/common';
 import { AppConfigService } from '@app/config';
+import { getTracer, iterateInSpan } from '@app/telemetry';
 import { RETRIEVAL_CLIENT } from '../clients/retrieval-client.module.js';
 import { LLM, LlmError, type LlmProvider } from '../llm/llm-provider.js';
 import { extractMarkers, validateCitations } from '../prompt/citations.js';
 import { buildContext, buildPrompt } from '../prompt/context-block.js';
 import { ABSTENTION_SENTENCE, SYSTEM_PROMPT } from '../prompt/system-prompt.js';
 import { QueryCancellationRegistry } from './cancellation.registry.js';
+import { queryInstruments } from './query.metrics.js';
 import { QueryRepository } from './query.repository.js';
 import { sanitizeQuestion } from './sanitize.js';
 
@@ -49,6 +57,15 @@ interface Pipeline {
     retrievalMs: number;
     rerankMs: number;
   };
+}
+
+/** What is known about a model call when it ends, however it ends. */
+interface ModelCall {
+  tokensIn: number;
+  tokensOut: number;
+  finishReason: string | null;
+  failure: LlmError | null;
+  cancelled: boolean;
 }
 
 interface Outcome {
@@ -219,7 +236,7 @@ export class QueryService {
   }
 
   /**
-   * plan §8.3: "ako nijedan segment ne prelazi prag sličnosti, model mora reći
+   * plan"ako nijedan segment ne prelazi prag sličnosti, model mora reći
    * da nema podatak". Decided here, before the model is called, so an
    * unanswerable question costs nothing and always abstains the same way.
    */
@@ -269,6 +286,9 @@ export class QueryService {
   ): AsyncGenerator<QueryStreamEvent> {
     const signal = this.cancellations.register(pipeline.queryId);
     const llmStartedAt = performance.now();
+    const call = this.callAttributes();
+    const span = this.startModelCall(call, pipeline);
+    let firstToken = true;
 
     let answer = '';
     let tokensIn = 0;
@@ -277,19 +297,32 @@ export class QueryService {
     let failure: LlmError | null = null;
 
     try {
-      const stream = this.llm.stream(
-        {
-          system: SYSTEM_PROMPT,
-          prompt: buildPrompt(pipeline.block, pipeline.question),
-          maxTokens: this.config.llmMaxTokens,
-          temperature: this.config.llmTemperature,
-        },
-        signal,
+      // Iterated with the span active, so the provider's request is its child
+      // even though this generator yields between fragments.
+      const stream = iterateInSpan(
+        span,
+        this.llm.stream(
+          {
+            system: SYSTEM_PROMPT,
+            prompt: buildPrompt(pipeline.block, pipeline.question),
+            maxTokens: this.config.llmMaxTokens,
+            temperature: this.config.llmTemperature,
+          },
+          signal,
+        ),
       );
 
       for await (const chunk of stream) {
         switch (chunk.type) {
           case 'text':
+            if (firstToken) {
+              firstToken = false;
+              span.addEvent('first_token');
+              queryInstruments().timeToFirstToken.record(
+                (performance.now() - llmStartedAt) / 1000,
+                call,
+              );
+            }
             answer += chunk.text;
             yield { type: 'token', data: { text: chunk.text } };
             break;
@@ -314,6 +347,15 @@ export class QueryService {
             );
     } finally {
       this.cancellations.release(pipeline.queryId);
+      // In `finally`: a consumer that stops iterating ends the generator here,
+      // and the span must not be left open.
+      this.endModelCall(span, call, llmStartedAt, {
+        tokensIn,
+        tokensOut,
+        finishReason,
+        failure,
+        cancelled: signal.aborted,
+      });
     }
 
     const llmMs = elapsed(llmStartedAt);
@@ -380,6 +422,75 @@ export class QueryService {
     });
   }
 
+  /** Who answered, in the GenAI conventions' terms — shared by span and metrics. */
+  private callAttributes(): Attributes {
+    return {
+      'gen_ai.operation.name': 'chat',
+      'gen_ai.provider.name': this.llm.name,
+      'gen_ai.request.model': this.llm.model,
+    };
+  }
+
+  /**
+   * A span per model call. Its attributes describe the call and never its
+   * content: the prompt quotes the contract (ADR 016).
+   */
+  private startModelCall(call: Attributes, pipeline: Pipeline): Span {
+    const temperature = this.config.llmTemperature;
+    return getTracer().startSpan(`chat ${this.llm.model}`, {
+      kind: SpanKind.CLIENT,
+      attributes: {
+        ...call,
+        'gen_ai.request.max_tokens': this.config.llmMaxTokens,
+        ...(temperature === undefined
+          ? {}
+          : { 'gen_ai.request.temperature': temperature }),
+        'clauseiq.query.context_chunks': pipeline.used.length,
+      },
+    });
+  }
+
+  private endModelCall(
+    span: Span,
+    call: Attributes,
+    startedAt: number,
+    { tokensIn, tokensOut, finishReason, failure, cancelled }: ModelCall,
+  ): void {
+    span.setAttributes({
+      'gen_ai.usage.input_tokens': tokensIn,
+      'gen_ai.usage.output_tokens': tokensOut,
+      'gen_ai.response.finish_reasons': [
+        finishReason ??
+          (cancelled ? 'cancelled' : failure ? 'error' : 'unfinished'),
+      ],
+    });
+    // A cancelled call is the user leaving, not the provider failing.
+    if (failure && !cancelled) {
+      span.setStatus({ code: SpanStatusCode.ERROR, message: failure.message });
+    }
+    span.end();
+
+    const instruments = queryInstruments();
+    instruments.operationDuration.record(
+      (performance.now() - startedAt) / 1000,
+      failure
+        ? { ...call, 'error.type': cancelled ? 'cancelled' : 'provider_error' }
+        : call,
+    );
+    if (tokensIn > 0) {
+      instruments.tokenUsage.record(tokensIn, {
+        ...call,
+        'gen_ai.token.type': 'input',
+      });
+    }
+    if (tokensOut > 0) {
+      instruments.tokenUsage.record(tokensOut, {
+        ...call,
+        'gen_ai.token.type': 'output',
+      });
+    }
+  }
+
   /**
    * Completes the `queries` row, then renders the `done` event from the same
    * numbers. Awaited rather than fired off: `done` is the client's signal that
@@ -390,7 +501,12 @@ export class QueryService {
     pipeline: Pipeline,
     outcome: Outcome,
   ): Promise<QueryStreamEvent> {
-    await this.complete(pipeline, outcome.status, outcome.llmMs);
+    await this.complete(
+      pipeline,
+      outcome.status,
+      outcome.llmMs,
+      outcome.abstainReason,
+    );
 
     const timings: QueryTimingsDto = {
       ...pipeline.retrievalTimings,
@@ -484,7 +600,14 @@ export class QueryService {
     pipeline: Pipeline,
     status: QueryStatus,
     llmMs: number,
+    abstainReason: AbstainReason | null = null,
   ): Promise<void> {
+    queryInstruments().outcomes.add(1, {
+      'clauseiq.query.status': status,
+      ...(abstainReason
+        ? { 'clauseiq.query.abstain_reason': abstainReason }
+        : {}),
+    });
     try {
       await this.repository.completeQuery(pipeline.queryId, {
         status,

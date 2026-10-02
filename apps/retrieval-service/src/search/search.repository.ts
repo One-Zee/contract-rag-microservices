@@ -18,6 +18,7 @@ import {
   DRIZZLE,
   type DrizzleDatabase,
 } from '@app/database';
+import { withSpan } from '@app/telemetry';
 
 /** The text search configuration migration 0005 sealed into the `tsv` column. */
 export const TEXT_SEARCH_CONFIG = 'english';
@@ -63,7 +64,6 @@ export class SearchRepository {
    * Three conditions, and each one is load-bearing:
    *  - visibility, applied here rather than to the results, so a reader gets
    *    `k` chunks they may see instead of whatever survives a later filter
-   *    (plan §8.4);
    *  - `embedding IS NOT NULL`, so the two branches draw from one population —
    *    fusing ranks from different corpora would compare positions that mean
    *    different things. A document still being indexed is simply not
@@ -115,14 +115,28 @@ export class SearchRepository {
       const distance = cosineDistance(chunks.embedding, embedding);
       const similarity = sql<number>`1 - (${cosineDistance(chunks.embedding, embedding)})`;
 
+      // Named spans around each branch: in a trace the two SELECTs would
+      // otherwise be indistinguishable, and their real split is exactly what
+      // `timings` can only estimate.
       const vector = options.vector
-        ? await tx
-            .select({ chunkId: chunks.id, score: similarity })
-            .from(chunks)
-            .innerJoin(documents, eq(documents.id, chunks.documentId))
-            .where(this.corpus(options.viewer, options.documentId))
-            .orderBy(asc(distance))
-            .limit(options.limit)
+        ? await withSpan(
+            'search.vector',
+            {
+              'clauseiq.search.limit': options.limit,
+              'clauseiq.search.ef_search': options.efSearch,
+            },
+            async (span) => {
+              const hits = await tx
+                .select({ chunkId: chunks.id, score: similarity })
+                .from(chunks)
+                .innerJoin(documents, eq(documents.id, chunks.documentId))
+                .where(this.corpus(options.viewer, options.documentId))
+                .orderBy(asc(distance))
+                .limit(options.limit);
+              span.setAttribute('clauseiq.search.hits', hits.length);
+              return hits;
+            },
+          )
         : [];
 
       // `plainto_tsquery` takes the question as plain text — it ANDs the
@@ -132,18 +146,26 @@ export class SearchRepository {
       const rank = sql<number>`ts_rank_cd(${TSV}, ${tsQuery})`;
 
       const lexical = options.lexical
-        ? await tx
-            .select({ chunkId: chunks.id, score: rank })
-            .from(chunks)
-            .innerJoin(documents, eq(documents.id, chunks.documentId))
-            .where(
-              and(
-                this.corpus(options.viewer, options.documentId),
-                sql`${TSV} @@ ${tsQuery}`,
-              ),
-            )
-            .orderBy(desc(rank))
-            .limit(options.limit)
+        ? await withSpan(
+            'search.lexical',
+            { 'clauseiq.search.limit': options.limit },
+            async (span) => {
+              const hits = await tx
+                .select({ chunkId: chunks.id, score: rank })
+                .from(chunks)
+                .innerJoin(documents, eq(documents.id, chunks.documentId))
+                .where(
+                  and(
+                    this.corpus(options.viewer, options.documentId),
+                    sql`${TSV} @@ ${tsQuery}`,
+                  ),
+                )
+                .orderBy(desc(rank))
+                .limit(options.limit);
+              span.setAttribute('clauseiq.search.hits', hits.length);
+              return hits;
+            },
+          )
         : [];
 
       return { vector, lexical };
