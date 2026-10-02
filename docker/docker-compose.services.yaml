@@ -1,0 +1,128 @@
+# The six services in containers, all from one image (ADR 020).
+#
+#   npm run stack:up     builds the image, then infrastructure + observability
+#                        + migrate + these six, and waits until all are healthy
+#   npm run stack:down
+#
+# Merged over docker-compose.yaml (and the observability file), which is where
+# `postgres`, `rabbitmq`, `minio` and `jaeger` come from.
+#
+# Not alongside `npm run dev`: both want port 3000, and two indexing-services
+# would compete for the same queue. Not alongside the monolith either — same
+# port, same queue.
+
+x-app: &app
+  image: clauseiq:local
+  pull_policy: never
+  init: true
+  restart: unless-stopped
+  # Secrets and settings from the same .env the local processes use, then the
+  # topology from stack.env over them (service names instead of localhost).
+  # .env is optional so that `docker compose config` works where there is none
+  # (CI); the npm scripts pass `--env-file .env`, which fails loudly when it is
+  # missing.
+  env_file:
+    - path: ../.env
+      required: false
+    - path: stack.env
+  extra_hosts: ['host.docker.internal:host-gateway']
+  # The same budget for every service; the monolith gets six of them
+  # (docker-compose.monolith.yaml), so the two topologies are compared on equal
+  # resources. The final figures are phase 7's methodology, not these defaults.
+  deploy:
+    resources:
+      limits:
+        cpus: '${SERVICE_CPUS:-0.5}'
+        memory: ${SERVICE_MEMORY:-512M}
+  depends_on:
+    migrate: { condition: service_completed_successfully }
+    postgres: { condition: service_healthy }
+    rabbitmq: { condition: service_healthy }
+    minio: { condition: service_healthy }
+
+# A TCP service is healthy once its listener accepts a connection. The check
+# runs inside the container, against the name the service bound to.
+x-tcp-check: &tcp-check
+  interval: 5s
+  timeout: 3s
+  retries: 20
+
+services:
+  migrate:
+    image: clauseiq:local
+    pull_policy: never
+    command: ['node', 'docker/migrate.mjs']
+    env_file: [{ path: stack.env }]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: 'no'
+
+  api-gateway:
+    <<: *app
+    command: ['node', 'dist/apps/api-gateway/main.js']
+    # The only port published, and only on the loopback interface.
+    ports: ['127.0.0.1:3000:3000']
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:' + (process.env.GATEWAY_PORT || 3000) + '/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      <<: *tcp-check
+
+  auth-service:
+    <<: *app
+    command: ['node', 'dist/apps/auth-service/main.js']
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('net').connect(+(process.env.AUTH_PORT || 3001), process.env.AUTH_HOST).on('connect', () => process.exit(0)).on('error', () => process.exit(1))"
+      <<: *tcp-check
+
+  ingestion-service:
+    <<: *app
+    command: ['node', 'dist/apps/ingestion-service/main.js']
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('net').connect(+(process.env.INGESTION_PORT || 3002), process.env.INGESTION_HOST).on('connect', () => process.exit(0)).on('error', () => process.exit(1))"
+      <<: *tcp-check
+
+  # No listener of its own — it consumes a queue — so the check is its
+  # metrics endpoint, which exists because this file turns metrics on.
+  indexing-service:
+    <<: *app
+    command: ['node', 'dist/apps/indexing-service/main.js']
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:9464/metrics').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      <<: *tcp-check
+
+  retrieval-service:
+    <<: *app
+    command: ['node', 'dist/apps/retrieval-service/main.js']
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('net').connect(+(process.env.RETRIEVAL_PORT || 3004), process.env.RETRIEVAL_HOST).on('connect', () => process.exit(0)).on('error', () => process.exit(1))"
+      <<: *tcp-check
+
+  llm-service:
+    <<: *app
+    command: ['node', 'dist/apps/llm-service/main.js']
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('net').connect(+(process.env.LLM_PORT || 3005), process.env.LLM_HOST).on('connect', () => process.exit(0)).on('error', () => process.exit(1))"
+      <<: *tcp-check
