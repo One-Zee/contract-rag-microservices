@@ -12,6 +12,7 @@ import {
 import { JwtVerifierModule } from '@app/common';
 import { DrizzleModule } from '@app/database';
 import { MessagingModule } from '@app/messaging';
+import { TelemetryModule } from '@app/telemetry';
 import { ChunksRepository } from './documents/chunks.repository.js';
 import { DocumentsController } from './documents/documents.controller.js';
 import { DocumentsRepository } from './documents/documents.repository.js';
@@ -37,6 +38,7 @@ import { StorageModule } from './storage/storage.module.js';
         .concat(uploadSchema)
         .concat(chunkingSchema),
     ),
+    TelemetryModule,
     JwtVerifierModule,
     DrizzleModule,
     StorageModule,

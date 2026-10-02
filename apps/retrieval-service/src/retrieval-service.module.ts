@@ -10,6 +10,7 @@ import {
 import { JwtVerifierModule } from '@app/common';
 import { DrizzleModule } from '@app/database';
 import { EmbeddingsModule } from '@app/embeddings';
+import { TelemetryModule } from '@app/telemetry';
 import { RerankModule } from './rerank/rerank.module.js';
 import { SearchController } from './search/search.controller.js';
 import { SearchRepository } from './search/search.repository.js';
@@ -32,6 +33,7 @@ import { SearchService } from './search/search.service.js';
         .concat(embeddingsSchema)
         .concat(retrievalSchema),
     ),
+    TelemetryModule,
     JwtVerifierModule,
     DrizzleModule,
     EmbeddingsModule,

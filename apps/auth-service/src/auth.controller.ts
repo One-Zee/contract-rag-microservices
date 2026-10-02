@@ -15,6 +15,7 @@ import {
   type UserDto,
 } from '@app/common';
 import { AuthService } from './auth.service.js';
+import { RegistrationOpenGuard } from './registration-open.guard.js';
 
 /**
  * TCP handlers. The service has no HTTP layer — the only way in is
@@ -30,6 +31,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @MessagePattern(AUTH_PATTERNS.REGISTER)
+  @UseGuards(RegistrationOpenGuard)
   register(@Payload() dto: RegisterDto): Promise<AuthTokensDto> {
     return this.authService.register(dto);
   }

@@ -51,5 +51,8 @@ export const configureAuthEnv = () => {
   process.env.JWT_EXPIRES_IN = '15m';
   process.env.AUTH_HOST = '127.0.0.1';
   process.env.AUTH_PORT = String(authPort);
+  // Every suite registers and logs in far more often than the strict budget
+  // allows from one address; the throttler is not what these suites test.
+  process.env.THROTTLE_ENABLED = 'false';
   return { keys, authPort };
 };

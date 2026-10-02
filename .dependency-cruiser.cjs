@@ -24,6 +24,31 @@ module.exports = {
       to: { path: '^apps/' },
     },
     {
+      name: 'nothing-imports-the-monolith',
+      comment:
+        'The monolith is a composition of the services (ADR 021), never ' +
+        'something a service or a library may use.',
+      severity: 'error',
+      from: { path: '^(apps|libs)/' },
+      to: { path: '^monolith/' },
+    },
+    {
+      name: 'monolith-composes-modules-only',
+      comment:
+        "The monolith may import a service's root module and the gateway's HTTP " +
+        'setup, never what is inside a service — it is the same modules over ' +
+        'another transport, not a fork of them (ADR 021).',
+      severity: 'error',
+      from: { path: '^monolith/' },
+      to: {
+        path: '^apps/',
+        pathNot: [
+          '^apps/[^/]+/src/[^/]+\\.module\\.ts$',
+          '^apps/api-gateway/src/http-app\\.ts$',
+        ],
+      },
+    },
+    {
       name: 'no-circular',
       severity: 'error',
       comment:

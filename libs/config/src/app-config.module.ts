@@ -17,7 +17,24 @@ import { AppConfigService } from './app-config.service.js';
 @Global()
 @Module({})
 export class AppConfigModule {
-  static forRoot(validationSchema: ObjectSchema): DynamicModule {
+  private static processSchema: ObjectSchema | undefined;
+
+  /**
+   * For a process that composes several services' root modules — the
+   * monolith — and must be called before those modules are imported.
+   *
+   * Each root module calls `forRoot` with its own fragments, but
+   * `@nestjs/config` keeps a single validated configuration per process, and
+   * every `forRoot` overwrites it: whichever module loads last decides how
+   * every value is typed. With a process schema, every call validates the same
+   * complete schema, so the order stops mattering. A service never calls this.
+   */
+  static useProcessSchema(schema: ObjectSchema): void {
+    AppConfigModule.processSchema = schema;
+  }
+
+  static forRoot(serviceSchema: ObjectSchema): DynamicModule {
+    const validationSchema = AppConfigModule.processSchema ?? serviceSchema;
     return {
       module: AppConfigModule,
       imports: [

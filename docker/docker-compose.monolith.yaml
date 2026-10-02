@@ -1,0 +1,54 @@
+# The monolith  the same image as the six services, one process.
+#
+#   npm run monolith:up     builds the image, then infrastructure + observability
+#                           + migrate + the monolith, and waits until healthy
+#   npm run monolith:down
+#
+# Merged over docker-compose.yaml and the observability file, like
+# docker-compose.services.yaml — and never together with it: both answer on
+# 127.0.0.1:3000 and consume the same queue.
+
+services:
+  migrate:
+    image: clauseiq:local
+    pull_policy: never
+    command: ['node', 'docker/migrate.mjs']
+    env_file: [{ path: stack.env }]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: 'no'
+
+  monolith:
+    image: clauseiq:local
+    pull_policy: never
+    init: true
+    restart: unless-stopped
+    command: ['node', 'dist/monolith/main.js']
+    # The same two sources as each of the six services.
+    env_file:
+      - path: ../.env
+        required: false
+      - path: stack.env
+    extra_hosts: ['host.docker.internal:host-gateway']
+    # Six services' budget in one container: SERVICE_CPUS and SERVICE_MEMORY
+    # of docker-compose.services.yaml, times six. Change them together.
+    deploy:
+      resources:
+        limits:
+          cpus: '${MONOLITH_CPUS:-3}'
+          memory: ${MONOLITH_MEMORY:-3G}
+    ports: ['127.0.0.1:3000:3000']
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      postgres: { condition: service_healthy }
+      rabbitmq: { condition: service_healthy }
+      minio: { condition: service_healthy }
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:' + (process.env.GATEWAY_PORT || 3000) + '/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 5s
+      timeout: 3s
+      retries: 20

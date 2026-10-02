@@ -11,5 +11,6 @@
     "tsBuildInfoFile": "../../dist/libs/telemetry/tsconfig.lib.tsbuildinfo"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"],
+  "references": [{ "path": "../config/tsconfig.lib.json" }]
 }

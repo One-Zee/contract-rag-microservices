@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AppConfigService } from '@app/config';
 import { type DocumentStatus, documentChunkedEvent } from '@app/common';
 import { EventPublisher } from '@app/messaging';
+import { withSpan } from '@app/telemetry';
 import { chunkText } from '../chunking/chunker.js';
 import { assembleDocumentText } from '../chunking/document-text.js';
 import { ChunksRepository } from '../documents/chunks.repository.js';
@@ -55,7 +56,20 @@ export class IngestionPipeline {
     private readonly config: AppConfigService,
   ) {}
 
-  async process(documentId: string): Promise<void> {
+  /**
+   * A span of its own: an upload's run continues the request's trace, but the
+   * queue also re-runs documents at boot, outside any request — and without a
+   * parent their queries would not be traced at all.
+   */
+  process(documentId: string): Promise<void> {
+    return withSpan(
+      'ingestion.document',
+      { 'clauseiq.document.id': documentId },
+      () => this.run(documentId),
+    );
+  }
+
+  private async run(documentId: string): Promise<void> {
     const document = await this.documents.findById(documentId);
     if (!document) {
       this.logger.warn(`Document ${documentId} vanished before processing`);
@@ -76,12 +90,26 @@ export class IngestionPipeline {
 
     try {
       const bytes = await this.storage.get(document.storageKey);
-      const extracted = await this.extraction.extract(bytes, document.mimeType);
-      const { text, pages } = assembleDocumentText(extracted);
-      const drafts = chunkText(text, {
-        chunkSize: this.config.chunkSizeTokens,
-        chunkOverlap: this.config.chunkOverlapTokens,
-        pages,
+      // Extraction and chunking are CPU and nothing else — no query, no
+      // request — so without these two spans they would be a gap between the
+      // S3 read and the INSERT.
+      const extracted = await withSpan(
+        'ingestion.extract',
+        {
+          'clauseiq.document.mime_type': document.mimeType,
+          'clauseiq.document.bytes': bytes.length,
+        },
+        () => this.extraction.extract(bytes, document.mimeType),
+      );
+      const drafts = await withSpan('ingestion.chunk', {}, (span) => {
+        const { text, pages } = assembleDocumentText(extracted);
+        const result = chunkText(text, {
+          chunkSize: this.config.chunkSizeTokens,
+          chunkOverlap: this.config.chunkOverlapTokens,
+          pages,
+        });
+        span.setAttribute('clauseiq.document.chunks', result.length);
+        return result;
       });
       if (drafts.length === 0) {
         throw new NoExtractableTextError();

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule } from '@nestjs/microservices';
 import { AppConfigModule, AppConfigService } from '@app/config';
+import { rpcClient } from '@app/rpc';
 
 export const LLM_CLIENT = 'LLM_CLIENT';
 
@@ -11,10 +12,8 @@ export const LLM_CLIENT = 'LLM_CLIENT';
         name: LLM_CLIENT,
         imports: [AppConfigModule],
         inject: [AppConfigService],
-        useFactory: (config: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: { host: config.llmHost, port: config.llmPort },
-        }),
+        useFactory: (config: AppConfigService) =>
+          rpcClient({ host: config.llmHost, port: config.llmPort }),
       },
     ]),
   ],

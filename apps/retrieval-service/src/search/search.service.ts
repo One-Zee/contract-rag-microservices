@@ -8,6 +8,7 @@ import {
   type SearchResultsDto,
 } from '@app/common';
 import { EMBEDDINGS, type EmbeddingProvider } from '@app/embeddings';
+import { withSpan } from '@app/telemetry';
 import {
   RERANKER,
   type RerankCandidate,
@@ -75,7 +76,15 @@ export class SearchService {
     // retrieval quality silently (ADR 012).
     const embeddingStartedAt = performance.now();
     const embedding = wantsVector
-      ? (await this.embeddings.embed([query], 'query')).vectors[0]
+      ? await withSpan(
+          'search.embed',
+          {
+            'clauseiq.embedding.provider': this.embeddings.name,
+            'clauseiq.embedding.model': this.embeddings.model,
+          },
+          async () =>
+            (await this.embeddings.embed([query], 'query')).vectors[0],
+        )
       : [];
     const embeddingMs = wantsVector ? elapsed(embeddingStartedAt) : 0;
 
@@ -181,7 +190,14 @@ export class SearchService {
     }
 
     try {
-      const ranking = await this.reranker.rerank(query, candidates, limit);
+      const ranking = await withSpan(
+        'search.rerank',
+        {
+          'clauseiq.rerank.provider': this.reranker.name,
+          'clauseiq.rerank.candidates': candidates.length,
+        },
+        () => this.reranker.rerank(query, candidates, limit),
+      );
       return { ranking, reranker: this.reranker.name };
     } catch (error) {
       this.logger.warn(

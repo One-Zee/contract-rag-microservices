@@ -29,6 +29,8 @@
       "@app/embeddings/*": ["./libs/embeddings/src/*"],
       "@app/messaging": ["./libs/messaging/src/index.ts"],
       "@app/messaging/*": ["./libs/messaging/src/*"],
+      "@app/rpc": ["./libs/rpc/src/index.ts"],
+      "@app/rpc/*": ["./libs/rpc/src/*"],
       "@app/telemetry": ["./libs/telemetry/src/index.ts"],
       "@app/telemetry/*": ["./libs/telemetry/src/*"]
     }
@@ -57,6 +59,9 @@
       "path": "./apps/llm-service/tsconfig.app.json"
     },
     {
+      "path": "./monolith/tsconfig.app.json"
+    },
+    {
       "path": "./libs/common/tsconfig.lib.json"
     },
     {
@@ -70,6 +75,9 @@
     },
     {
       "path": "./libs/messaging/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/rpc/tsconfig.lib.json"
     },
     {
       "path": "./libs/telemetry/tsconfig.lib.json"

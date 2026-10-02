@@ -12,6 +12,8 @@ import {
   type EmbeddingProvider,
 } from '@app/embeddings';
 import { EventPublisher } from '@app/messaging';
+import { getMeter, withSpan } from '@app/telemetry';
+import type { Counter } from '@opentelemetry/api';
 import { ChunksRepository } from './chunks.repository.js';
 import { DocumentsRepository } from './documents.repository.js';
 
@@ -42,6 +44,18 @@ const describeError = (error: unknown): string => {
     error instanceof Error ? `${error.name}: ${error.message}` : String(error);
   return message.slice(0, ERROR_MESSAGE_MAX);
 };
+
+let embeddedChunks: Counter | undefined;
+
+/**
+ * Chunks that received a vector — with the depth of the `indexing` queue, how
+ * a dashboard shows whether indexing keeps up. Created on first use,
+ * after the SDK has started, never at import.
+ */
+const embeddedChunksCounter = (): Counter =>
+  (embeddedChunks ??= getMeter().createCounter('clauseiq.indexing.chunks', {
+    description: 'Chunks that received a vector',
+  }));
 
 const isPermanent = (error: unknown): boolean =>
   error instanceof NoChunksError ||
@@ -88,9 +102,17 @@ export class DocumentIndexer implements OnApplicationShutdown {
         this.skip(documentId, 'already being indexed by this process'),
       );
     }
-    const run = this.run(documentId).finally(() =>
-      this.inFlight.delete(documentId),
-    );
+    // A span of its own, for the same reason as ingestion's: the boot sweep
+    // indexes documents outside any consumed message.
+    const run = withSpan(
+      'indexing.document',
+      { 'clauseiq.document.id': documentId },
+      async (span) => {
+        const outcome = await this.run(documentId);
+        span.setAttribute('clauseiq.indexing.outcome', outcome.kind);
+        return outcome;
+      },
+    ).finally(() => this.inFlight.delete(documentId));
     this.inFlight.set(documentId, run);
     return run;
   }
@@ -141,13 +163,29 @@ export class DocumentIndexer implements OnApplicationShutdown {
         if (batch.length === 0) {
           break;
         }
-        const { vectors, totalTokens } = await this.provider.embed(
-          batch.map((chunk) => chunk.content),
-          'document',
+        const totalTokens = await withSpan(
+          'indexing.batch',
+          {
+            'clauseiq.indexing.batch_size': batch.length,
+            'clauseiq.embedding.provider': this.provider.name,
+          },
+          async () => {
+            const result = await this.provider.embed(
+              batch.map((chunk) => chunk.content),
+              'document',
+            );
+            await this.chunks.setEmbeddings(
+              batch.map((chunk, i) => ({
+                id: chunk.id,
+                embedding: result.vectors[i],
+              })),
+            );
+            return result.totalTokens;
+          },
         );
-        await this.chunks.setEmbeddings(
-          batch.map((chunk, i) => ({ id: chunk.id, embedding: vectors[i] })),
-        );
+        embeddedChunksCounter().add(batch.length, {
+          'clauseiq.embedding.provider': this.provider.name,
+        });
         batches += 1;
         embedded += batch.length;
         tokens += totalTokens ?? 0;

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule } from '@nestjs/microservices';
 import { AppConfigModule, AppConfigService } from '@app/config';
+import { rpcClient } from '@app/rpc';
 
 export const INGESTION_CLIENT = 'INGESTION_CLIENT';
 
@@ -11,10 +12,8 @@ export const INGESTION_CLIENT = 'INGESTION_CLIENT';
         name: INGESTION_CLIENT,
         imports: [AppConfigModule],
         inject: [AppConfigService],
-        useFactory: (config: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: { host: config.ingestionHost, port: config.ingestionPort },
-        }),
+        useFactory: (config: AppConfigService) =>
+          rpcClient({ host: config.ingestionHost, port: config.ingestionPort }),
       },
     ]),
   ],

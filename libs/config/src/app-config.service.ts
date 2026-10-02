@@ -161,11 +161,32 @@ export class AppConfigService {
     return this.configService.get<string>('REFRESH_EXPIRES_IN', '7d');
   }
 
+  get registrationEnabled(): boolean {
+    return this.configService.get<boolean>('AUTH_REGISTRATION_ENABLED', true);
+  }
+
   private decodePem(key: string): string {
     return Buffer.from(
       this.configService.getOrThrow<string>(key),
       'base64',
     ).toString('utf8');
+  }
+
+  // ── Rate limiting (gateway) ────────────────────────────────────────────────
+  get throttleEnabled(): boolean {
+    return this.configService.get<boolean>('THROTTLE_ENABLED', true);
+  }
+
+  get throttleTtlMs(): number {
+    return this.configService.get<number>('THROTTLE_TTL_MS', 60_000);
+  }
+
+  get throttleLimit(): number {
+    return this.configService.get<number>('THROTTLE_LIMIT', 120);
+  }
+
+  get throttleStrictLimit(): number {
+    return this.configService.get<number>('THROTTLE_STRICT_LIMIT', 10);
   }
 
   // ── AI layer ───────────────────────────────────────────────────────────────

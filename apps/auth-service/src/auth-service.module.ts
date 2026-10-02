@@ -9,6 +9,7 @@ import {
   databaseSchema,
 } from '@app/config';
 import { DrizzleModule } from '@app/database';
+import { TelemetryModule } from '@app/telemetry';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { TokenService } from './token.service.js';
@@ -21,7 +22,7 @@ import { RefreshTokensRepository } from './repositories/refresh-tokens.repositor
      * The only service that composes `authSigningSchema`, and therefore the only
      * one that validates `JWT_PRIVATE_KEY` at all. That makes "the private key
      * exists only here" checkable in the configuration rather than merely stated
-     * in the docs (ADR 003, 004).
+     * in the docs
      */
     AppConfigModule.forRoot(
       baseSchema
@@ -29,6 +30,7 @@ import { RefreshTokensRepository } from './repositories/refresh-tokens.repositor
         .concat(authSigningSchema)
         .concat(databaseSchema),
     ),
+    TelemetryModule,
     DrizzleModule,
     /**
      * Both keys: the private one signs access tokens, the public one verifies

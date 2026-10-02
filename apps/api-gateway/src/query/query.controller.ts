@@ -43,6 +43,7 @@ import { AccessToken } from '../auth/access-token.decorator.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 import { LLM_CLIENT } from '../clients/llm-client.module.js';
 import { rpcToHttp } from '../common/rpc-to-http.js';
+import { StrictThrottle } from '../throttling/throttling.options.js';
 
 @ApiTags('query')
 @ApiBearerAuth()
@@ -78,6 +79,7 @@ export class QueryController {
    */
   @Sse('', { [METHOD_METADATA]: RequestMethod.POST })
   @HttpCode(HttpStatus.OK)
+  @StrictThrottle()
   @ApiOperation({
     summary: 'Ask a question about the corpus; the answer streams back as SSE',
     description:
@@ -94,6 +96,10 @@ export class QueryController {
     description: 'No question, or an invalid parameter',
   })
   @ApiResponse({ status: 401, description: 'No or invalid token' })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many questions from this address',
+  })
   @ApiResponse({ status: 503, description: 'llm-service is unreachable' })
   async ask(
     @Body() body: AskQuestionDto,
