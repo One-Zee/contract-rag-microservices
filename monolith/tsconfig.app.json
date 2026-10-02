@@ -1,0 +1,25 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "rootDir": "./src",
+    "outDir": "../dist/monolith"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"],
+  // The services are referenced as projects, so their sources stay theirs:
+  // this program sees their declarations, never compiles them a second time.
+  "references": [
+    { "path": "../apps/api-gateway/tsconfig.app.json" },
+    { "path": "../apps/auth-service/tsconfig.app.json" },
+    { "path": "../apps/ingestion-service/tsconfig.app.json" },
+    { "path": "../apps/indexing-service/tsconfig.app.json" },
+    { "path": "../apps/retrieval-service/tsconfig.app.json" },
+    { "path": "../apps/llm-service/tsconfig.app.json" },
+    { "path": "../libs/config/tsconfig.lib.json" },
+    { "path": "../libs/messaging/tsconfig.lib.json" },
+    { "path": "../libs/rpc/tsconfig.lib.json" },
+    { "path": "../libs/telemetry/tsconfig.lib.json" }
+  ]
+}

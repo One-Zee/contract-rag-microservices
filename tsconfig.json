@@ -59,6 +59,9 @@
       "path": "./apps/llm-service/tsconfig.app.json"
     },
     {
+      "path": "./monolith/tsconfig.app.json"
+    },
+    {
       "path": "./libs/common/tsconfig.lib.json"
     },
     {
