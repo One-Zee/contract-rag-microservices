@@ -51,4 +51,9 @@ export const authSchema = Joi.object({
 export const authSigningSchema = Joi.object({
   JWT_PRIVATE_KEY: base64Pem.required(),
   REFRESH_EXPIRES_IN: Joi.string().pattern(durationPattern).default('7d'),
+
+  // Registration is the one public way to obtain tokens, so whether it is open
+  // belongs with the issuer. A switch, not an invitation system: register the
+  // accounts you need, then close it
+  AUTH_REGISTRATION_ENABLED: Joi.boolean().default(true),
 });
