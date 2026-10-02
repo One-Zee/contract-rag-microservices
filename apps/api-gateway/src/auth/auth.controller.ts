@@ -27,6 +27,7 @@ import {
 } from '@app/common';
 import { AUTH_CLIENT } from '../clients/auth-client.module.js';
 import { rpcToHttp } from '../common/rpc-to-http.js';
+import { StrictThrottle } from '../throttling/throttling.options.js';
 import { JwtAuthGuard } from './jwt-auth.guard.js';
 
 @ApiTags('auth')
@@ -35,9 +36,17 @@ export class AuthController {
   constructor(@Inject(AUTH_CLIENT) private readonly authClient: ClientProxy) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Registers a user and immediately issues a token pair' })
+  @StrictThrottle()
+  @ApiOperation({
+    summary: 'Registers a user and immediately issues a token pair',
+  })
   @ApiResponse({ status: 201, type: AuthTokensDto })
+  @ApiResponse({ status: 403, description: 'Registration is closed' })
   @ApiResponse({ status: 409, description: 'E-mail already taken' })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many attempts from this address',
+  })
   register(@Body() dto: RegisterDto): Observable<AuthTokensDto> {
     // The role is not taken from the request — the database assigns it (`reader`).
     return this.authClient
@@ -47,9 +56,14 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @StrictThrottle()
   @ApiOperation({ summary: 'Log in' })
   @ApiResponse({ status: 200, type: AuthTokensDto })
   @ApiResponse({ status: 401, description: 'Invalid e-mail or password' })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many attempts from this address',
+  })
   login(@Body() dto: LoginDto): Observable<AuthTokensDto> {
     return this.authClient
       .send<AuthTokensDto>(AUTH_PATTERNS.LOGIN, dto)
@@ -58,6 +72,7 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
+  @StrictThrottle()
   @ApiOperation({
     summary: 'Rotates the refresh token',
     description:
@@ -66,6 +81,10 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, type: AuthTokensDto })
   @ApiResponse({ status: 401, description: 'Invalid, expired or already used' })
+  @ApiResponse({
+    status: 429,
+    description: 'Too many attempts from this address',
+  })
   refresh(@Body() dto: RefreshTokenDto): Observable<AuthTokensDto> {
     return this.authClient
       .send<AuthTokensDto>(AUTH_PATTERNS.REFRESH, dto)
@@ -83,7 +102,9 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Identity from the token, without querying the service' })
+  @ApiOperation({
+    summary: 'Identity from the token, without querying the service',
+  })
   @ApiResponse({ status: 401, description: 'Missing or invalid token' })
   me(@CurrentUser() user: AuthContext): AuthContext {
     return user;
