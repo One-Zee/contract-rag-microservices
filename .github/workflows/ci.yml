@@ -1,13 +1,17 @@
 name: CI
 on: [push, pull_request]
 
+# Node 24: the lockfile is written by npm 12, and the npm 10 that Node 22 ships
+# refuses it in `npm ci`; Node 24 ships npm 11. The image is built on the same
+# major (docker/Dockerfile).
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
+        with: { node-version: 24, cache: npm }
       - run: npm ci
       - run: npm run lint
       - run: npm run dep:check
@@ -26,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
+        with: { node-version: 24, cache: npm }
       - run: npm ci
 
       # The same compose file `npm run dev` uses, so CI runs against the
@@ -113,3 +117,27 @@ jobs:
       - name: Stop the infrastructure
         if: always()
         run: docker compose -f docker/docker-compose.yaml down -v
+
+  # The one image every service and the monolith run from (ADR 020), built so a
+  # Dockerfile that no longer builds is caught here and not on the day of a
+  # measurement. Pull requests only, and nothing is pushed: a registry and a
+  # deploy job wait for the VPS.
+  image:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # No .env in CI: the files declare it optional, and interpolation falls
+      # back to its defaults — enough to prove each topology merges cleanly.
+      - name: compose files are valid
+        run: |
+          docker compose -f docker/docker-compose.yaml \
+            -f docker/docker-compose.observability.yaml \
+            -f docker/docker-compose.services.yaml config -q
+          docker compose -f docker/docker-compose.yaml \
+            -f docker/docker-compose.observability.yaml \
+            -f docker/docker-compose.monolith.yaml config -q
+
+      - name: the image builds
+        run: docker build -f docker/Dockerfile -t clauseiq:ci .
