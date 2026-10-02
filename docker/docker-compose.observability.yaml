@@ -1,0 +1,68 @@
+# Traces, metrics and the dashboards over them (ADR 019).
+#
+#   npm run obs:up      Jaeger, Prometheus and Grafana on their own — enough for
+#                       traces from `npm run start:all`
+#   npm run stack:up    the same, plus the six services in containers
+#
+# Every port is bound to 127.0.0.1: these UIs have no authentication worth the
+# name, and the VPS setup (Caddy in front, later) is a separate step.
+#
+# Tags are pinned for the same reason as MinIO's in docker-compose.yaml: a
+# measurement has to be repeatable, and `latest` changes under it.
+
+services:
+  jaeger:
+    # Jaeger v2 is built on the OpenTelemetry Collector and receives OTLP
+    # natively. v1 (all-in-one) reached end of life in December 2025.
+    # Storage is in memory: a restart loses every trace.
+    image: jaegertracing/jaeger:2.21.0
+    ports:
+      - '127.0.0.1:16686:16686' # UI
+      - '127.0.0.1:4318:4318' # OTLP/HTTP, for services running outside Docker
+
+  prometheus:
+    image: prom/prometheus:v3.15.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheusdata:/prometheus
+    ports: ['127.0.0.1:9090:9090']
+
+  grafana:
+    image: grafana/grafana:13.2.3
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafanadata:/var/lib/grafana
+    # 3000 belongs to the gateway.
+    ports: ['127.0.0.1:3030:3000']
+    depends_on: [prometheus, jaeger]
+
+  # CPU and memory per container — what comparing the two topologies needs.
+  # Behind a profile because it is a Linux-host tool in practice: under Docker
+  # Desktop it sees the VM, not the Mac, and several of these mounts differ.
+  #   docker compose ... --profile cadvisor up -d
+  # Releases after v0.52 are published on ghcr.io, no longer on gcr.io.
+  cadvisor:
+    image: ghcr.io/google/cadvisor:v0.60.6
+    profiles: [cadvisor]
+    privileged: true
+    devices: ['/dev/kmsg']
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports: ['127.0.0.1:8080:8080']
+
+volumes:
+  prometheusdata:
+  grafanadata:
