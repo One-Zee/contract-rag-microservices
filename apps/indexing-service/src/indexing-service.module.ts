@@ -9,6 +9,7 @@ import {
 import { DrizzleModule } from '@app/database';
 import { EmbeddingsModule } from '@app/embeddings';
 import { MessagingModule } from '@app/messaging';
+import { TelemetryModule } from '@app/telemetry';
 import { ChunksRepository } from './indexing/chunks.repository.js';
 import { DocumentIndexer } from './indexing/document-indexer.js';
 import { DocumentsRepository } from './indexing/documents.repository.js';
@@ -28,6 +29,7 @@ import { IndexingSweep } from './indexing/indexing-sweep.js';
         .concat(messagingSchema)
         .concat(embeddingsSchema),
     ),
+    TelemetryModule,
     DrizzleModule,
     MessagingModule,
     EmbeddingsModule,

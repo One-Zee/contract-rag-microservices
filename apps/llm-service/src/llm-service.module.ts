@@ -9,6 +9,7 @@ import {
   querySchema,
 } from '@app/config';
 import { DrizzleModule } from '@app/database';
+import { TelemetryModule } from '@app/telemetry';
 import { RetrievalClientModule } from './clients/retrieval-client.module.js';
 import { LlmModule } from './llm/llm.module.js';
 import { QueryCancellationRegistry } from './query/cancellation.registry.js';
@@ -31,6 +32,7 @@ import { QueryService } from './query/query.service.js';
         .concat(llmSchema)
         .concat(querySchema),
     ),
+    TelemetryModule,
     JwtVerifierModule,
     DrizzleModule,
     RetrievalClientModule,

@@ -6,8 +6,9 @@ import { ValidationPipe } from '@nestjs/common';
  * without it a client could send `role: 'admin'` along with a registration and
  * hope something further down the chain reads it.
  *
- * Shared between `main.ts` and the e2e test so the test proves the production
- * configuration rather than one of its own.
+ * Shared between `configureHttpApp` (the gateway and the monolith) and the e2e
+ * suites, so the tests prove the production configuration rather than one of
+ * their own.
  */
 export const createValidationPipe = () =>
   new ValidationPipe({

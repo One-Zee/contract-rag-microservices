@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule } from '@nestjs/microservices';
 import { AppConfigModule, AppConfigService } from '@app/config';
+import { rpcClient } from '@app/rpc';
 
 export const RETRIEVAL_CLIENT = 'RETRIEVAL_CLIENT';
 
@@ -11,10 +12,8 @@ export const RETRIEVAL_CLIENT = 'RETRIEVAL_CLIENT';
         name: RETRIEVAL_CLIENT,
         imports: [AppConfigModule],
         inject: [AppConfigService],
-        useFactory: (config: AppConfigService) => ({
-          transport: Transport.TCP,
-          options: { host: config.retrievalHost, port: config.retrievalPort },
-        }),
+        useFactory: (config: AppConfigService) =>
+          rpcClient({ host: config.retrievalHost, port: config.retrievalPort }),
       },
     ]),
   ],
