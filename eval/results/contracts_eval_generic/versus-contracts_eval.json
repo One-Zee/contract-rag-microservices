@@ -1,0 +1,407 @@
+{
+  "baseline": {
+    "experiment": "contracts_eval",
+    "startedAt": "2026-10-05T18:01:14.199Z",
+    "commit": "79a5cb0",
+    "dirty": true,
+    "node": "v24.20.0",
+    "settings": {
+      "EMBEDDING_PROVIDER": "voyage",
+      "CHUNK_SIZE_TOKENS": "800",
+      "CHUNK_OVERLAP_TOKENS": "120",
+      "LEXICAL_MATCH": "any",
+      "RERANK_PROVIDER": "cohere",
+      "LLM_PROVIDER": "anthropic",
+      "LLM_TEMPERATURE": "0"
+    }
+  },
+  "experiment": {
+    "experiment": "contracts_eval_generic",
+    "startedAt": "2026-10-05T18:19:25.342Z",
+    "commit": "79a5cb0",
+    "dirty": true,
+    "node": "v24.20.0",
+    "settings": {
+      "EMBEDDING_PROVIDER": "voyage",
+      "EMBEDDING_MODEL": "voyage-3.5",
+      "CHUNK_SIZE_TOKENS": "800",
+      "CHUNK_OVERLAP_TOKENS": "120",
+      "LEXICAL_MATCH": "any",
+      "RERANK_PROVIDER": "none",
+      "LLM_PROVIDER": "anthropic",
+      "LLM_TEMPERATURE": "0"
+    }
+  },
+  "changed": [
+    "RERANK_PROVIDER: cohere → none",
+    "EMBEDDING_MODEL: (default) → voyage-3.5"
+  ],
+  "comparisons": [
+    {
+      "scope": "corpus",
+      "config": "vector",
+      "n": 50,
+      "metrics": {
+        "r1": {
+          "baseline": 0.08666599999999999,
+          "experiment": 0.14,
+          "difference": {
+            "mean": 0.053334,
+            "low": 0.006666,
+            "high": 0.11333400000000003
+          }
+        },
+        "r3": {
+          "baseline": 0.551666,
+          "experiment": 0.56,
+          "difference": {
+            "mean": 0.008334000000000001,
+            "low": -0.07170764999999996,
+            "high": 0.09333599999999999
+          }
+        },
+        "r5": {
+          "baseline": 0.625,
+          "experiment": 0.695,
+          "difference": {
+            "mean": 0.07,
+            "low": 0,
+            "high": 0.16
+          }
+        },
+        "r10": {
+          "baseline": 0.79,
+          "experiment": 0.796666,
+          "difference": {
+            "mean": 0.006665999999999998,
+            "low": -0.073334,
+            "high": 0.08666599999999999
+          }
+        },
+        "mrr": {
+          "baseline": 0.344994,
+          "experiment": 0.405046,
+          "difference": {
+            "mean": 0.060051999999999994,
+            "low": 0.018409449999999997,
+            "high": 0.11007889999999997
+          }
+        },
+        "ndcg10": {
+          "baseline": 0.44686600000000015,
+          "experiment": 0.49209400000000014,
+          "difference": {
+            "mean": 0.04522800000000002,
+            "low": 0.004395200000000004,
+            "high": 0.09235054999999996
+          }
+        }
+      }
+    },
+    {
+      "scope": "corpus",
+      "config": "lexical",
+      "n": 50,
+      "metrics": {
+        "r1": {
+          "baseline": 0.10666600000000001,
+          "experiment": 0.10666600000000001,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "r3": {
+          "baseline": 0.406666,
+          "experiment": 0.406666,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "r5": {
+          "baseline": 0.4633320000000001,
+          "experiment": 0.4633320000000001,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "r10": {
+          "baseline": 0.56,
+          "experiment": 0.56,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "mrr": {
+          "baseline": 0.28426599999999996,
+          "experiment": 0.28426599999999996,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "ndcg10": {
+          "baseline": 0.32933200000000007,
+          "experiment": 0.32933200000000007,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        }
+      }
+    },
+    {
+      "scope": "corpus",
+      "config": "hybrid",
+      "n": 50,
+      "metrics": {
+        "r1": {
+          "baseline": 0.08,
+          "experiment": 0.10666600000000001,
+          "difference": {
+            "mean": 0.026666,
+            "low": 0,
+            "high": 0.073332
+          }
+        },
+        "r3": {
+          "baseline": 0.49,
+          "experiment": 0.48666600000000004,
+          "difference": {
+            "mean": -0.0033340000000000015,
+            "low": -0.063334,
+            "high": 0.059997999999999996
+          }
+        },
+        "r5": {
+          "baseline": 0.575,
+          "experiment": 0.566666,
+          "difference": {
+            "mean": -0.008334000000000001,
+            "low": -0.075,
+            "high": 0.053332
+          }
+        },
+        "r10": {
+          "baseline": 0.746666,
+          "experiment": 0.7516660000000001,
+          "difference": {
+            "mean": 0.005,
+            "low": -0.035,
+            "high": 0.055
+          }
+        },
+        "mrr": {
+          "baseline": 0.347102,
+          "experiment": 0.36112599999999995,
+          "difference": {
+            "mean": 0.014023999999999998,
+            "low": -0.01838815000000001,
+            "high": 0.04972024999999999
+          }
+        },
+        "ndcg10": {
+          "baseline": 0.4249200000000002,
+          "experiment": 0.4334760000000001,
+          "difference": {
+            "mean": 0.008556000000000003,
+            "low": -0.018144199999999996,
+            "high": 0.034974050000000007
+          }
+        }
+      }
+    },
+    {
+      "scope": "document",
+      "config": "vector",
+      "n": 50,
+      "metrics": {
+        "r1": {
+          "baseline": 0.08666599999999999,
+          "experiment": 0.14,
+          "difference": {
+            "mean": 0.053334,
+            "low": 0.006666,
+            "high": 0.11333400000000003
+          }
+        },
+        "r3": {
+          "baseline": 0.571666,
+          "experiment": 0.62,
+          "difference": {
+            "mean": 0.048334,
+            "low": -0.03,
+            "high": 0.13333599999999998
+          }
+        },
+        "r5": {
+          "baseline": 0.645,
+          "experiment": 0.755,
+          "difference": {
+            "mean": 0.11,
+            "low": 0.02,
+            "high": 0.21
+          }
+        },
+        "r10": {
+          "baseline": 0.87,
+          "experiment": 0.91,
+          "difference": {
+            "mean": 0.04,
+            "low": 0,
+            "high": 0.09333400000000001
+          }
+        },
+        "mrr": {
+          "baseline": 0.359962,
+          "experiment": 0.429266,
+          "difference": {
+            "mean": 0.06930399999999999,
+            "low": 0.029001999999999993,
+            "high": 0.11838659999999997
+          }
+        },
+        "ndcg10": {
+          "baseline": 0.47836600000000007,
+          "experiment": 0.5403980000000002,
+          "difference": {
+            "mean": 0.062032000000000004,
+            "low": 0.02716765,
+            "high": 0.10423135
+          }
+        }
+      }
+    },
+    {
+      "scope": "document",
+      "config": "lexical",
+      "n": 50,
+      "metrics": {
+        "r1": {
+          "baseline": 0.10666600000000001,
+          "experiment": 0.10666600000000001,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "r3": {
+          "baseline": 0.48,
+          "experiment": 0.48,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "r5": {
+          "baseline": 0.581666,
+          "experiment": 0.581666,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "r10": {
+          "baseline": 0.883334,
+          "experiment": 0.883334,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "mrr": {
+          "baseline": 0.3557839999999999,
+          "experiment": 0.3557839999999999,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        },
+        "ndcg10": {
+          "baseline": 0.460834,
+          "experiment": 0.460834,
+          "difference": {
+            "mean": 0,
+            "low": 0,
+            "high": 0
+          }
+        }
+      }
+    },
+    {
+      "scope": "document",
+      "config": "hybrid",
+      "n": 50,
+      "metrics": {
+        "r1": {
+          "baseline": 0.08,
+          "experiment": 0.10666600000000001,
+          "difference": {
+            "mean": 0.026666,
+            "low": 0,
+            "high": 0.073332
+          }
+        },
+        "r3": {
+          "baseline": 0.49666600000000005,
+          "experiment": 0.536666,
+          "difference": {
+            "mean": 0.04,
+            "low": 0,
+            "high": 0.09333400000000001
+          }
+        },
+        "r5": {
+          "baseline": 0.65,
+          "experiment": 0.656666,
+          "difference": {
+            "mean": 0.006666,
+            "low": 0,
+            "high": 0.019998000000000002
+          }
+        },
+        "r10": {
+          "baseline": 0.836666,
+          "experiment": 0.88,
+          "difference": {
+            "mean": 0.043334000000000004,
+            "low": 0,
+            "high": 0.100002
+          }
+        },
+        "mrr": {
+          "baseline": 0.352432,
+          "experiment": 0.387012,
+          "difference": {
+            "mean": 0.03458,
+            "low": 0.007277799999999999,
+            "high": 0.0675527
+          }
+        },
+        "ndcg10": {
+          "baseline": 0.45706800000000003,
+          "experiment": 0.49353600000000014,
+          "difference": {
+            "mean": 0.036468,
+            "low": 0.01368375,
+            "high": 0.06238665
+          }
+        }
+      }
+    }
+  ]
+}
