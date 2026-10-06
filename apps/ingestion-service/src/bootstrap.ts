@@ -2,7 +2,7 @@ import { ConsoleLogger, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { MicroserviceOptions } from '@nestjs/microservices';
 import { AppConfigModule, AppConfigService, baseSchema } from '@app/config';
-import { rpcServer } from '@app/rpc';
+import { rpcAddress, rpcServer } from '@app/rpc';
 import { IngestionServiceModule } from './ingestion-service.module.js';
 
 async function readTransportOptions() {
@@ -11,7 +11,7 @@ async function readTransportOptions() {
     { logger: false },
   );
   const config = context.get(AppConfigService);
-  const options = { host: config.ingestionHost, port: config.ingestionPort };
+  const options = config.rpcEndpoint('ingestion');
   await context.close();
 
   Logger.overrideLogger(new ConsoleLogger());
@@ -29,7 +29,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
   await app.listen();
   Logger.log(
-    `ingestion-service listening on tcp://${options.host}:${options.port}`,
+    `ingestion-service listening on ${rpcAddress(options)}`,
     'Bootstrap',
   );
 }

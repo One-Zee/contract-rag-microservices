@@ -1,9 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppEnvironment } from './enums/app-environment.enum.js';
+import type { RpcTransport } from './schemas/base.schema.js';
 import type { EmbeddingProviderName } from './schemas/embeddings.schema.js';
 import type { LlmProvider } from './schemas/llm.schema.js';
-import type { RerankProviderName } from './schemas/retrieval.schema.js';
+import type {
+  LexicalMatch,
+  RerankProviderName,
+} from './schemas/retrieval.schema.js';
+
+/** The services that answer requests; indexing only consumes events. */
+export type RpcService = 'auth' | 'ingestion' | 'retrieval' | 'llm';
+
+/** Structurally the `RpcEndpoint` of `@app/rpc`, which config does not import. */
+export interface RpcEndpointConfig {
+  name: RpcService;
+  host: string;
+  port: number;
+  transport: RpcTransport;
+  rabbitmqUrl?: string;
+}
 
 @Injectable()
 export class AppConfigService {
@@ -70,6 +86,34 @@ export class AppConfigService {
     return this.configService.get<number>('LLM_PORT', 3005);
   }
 
+  get rpcTransport(): RpcTransport {
+    return this.configService.get<RpcTransport>('RPC_TRANSPORT', 'tcp');
+  }
+
+  /**
+   * Everything `rpcClient` / `rpcServer` need to reach or serve one service,
+   * whichever transport is configured.
+   */
+  rpcEndpoint(service: RpcService): RpcEndpointConfig {
+    const addresses: Record<RpcService, [string, number]> = {
+      auth: [this.authHost, this.authPort],
+      ingestion: [this.ingestionHost, this.ingestionPort],
+      retrieval: [this.retrievalHost, this.retrievalPort],
+      llm: [this.llmHost, this.llmPort],
+    };
+    const [host, port] = addresses[service];
+    const transport = this.rpcTransport;
+    return {
+      name: service,
+      host,
+      port,
+      transport,
+      // Read only for rmq: over TCP the URL is optional, and getOrThrow would
+      // fail a gateway that has no broker configured.
+      rabbitmqUrl: transport === 'rmq' ? this.rabbitmqUrl : undefined,
+    };
+  }
+
   // ── Database ───────────────────────────────────────────────────────────────
   get databaseUrl(): string {
     return this.configService.getOrThrow<string>('DATABASE_URL');
@@ -121,6 +165,10 @@ export class AppConfigService {
 
   get chunkOverlapTokens(): number {
     return this.configService.get<number>('CHUNK_OVERLAP_TOKENS', 120);
+  }
+
+  get chunkRespectSections(): boolean {
+    return this.configService.get<boolean>('CHUNK_RESPECT_SECTIONS', true);
   }
 
   get ingestionConcurrency(): number {
@@ -207,6 +255,11 @@ export class AppConfigService {
     return this.configService.get<string>('ANTHROPIC_VERSION', '2023-06-01');
   }
 
+  /** `undefined` means the real API. */
+  get anthropicBaseUrl(): string | undefined {
+    return this.configService.get<string>('ANTHROPIC_BASE_URL');
+  }
+
   get ollamaBaseUrl(): string {
     return this.configService.get<string>(
       'OLLAMA_BASE_URL',
@@ -276,6 +329,11 @@ export class AppConfigService {
     return this.configService.getOrThrow<string>('VOYAGE_API_KEY');
   }
 
+  /** `undefined` means the real API. */
+  get voyageBaseUrl(): string | undefined {
+    return this.configService.get<string>('VOYAGE_BASE_URL');
+  }
+
   // ── Hybrid search ──────────────────────────────────────────────────────────
   get searchCandidates(): number {
     return this.configService.get<number>('SEARCH_CANDIDATES', 20);
@@ -297,6 +355,10 @@ export class AppConfigService {
     return this.configService.get<number>('HNSW_EF_SEARCH', 100);
   }
 
+  get lexicalMatch(): LexicalMatch {
+    return this.configService.get<LexicalMatch>('LEXICAL_MATCH', 'all');
+  }
+
   get rerankProvider(): RerankProviderName {
     return this.configService.get<RerankProviderName>(
       'RERANK_PROVIDER',
@@ -311,5 +373,10 @@ export class AppConfigService {
   /** Required by the schema whenever the provider is `cohere`, hence no default. */
   get cohereApiKey(): string {
     return this.configService.getOrThrow<string>('COHERE_API_KEY');
+  }
+
+  /** `undefined` means the real API. */
+  get cohereBaseUrl(): string | undefined {
+    return this.configService.get<string>('COHERE_BASE_URL');
   }
 }

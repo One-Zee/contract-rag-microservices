@@ -94,6 +94,7 @@ export class SearchService {
       limit: this.config.searchCandidates,
       documentId: params.documentId,
       efSearch: this.config.hnswEfSearch,
+      lexicalMatch: this.config.lexicalMatch,
       vector: wantsVector,
       lexical: wantsLexical,
     });

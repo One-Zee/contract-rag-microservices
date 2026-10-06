@@ -106,6 +106,7 @@ export class IngestionPipeline {
         const result = chunkText(text, {
           chunkSize: this.config.chunkSizeTokens,
           chunkOverlap: this.config.chunkOverlapTokens,
+          respectSections: this.config.chunkRespectSections,
           pages,
         });
         span.setAttribute('clauseiq.document.chunks', result.length);

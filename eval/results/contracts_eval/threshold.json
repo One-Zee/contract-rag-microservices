@@ -1,0 +1,1229 @@
+{
+  "run": "/Users/kk/Code_2026/contract-rag-microservices/eval/results/contracts_eval/raw/retrieval-2026-10-05T18-01-14-199Z.json",
+  "config": "hybrid+rerank",
+  "context": 5,
+  "answerable": 50,
+  "outOfCorpus": 4,
+  "absent": 6,
+  "chosen": {
+    "threshold": 0.485,
+    "correct": 1,
+    "wrong": 0,
+    "j": 1
+  },
+  "absentAbstained": 0,
+  "allUnanswerable": {
+    "threshold": 0.645,
+    "correct": 1,
+    "wrong": 0.46,
+    "j": 0.54
+  },
+  "curve": [
+    {
+      "threshold": 0,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.005,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.01,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.015,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.02,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.025,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.03,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.035,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.04,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.045,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.05,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.055,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.06,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.065,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.07,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.075,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.08,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.085,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.09,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.095,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.1,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.105,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.11,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.115,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.12,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.125,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.13,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.135,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.14,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.145,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.15,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.155,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.16,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.165,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.17,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.175,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.18,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.185,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.19,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.195,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.2,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.205,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.21,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.215,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.22,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.225,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.23,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.235,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.24,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.245,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.25,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.255,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.26,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.265,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.27,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.275,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.28,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.285,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.29,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.295,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.3,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.305,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.31,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.315,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.32,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.325,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.33,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.335,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.34,
+      "correct": 0,
+      "wrong": 0,
+      "j": 0
+    },
+    {
+      "threshold": 0.345,
+      "correct": 0.25,
+      "wrong": 0,
+      "j": 0.25
+    },
+    {
+      "threshold": 0.35,
+      "correct": 0.25,
+      "wrong": 0,
+      "j": 0.25
+    },
+    {
+      "threshold": 0.355,
+      "correct": 0.25,
+      "wrong": 0,
+      "j": 0.25
+    },
+    {
+      "threshold": 0.36,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.365,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.37,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.375,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.38,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.385,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.39,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.395,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.4,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.405,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.41,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.415,
+      "correct": 0.5,
+      "wrong": 0,
+      "j": 0.5
+    },
+    {
+      "threshold": 0.42,
+      "correct": 0.75,
+      "wrong": 0,
+      "j": 0.75
+    },
+    {
+      "threshold": 0.425,
+      "correct": 0.75,
+      "wrong": 0,
+      "j": 0.75
+    },
+    {
+      "threshold": 0.43,
+      "correct": 0.75,
+      "wrong": 0,
+      "j": 0.75
+    },
+    {
+      "threshold": 0.435,
+      "correct": 0.75,
+      "wrong": 0,
+      "j": 0.75
+    },
+    {
+      "threshold": 0.44,
+      "correct": 0.75,
+      "wrong": 0,
+      "j": 0.75
+    },
+    {
+      "threshold": 0.445,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.45,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.455,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.46,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.465,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.47,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.475,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.48,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.485,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.49,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.495,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.5,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.505,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.51,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.515,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.52,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.525,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.53,
+      "correct": 1,
+      "wrong": 0,
+      "j": 1
+    },
+    {
+      "threshold": 0.535,
+      "correct": 1,
+      "wrong": 0.02,
+      "j": 0.98
+    },
+    {
+      "threshold": 0.54,
+      "correct": 1,
+      "wrong": 0.02,
+      "j": 0.98
+    },
+    {
+      "threshold": 0.545,
+      "correct": 1,
+      "wrong": 0.04,
+      "j": 0.96
+    },
+    {
+      "threshold": 0.55,
+      "correct": 1,
+      "wrong": 0.06,
+      "j": 0.94
+    },
+    {
+      "threshold": 0.555,
+      "correct": 1,
+      "wrong": 0.06,
+      "j": 0.94
+    },
+    {
+      "threshold": 0.56,
+      "correct": 1,
+      "wrong": 0.08,
+      "j": 0.92
+    },
+    {
+      "threshold": 0.565,
+      "correct": 1,
+      "wrong": 0.1,
+      "j": 0.9
+    },
+    {
+      "threshold": 0.57,
+      "correct": 1,
+      "wrong": 0.12,
+      "j": 0.88
+    },
+    {
+      "threshold": 0.575,
+      "correct": 1,
+      "wrong": 0.12,
+      "j": 0.88
+    },
+    {
+      "threshold": 0.58,
+      "correct": 1,
+      "wrong": 0.14,
+      "j": 0.86
+    },
+    {
+      "threshold": 0.585,
+      "correct": 1,
+      "wrong": 0.14,
+      "j": 0.86
+    },
+    {
+      "threshold": 0.59,
+      "correct": 1,
+      "wrong": 0.22,
+      "j": 0.78
+    },
+    {
+      "threshold": 0.595,
+      "correct": 1,
+      "wrong": 0.22,
+      "j": 0.78
+    },
+    {
+      "threshold": 0.6,
+      "correct": 1,
+      "wrong": 0.26,
+      "j": 0.74
+    },
+    {
+      "threshold": 0.605,
+      "correct": 1,
+      "wrong": 0.3,
+      "j": 0.7
+    },
+    {
+      "threshold": 0.61,
+      "correct": 1,
+      "wrong": 0.32,
+      "j": 0.6799999999999999
+    },
+    {
+      "threshold": 0.615,
+      "correct": 1,
+      "wrong": 0.34,
+      "j": 0.6599999999999999
+    },
+    {
+      "threshold": 0.62,
+      "correct": 1,
+      "wrong": 0.34,
+      "j": 0.6599999999999999
+    },
+    {
+      "threshold": 0.625,
+      "correct": 1,
+      "wrong": 0.36,
+      "j": 0.64
+    },
+    {
+      "threshold": 0.63,
+      "correct": 1,
+      "wrong": 0.36,
+      "j": 0.64
+    },
+    {
+      "threshold": 0.635,
+      "correct": 1,
+      "wrong": 0.4,
+      "j": 0.6
+    },
+    {
+      "threshold": 0.64,
+      "correct": 1,
+      "wrong": 0.4,
+      "j": 0.6
+    },
+    {
+      "threshold": 0.645,
+      "correct": 1,
+      "wrong": 0.46,
+      "j": 0.54
+    },
+    {
+      "threshold": 0.65,
+      "correct": 1,
+      "wrong": 0.46,
+      "j": 0.54
+    },
+    {
+      "threshold": 0.655,
+      "correct": 1,
+      "wrong": 0.48,
+      "j": 0.52
+    },
+    {
+      "threshold": 0.66,
+      "correct": 1,
+      "wrong": 0.56,
+      "j": 0.43999999999999995
+    },
+    {
+      "threshold": 0.665,
+      "correct": 1,
+      "wrong": 0.58,
+      "j": 0.42000000000000004
+    },
+    {
+      "threshold": 0.67,
+      "correct": 1,
+      "wrong": 0.6,
+      "j": 0.4
+    },
+    {
+      "threshold": 0.675,
+      "correct": 1,
+      "wrong": 0.64,
+      "j": 0.36
+    },
+    {
+      "threshold": 0.68,
+      "correct": 1,
+      "wrong": 0.72,
+      "j": 0.28
+    },
+    {
+      "threshold": 0.685,
+      "correct": 1,
+      "wrong": 0.76,
+      "j": 0.24
+    },
+    {
+      "threshold": 0.69,
+      "correct": 1,
+      "wrong": 0.76,
+      "j": 0.24
+    },
+    {
+      "threshold": 0.695,
+      "correct": 1,
+      "wrong": 0.8,
+      "j": 0.19999999999999996
+    },
+    {
+      "threshold": 0.7,
+      "correct": 1,
+      "wrong": 0.8,
+      "j": 0.19999999999999996
+    },
+    {
+      "threshold": 0.705,
+      "correct": 1,
+      "wrong": 0.8,
+      "j": 0.19999999999999996
+    },
+    {
+      "threshold": 0.71,
+      "correct": 1,
+      "wrong": 0.82,
+      "j": 0.18000000000000005
+    },
+    {
+      "threshold": 0.715,
+      "correct": 1,
+      "wrong": 0.86,
+      "j": 0.14
+    },
+    {
+      "threshold": 0.72,
+      "correct": 1,
+      "wrong": 0.88,
+      "j": 0.12
+    },
+    {
+      "threshold": 0.725,
+      "correct": 1,
+      "wrong": 0.9,
+      "j": 0.09999999999999998
+    },
+    {
+      "threshold": 0.73,
+      "correct": 1,
+      "wrong": 0.9,
+      "j": 0.09999999999999998
+    },
+    {
+      "threshold": 0.735,
+      "correct": 1,
+      "wrong": 0.96,
+      "j": 0.040000000000000036
+    },
+    {
+      "threshold": 0.74,
+      "correct": 1,
+      "wrong": 0.98,
+      "j": 0.020000000000000018
+    },
+    {
+      "threshold": 0.745,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.75,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.755,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.76,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.765,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.77,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.775,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.78,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.785,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.79,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.795,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.8,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.805,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.81,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.815,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.82,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.825,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.83,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.835,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.84,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.845,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.85,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.855,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.86,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.865,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.87,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.875,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.88,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.885,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.89,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.895,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.9,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.905,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.91,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.915,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.92,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.925,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.93,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.935,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.94,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.945,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.95,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.955,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.96,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.965,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.97,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.975,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.98,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.985,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.99,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 0.995,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    },
+    {
+      "threshold": 1,
+      "correct": 1,
+      "wrong": 1,
+      "j": 0
+    }
+  ]
+}

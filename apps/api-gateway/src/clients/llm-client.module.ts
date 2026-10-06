@@ -13,7 +13,7 @@ export const LLM_CLIENT = 'LLM_CLIENT';
         imports: [AppConfigModule],
         inject: [AppConfigService],
         useFactory: (config: AppConfigService) =>
-          rpcClient({ host: config.llmHost, port: config.llmPort }),
+          rpcClient(config.rpcEndpoint('llm')),
       },
     ]),
   ],

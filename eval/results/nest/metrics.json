@@ -1,0 +1,271 @@
+{
+  "cloc": "aldanial/cloc:1.98",
+  "perArea": {
+    "apps/api-gateway": {
+      "files": 22,
+      "code": 974,
+      "comment": 158,
+      "blank": 64
+    },
+    "apps/auth-service": {
+      "files": 9,
+      "code": 468,
+      "comment": 120,
+      "blank": 69
+    },
+    "apps/indexing-service": {
+      "files": 8,
+      "code": 446,
+      "comment": 115,
+      "blank": 48
+    },
+    "apps/ingestion-service": {
+      "files": 16,
+      "code": 1228,
+      "comment": 186,
+      "blank": 122
+    },
+    "apps/llm-service": {
+      "files": 19,
+      "code": 1766,
+      "comment": 492,
+      "blank": 179
+    },
+    "apps/retrieval-service": {
+      "files": 11,
+      "code": 739,
+      "comment": 172,
+      "blank": 76
+    },
+    "libs/common": {
+      "files": 21,
+      "code": 967,
+      "comment": 226,
+      "blank": 201
+    },
+    "libs/config": {
+      "files": 19,
+      "code": 550,
+      "comment": 252,
+      "blank": 137
+    },
+    "libs/database": {
+      "files": 11,
+      "code": 326,
+      "comment": 91,
+      "blank": 19
+    },
+    "libs/embeddings": {
+      "files": 5,
+      "code": 322,
+      "comment": 76,
+      "blank": 36
+    },
+    "libs/messaging": {
+      "files": 7,
+      "code": 206,
+      "comment": 50,
+      "blank": 29
+    },
+    "libs/rpc": {
+      "files": 9,
+      "code": 469,
+      "comment": 146,
+      "blank": 56
+    },
+    "libs/telemetry": {
+      "files": 7,
+      "code": 315,
+      "comment": 139,
+      "blank": 41
+    },
+    "monolith": {
+      "files": 4,
+      "code": 77,
+      "comment": 33,
+      "blank": 11
+    },
+    "bench/express-auth": {
+      "files": 7,
+      "code": 431,
+      "comment": 17,
+      "blank": 48
+    }
+  },
+  "nestAuth": {
+    "wiring": {
+      "files": 6,
+      "code": 142,
+      "comment": 67,
+      "blank": 13
+    },
+    "http": {
+      "files": 15,
+      "code": 544,
+      "comment": 119,
+      "blank": 68
+    },
+    "domain": {
+      "files": 4,
+      "code": 318,
+      "comment": 53,
+      "blank": 53
+    }
+  },
+  "expressAuth": {
+    "wiring": {
+      "files": 3,
+      "code": 58,
+      "comment": 9,
+      "blank": 9
+    },
+    "http": {
+      "files": 2,
+      "code": 230,
+      "comment": 5,
+      "blank": 21
+    },
+    "domain": {
+      "files": 2,
+      "code": 143,
+      "comment": 3,
+      "blank": 18
+    }
+  },
+  "nestSwagger": 40,
+  "transport": {
+    "inProcess": {
+      "commits": [
+        {
+          "commit": "f45d138",
+          "subject": "feat(monolith): compose the six services in one process over the in-process transport"
+        }
+      ],
+      "totals": {
+        "build and boundary config": {
+          "added": 58,
+          "removed": 4,
+          "files": 4
+        },
+        "other libs": {
+          "added": 18,
+          "removed": 1,
+          "files": 1
+        },
+        "monolith composition": {
+          "added": 146,
+          "removed": 0,
+          "files": 5
+        }
+      }
+    },
+    "rmq": {
+      "commits": [
+        {
+          "commit": "8e548a6",
+          "subject": "feat(rpc): carry request/response over RabbitMQ behind RPC_TRANSPORT"
+        }
+      ],
+      "totals": {
+        "deployment": {
+          "added": 3,
+          "removed": 0,
+          "files": 1
+        },
+        "service wiring": {
+          "added": 18,
+          "removed": 24,
+          "files": 9
+        },
+        "other libs": {
+          "added": 58,
+          "removed": 0,
+          "files": 2
+        },
+        "libs/rpc": {
+          "added": 148,
+          "removed": 16,
+          "files": 5
+        }
+      }
+    },
+    "inProcessTransport": {
+      "files": 1,
+      "code": 102,
+      "comment": 35,
+      "blank": 19
+    },
+    "rmqTransport": {
+      "files": 2,
+      "code": 64,
+      "comment": 18,
+      "blank": 5
+    }
+  },
+  "testing": {
+    "specFiles": 46,
+    "withTestingModule": 1,
+    "withOverrideProvider": 0,
+    "withProviderValue": 0,
+    "coverage": {
+      "total": {
+        "statements": 80.33,
+        "branches": 72.39
+      },
+      "byArea": {
+        "apps/api-gateway": {
+          "statements": 76.9,
+          "branches": 59.3
+        },
+        "apps/auth-service": {
+          "statements": 75.5,
+          "branches": 84.4
+        },
+        "apps/indexing-service": {
+          "statements": 88,
+          "branches": 83.8
+        },
+        "apps/ingestion-service": {
+          "statements": 91.6,
+          "branches": 89.5
+        },
+        "apps/llm-service": {
+          "statements": 92.9,
+          "branches": 82
+        },
+        "apps/retrieval-service": {
+          "statements": 85.4,
+          "branches": 77.3
+        },
+        "libs/common": {
+          "statements": 83,
+          "branches": 33.3
+        },
+        "libs/config": {
+          "statements": 35.6,
+          "branches": 62.5
+        },
+        "libs/database": {
+          "statements": 69.6,
+          "branches": 33.3
+        },
+        "libs/embeddings": {
+          "statements": 96.6,
+          "branches": 90.7
+        },
+        "libs/messaging": {
+          "statements": 89.1,
+          "branches": 77.8
+        },
+        "libs/rpc": {
+          "statements": 9.5,
+          "branches": 0
+        },
+        "libs/telemetry": {
+          "statements": 62.2,
+          "branches": 20
+        }
+      }
+    }
+  }
+}

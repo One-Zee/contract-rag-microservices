@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ConsoleLogger, Logger } from '@nestjs/common';
 import type { MicroserviceOptions } from '@nestjs/microservices';
 import { AppConfigModule, AppConfigService, baseSchema } from '@app/config';
-import { rpcServer } from '@app/rpc';
+import { rpcAddress, rpcServer } from '@app/rpc';
 import { AuthServiceModule } from './auth-service.module.js';
 
 async function readTransportOptions() {
@@ -11,7 +11,7 @@ async function readTransportOptions() {
     { logger: false },
   );
   const config = context.get(AppConfigService);
-  const options = { host: config.authHost, port: config.authPort };
+  const options = config.rpcEndpoint('auth');
   await context.close();
   // `logger: false` does not scope to this context — it replaces the static
   // Logger for the whole process, and the real application below would boot
@@ -45,10 +45,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   await app.listen();
-  Logger.log(
-    `auth-service listening on tcp://${options.host}:${options.port}`,
-    'Bootstrap',
-  );
+  Logger.log(`auth-service listening on ${rpcAddress(options)}`, 'Bootstrap');
 }
 
 await bootstrap();

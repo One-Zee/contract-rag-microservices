@@ -13,7 +13,7 @@ export const INGESTION_CLIENT = 'INGESTION_CLIENT';
         imports: [AppConfigModule],
         inject: [AppConfigService],
         useFactory: (config: AppConfigService) =>
-          rpcClient({ host: config.ingestionHost, port: config.ingestionPort }),
+          rpcClient(config.rpcEndpoint('ingestion')),
       },
     ]),
   ],

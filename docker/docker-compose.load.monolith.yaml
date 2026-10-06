@@ -1,0 +1,25 @@
+# The monolith under load — the same settings as
+# docker-compose.load.services.yaml, for its one container.
+
+services:
+  monolith:
+    environment:
+      DATABASE_URL: postgresql://app:dev@postgres:5432/${LOAD_DB:-contracts_load}
+      S3_BUCKET: contracts-load
+      EMBEDDING_PROVIDER: voyage
+      VOYAGE_API_KEY: stub
+      VOYAGE_BASE_URL: http://stub-apis:8080/v1
+      RERANK_PROVIDER: ${LOAD_RERANK:-none}
+      COHERE_API_KEY: stub
+      COHERE_BASE_URL: http://stub-apis:8080/v2
+      LLM_PROVIDER: anthropic
+      LLM_MODEL: claude-haiku-4-5
+      ANTHROPIC_API_KEY: stub
+      ANTHROPIC_BASE_URL: http://stub-apis:8080
+      LEXICAL_MATCH: ${LEXICAL_MATCH:-all}
+      QUERY_MIN_SIMILARITY: '0'
+      THROTTLE_ENABLED: 'false'
+      OTEL_EXPORTER_OTLP_ENDPOINT: ''
+      JWT_EXPIRES_IN: 4h
+    depends_on:
+      stub-apis: { condition: service_healthy }

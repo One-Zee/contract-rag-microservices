@@ -62,6 +62,9 @@
       "path": "./monolith/tsconfig.app.json"
     },
     {
+      "path": "./bench/express-auth/tsconfig.app.json"
+    },
+    {
       "path": "./libs/common/tsconfig.lib.json"
     },
     {

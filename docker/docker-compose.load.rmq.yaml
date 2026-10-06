@@ -1,0 +1,27 @@
+# The six services calling each other over RabbitMQ instead of TCP.
+# Merged after docker-compose.load.services.yaml.
+#
+# Over rmq the four request/response services open no TCP port, so their
+# health is their metrics endpoint — as for indexing-service, which never had
+# a port.
+
+x-rmq: &rmq
+  RPC_TRANSPORT: rmq
+
+x-metrics-check: &metrics-check
+  test:
+    - CMD
+    - node
+    - -e
+    - "fetch('http://localhost:9464/metrics').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+  interval: 5s
+  timeout: 3s
+  retries: 20
+
+services:
+  api-gateway: { environment: *rmq }
+  indexing-service: { environment: *rmq }
+  auth-service: { environment: *rmq, healthcheck: *metrics-check }
+  ingestion-service: { environment: *rmq, healthcheck: *metrics-check }
+  retrieval-service: { environment: *rmq, healthcheck: *metrics-check }
+  llm-service: { environment: *rmq, healthcheck: *metrics-check }

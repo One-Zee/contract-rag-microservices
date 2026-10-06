@@ -1,0 +1,577 @@
+{
+  "run": "answers-draft-check.json",
+  "judge": {
+    "model": "claude-sonnet-5",
+    "temperature": null,
+    "prompt": "v2"
+  },
+  "metrics": {
+    "groundedness": 1,
+    "citationAccuracy": 0.918918918918919,
+    "correctAbstention": 1,
+    "falseAbstention": 0.375,
+    "systemCorrectAbstention": 0,
+    "systemFalseAbstention": 0,
+    "answerCorrect": 0.5,
+    "answerPartial": 0.25,
+    "counts": {
+      "answers": 12,
+      "answered": 12,
+      "claims": 45,
+      "factClaims": 22,
+      "citationPairs": 37,
+      "answerable": 8,
+      "unanswerable": 4
+    }
+  },
+  "judged": [
+    {
+      "question": "q17",
+      "kind": "answerable",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "The Agreement is governed by the laws of the State of Georgia",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The Agreement contains the quoted governing law clause specifying Georgia law excluding choice of law rules",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          }
+        ],
+        "declines": "no",
+        "correct": "yes",
+        "reason": "The answer correctly identifies Georgia as the governing law and quotes the exact clause matching the reference."
+      }
+    },
+    {
+      "question": "q25",
+      "kind": "answerable",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "NCM's liability for intellectual property infringement is limited in multiple ways",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "NCM has no liability for alleged infringement based on specified excluded circumstances (service content/confidential info from Network Affiliate, combined use with non-NCM products, unauthorized modifications, non-NCM specifications, use of outdated versions)",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The obligations under Section 10.3 state the entire liability of NCM and are Network Affiliate's sole and exclusive remedies with respect to IP infringement",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "NCM may elect alternative remedies instead of paying damages: replace/modify NCM Property, secure usage rights, or terminate with depreciated refund of license fees",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "No affiliate of NCM shall have any liability or obligation under the Agreement; NCM is solely responsible and Network Affiliate must look solely to NCM",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 3,
+                "supports": "yes"
+              }
+            ]
+          }
+        ],
+        "declines": "no",
+        "correct": "partial",
+        "reason": "The answer correctly cites the IP infringement sole-remedy provision and third-party beneficiary clause but omits the key general liability cap (net revenue-based) and the exclusion of consequential/punitive damages that the reference identifies as central limitations."
+      }
+    },
+    {
+      "question": "q33",
+      "kind": "answerable",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "The warranty period varies depending on the type of warranty",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 1,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "Application performance warranty: one (1) year from the Effective Date",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 1,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "Application media warranty: ninety (90) days from the applicable Order Form",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 1,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "Maintenance, training, and Professional Services warranty: ninety (90) days from performance of such services",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 1,
+                "supports": "yes"
+              }
+            ]
+          }
+        ],
+        "declines": "no",
+        "correct": "yes",
+        "reason": "The answer accurately restates all three warranty periods from the excerpt, matching the reference."
+      }
+    },
+    {
+      "question": "q07",
+      "kind": "answerable",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "Google warrants that the Distribution Products will be free from defects for a period of [*] from the date of their supply to Distributor",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 3,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The specific duration of the warranty period has been redacted and replaced with an asterisk in the provided document",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "The assistant cannot provide the exact length of time",
+            "kind": "meta",
+            "markers": []
+          }
+        ],
+        "declines": "yes",
+        "correct": "yes",
+        "reason": "The answer correctly quotes the warranty clause and accurately notes that the duration is redacted, matching the reference."
+      }
+    },
+    {
+      "question": "q29",
+      "kind": "answerable",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "After the Initial Term of 10 years, the agreement automatically renews for successive additional 3-year periods (\"Extension Terms\")",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 1,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The renewal continues unless either party terminates it by giving notice to the other party not less than sixty (60) days prior to the end of a Term",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 1,
+                "supports": "yes"
+              }
+            ]
+          }
+        ],
+        "declines": "no",
+        "correct": "yes",
+        "reason": "The answer accurately states the 3-year automatic renewal terms and termination notice period as given in the excerpt and reference."
+      }
+    },
+    {
+      "question": "q49",
+      "kind": "answerable",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "I do not have that information in the provided documents.",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "The provided excerpts do not contain information about renewal terms or notice requirements to prevent renewal of the Master Supply Agreement.",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "The document addresses termination rights when a deficiency cannot be corrected within a specified timeframe.",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 4,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The document addresses termination rights when a Force Majeure Event persists beyond a certain duration.",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The excerpts do not specify how much notice is required to stop the agreement from renewing.",
+            "kind": "meta",
+            "markers": []
+          }
+        ],
+        "declines": "yes",
+        "correct": "no",
+        "reason": "The answer declines to provide the 12-month notice requirement stated in the reference, which was likely present elsewhere in the contract but not cited here."
+      }
+    },
+    {
+      "question": "q27",
+      "kind": "answerable",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "The Sponsorship Agreement provides for an annual review by the parties to verify accuracy and accounting of payments.",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "Excite may, with 30 days prior written notice, have an independent CPA inspect Client's records relevant to payment calculations during normal business hours.",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The CPA's fees are paid by Excite unless the inspection reveals Excite was underpaid by more than 5%, in which case Client pays the fees.",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "Client must maintain accurate records regarding calculation of variable revenue share payments.",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          }
+        ],
+        "declines": "no",
+        "correct": "partial",
+        "reason": "The answer accurately covers the annual review and CPA inspection rights from excerpt 2 but omits the reference's separate quarterly, discrepancy-triggered audit right at Client's expense."
+      }
+    },
+    {
+      "question": "q41",
+      "kind": "answerable",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "The provided documents do not contain the information needed to answer which jurisdiction's law governs the agreement",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "The context includes a section titled '4. Governing Law'",
+            "kind": "meta",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The actual text specifying which jurisdiction's law governs the agreement is not provided in the excerpts",
+            "kind": "meta",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The excerpt cuts off at the section heading without showing the substantive governing law provision",
+            "kind": "meta",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          }
+        ],
+        "declines": "yes",
+        "correct": "no",
+        "reason": "The answer declines to state Pennsylvania as the governing law, which the reference confirms is the correct answer."
+      }
+    },
+    {
+      "question": "q57",
+      "kind": "out_of_corpus",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "I do not have that information in the provided documents.",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "The provided context contains excerpts from a 'Multiple Linac and Multi-modality Distributor Agreement' and a 'Non-competition and Non-solicitation Agreement.'",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "The context does not include the Strategic Alliance Agreement itself or information about an agreement between IntriCon Corporation and Dynamic Hearing Pty Ltd.",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "The Distributor Agreement references the Strategic Alliance Agreement in several places.",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 1,
+                "supports": "yes"
+              },
+              {
+                "n": 2,
+                "supports": "yes"
+              },
+              {
+                "n": 3,
+                "supports": "yes"
+              },
+              {
+                "n": 5,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The excerpts do not specify the governing law of the Strategic Alliance Agreement.",
+            "kind": "meta",
+            "markers": []
+          }
+        ],
+        "declines": "yes",
+        "correct": "yes",
+        "reason": "The answer correctly states the Strategic Alliance Agreement is not among the provided documents, matching the reference."
+      }
+    },
+    {
+      "question": "q54",
+      "kind": "absent",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "The provided documents do not contain information about liquidated damages payable under the Outsourcing Agreement.",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "Article 9 addresses liability and remedies",
+            "kind": "fact",
+            "markers": [
+              {
+                "n": 3,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "Article 9 does not mention liquidated damages",
+            "kind": "meta",
+            "markers": [
+              {
+                "n": 3,
+                "supports": "yes"
+              }
+            ]
+          }
+        ],
+        "declines": "yes",
+        "correct": "yes",
+        "reason": "The answer correctly states the excerpts contain no liquidated damages provision, matching the reference."
+      }
+    },
+    {
+      "question": "q58",
+      "kind": "out_of_corpus",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "The assistant does not have information on which jurisdiction's law governs the VerticalNet/Impresse Co-branding Agreement",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "The CONTEXT contains a co-branding agreement between i-Escrow and 2TheMart",
+            "kind": "meta",
+            "markers": [
+              {
+                "n": 1,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The CONTEXT contains a co-branding agreement between Calm and XSPA",
+            "kind": "meta",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The CONTEXT contains a co-branding agreement between Integrity and Time Life",
+            "kind": "meta",
+            "markers": [
+              {
+                "n": 3,
+                "supports": "yes"
+              }
+            ]
+          },
+          {
+            "text": "The CONTEXT does not include any agreement between VerticalNet, Inc. and Impresse Corporation",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "None of the agreements in the CONTEXT specify which jurisdiction's law governs them",
+            "kind": "meta",
+            "markers": [
+              {
+                "n": 1,
+                "supports": "no"
+              },
+              {
+                "n": 2,
+                "supports": "no"
+              },
+              {
+                "n": 3,
+                "supports": "no"
+              }
+            ]
+          }
+        ],
+        "declines": "yes",
+        "correct": "yes",
+        "reason": "The answer correctly states the VerticalNet/Impresse agreement is not among the excerpts, matching the reference."
+      }
+    },
+    {
+      "question": "q55",
+      "kind": "absent",
+      "abstained": false,
+      "judgement": {
+        "claims": [
+          {
+            "text": "The provided documents do not contain information about most-favored-nation pricing in the Endorsement Agreement",
+            "kind": "meta",
+            "markers": []
+          },
+          {
+            "text": "The excerpts from the Endorsement Agreement between SQUARE TWO GOLF INC. and KATHY WHITWORTH do not contain any provisions regarding most-favored-nation pricing",
+            "kind": "meta",
+            "markers": [
+              {
+                "n": 2,
+                "supports": "yes"
+              },
+              {
+                "n": 5,
+                "supports": "yes"
+              }
+            ]
+          }
+        ],
+        "declines": "yes",
+        "correct": "yes",
+        "reason": "The answer correctly states the excerpts lack any MFN pricing clause, matching the reference."
+      }
+    }
+  ]
+}

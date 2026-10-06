@@ -2,7 +2,7 @@ import { ConsoleLogger, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { MicroserviceOptions } from '@nestjs/microservices';
 import { AppConfigModule, AppConfigService, baseSchema } from '@app/config';
-import { rpcServer } from '@app/rpc';
+import { rpcAddress, rpcServer } from '@app/rpc';
 import { LlmServiceModule } from './llm-service.module.js';
 
 async function readTransportOptions() {
@@ -11,7 +11,7 @@ async function readTransportOptions() {
     { logger: false },
   );
   const config = context.get(AppConfigService);
-  const options = { host: config.llmHost, port: config.llmPort };
+  const options = config.rpcEndpoint('llm');
   await context.close();
 
   // `logger: false` above silenced the static logger for the whole process,
@@ -27,13 +27,10 @@ async function bootstrap() {
     rpcServer(options),
   );
   // Without this no lifecycle hook runs on SIGTERM and the Postgres pool is
-  // left open (ADR 007).
+  // left open.
   app.enableShutdownHooks();
   await app.listen();
-  Logger.log(
-    `llm-service listening on tcp://${options.host}:${options.port}`,
-    'Bootstrap',
-  );
+  Logger.log(`llm-service listening on ${rpcAddress(options)}`, 'Bootstrap');
 }
 
 await bootstrap();
