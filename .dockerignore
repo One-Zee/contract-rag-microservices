@@ -16,9 +16,12 @@ coverage
 .idea
 *.log
 
-# Documentation and tests: not needed to build or run anything.
+# Documentation, tests and the evaluation harness (with its CUAD download,
+# hundreds of MB): not needed to build or run anything. The load tests'
+# stub and k6 scripts are mounted into their containers, not baked in.
 docs
 test
+eval
 plan.md
 CLAUDE.md
 README.md
