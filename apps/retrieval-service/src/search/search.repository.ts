@@ -18,6 +18,7 @@ import {
   DRIZZLE,
   type DrizzleDatabase,
 } from '@app/database';
+import type { LexicalMatch } from '@app/config';
 import { withSpan } from '@app/telemetry';
 
 /** The text search configuration migration 0005 sealed into the `tsv` column. */
@@ -36,6 +37,8 @@ export interface SearchBranchOptions {
   documentId?: string;
   /** Visits this many index candidates before the filter — `HNSW_EF_SEARCH`. */
   efSearch: number;
+  /** `LEXICAL_MATCH`; `all` when absent. */
+  lexicalMatch?: LexicalMatch;
 }
 
 /** A hit from one branch: the id, its position, and the branch's own score. */
@@ -139,11 +142,22 @@ export class SearchRepository {
           )
         : [];
 
-      // `plainto_tsquery` takes the question as plain text — it ANDs the
-      // lexemes and needs no escaping, unlike `to_tsquery`. The configuration
-      // must be the one the generated column used, or this matches nothing.
-      const tsQuery = sql`plainto_tsquery(${TEXT_SEARCH_CONFIG}, ${query})`;
-      const rank = sql<number>`ts_rank_cd(${TSV}, ${tsQuery})`;
+      // `plainto_tsquery` takes the question as plain text and needs no
+      // escaping, unlike `to_tsquery`. The configuration must be the one the
+      // generated column used, or this matches nothing.
+      //
+      // It ANDs the lexemes, so `all` only matches a chunk holding every word
+      // of the question — which a question in natural language almost never
+      // is. `any` turns the ANDs into ORs in the parsed query (lexemes cannot
+      // contain `&`) and ranks by term frequency.
+      const parsed = sql`plainto_tsquery(${TEXT_SEARCH_CONFIG}, ${query})`;
+      const any = options.lexicalMatch === 'any';
+      const tsQuery = any
+        ? sql`replace(${parsed}::text, '&', '|')::tsquery`
+        : parsed;
+      const rank = any
+        ? sql<number>`ts_rank(${TSV}, ${tsQuery})`
+        : sql<number>`ts_rank_cd(${TSV}, ${tsQuery})`;
 
       const lexical = options.lexical
         ? await withSpan(

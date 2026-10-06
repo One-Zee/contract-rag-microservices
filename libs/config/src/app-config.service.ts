@@ -3,7 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { AppEnvironment } from './enums/app-environment.enum.js';
 import type { EmbeddingProviderName } from './schemas/embeddings.schema.js';
 import type { LlmProvider } from './schemas/llm.schema.js';
-import type { RerankProviderName } from './schemas/retrieval.schema.js';
+import type {
+  LexicalMatch,
+  RerankProviderName,
+} from './schemas/retrieval.schema.js';
 
 @Injectable()
 export class AppConfigService {
@@ -309,6 +312,10 @@ export class AppConfigService {
 
   get hnswEfSearch(): number {
     return this.configService.get<number>('HNSW_EF_SEARCH', 100);
+  }
+
+  get lexicalMatch(): LexicalMatch {
+    return this.configService.get<LexicalMatch>('LEXICAL_MATCH', 'all');
   }
 
   get rerankProvider(): RerankProviderName {

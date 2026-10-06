@@ -4,6 +4,9 @@ import Joi from 'joi';
 export const RERANK_PROVIDERS = ['cohere', 'none'] as const;
 export type RerankProviderName = (typeof RERANK_PROVIDERS)[number];
 
+export const LEXICAL_MATCHES = ['all', 'any'] as const;
+export type LexicalMatch = (typeof LEXICAL_MATCHES)[number];
+
 /**
  * The knobs of the hybrid search, composed by retrieval-service alone.
  *
@@ -56,6 +59,13 @@ export const retrievalSchema = Joi.object({
   // `SEARCH_CANDIDATES` — the trade-off between latency and recall, and the
   // one number that must not drift between measurements.
   HNSW_EF_SEARCH: Joi.number().integer().min(1).default(100),
+
+  // Whether the lexical branch needs every word of the question in a chunk
+  // (`all`, the original behaviour) or any of them, ranked by frequency
+  // (`any`). See search.repository.ts for why it matters.
+  LEXICAL_MATCH: Joi.string()
+    .valid(...LEXICAL_MATCHES)
+    .default('all'),
 
   // `none` is the identity reranker: it keeps the RRF order and calls nothing.
   // It is the default so the stack runs without a second API key — reranking
