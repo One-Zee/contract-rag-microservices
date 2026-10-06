@@ -123,6 +123,10 @@ export class AppConfigService {
     return this.configService.get<number>('CHUNK_OVERLAP_TOKENS', 120);
   }
 
+  get chunkRespectSections(): boolean {
+    return this.configService.get<boolean>('CHUNK_RESPECT_SECTIONS', true);
+  }
+
   get ingestionConcurrency(): number {
     return this.configService.get<number>('INGESTION_CONCURRENCY', 2);
   }
@@ -207,6 +211,11 @@ export class AppConfigService {
     return this.configService.get<string>('ANTHROPIC_VERSION', '2023-06-01');
   }
 
+  /** `undefined` means the real API. */
+  get anthropicBaseUrl(): string | undefined {
+    return this.configService.get<string>('ANTHROPIC_BASE_URL');
+  }
+
   get ollamaBaseUrl(): string {
     return this.configService.get<string>(
       'OLLAMA_BASE_URL',
@@ -276,6 +285,11 @@ export class AppConfigService {
     return this.configService.getOrThrow<string>('VOYAGE_API_KEY');
   }
 
+  /** `undefined` means the real API. */
+  get voyageBaseUrl(): string | undefined {
+    return this.configService.get<string>('VOYAGE_BASE_URL');
+  }
+
   // ── Hybrid search ──────────────────────────────────────────────────────────
   get searchCandidates(): number {
     return this.configService.get<number>('SEARCH_CANDIDATES', 20);
@@ -311,5 +325,10 @@ export class AppConfigService {
   /** Required by the schema whenever the provider is `cohere`, hence no default. */
   get cohereApiKey(): string {
     return this.configService.getOrThrow<string>('COHERE_API_KEY');
+  }
+
+  /** `undefined` means the real API. */
+  get cohereBaseUrl(): string | undefined {
+    return this.configService.get<string>('COHERE_BASE_URL');
   }
 }

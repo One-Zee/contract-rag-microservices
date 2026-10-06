@@ -25,6 +25,7 @@ export function createLlmProvider(config: AppConfigService): LlmProvider {
         model,
         version: config.anthropicVersion,
         idleTimeoutMs: config.llmIdleTimeoutMs,
+        baseUrl: config.anthropicBaseUrl,
       });
       break;
     case 'ollama':

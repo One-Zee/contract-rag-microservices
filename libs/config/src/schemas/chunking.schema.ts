@@ -7,5 +7,8 @@ export const chunkingSchema = Joi.object({
     .min(0)
     .less(Joi.ref('CHUNK_SIZE_TOKENS'))
     .default(120),
+  // `false` ignores clause headings: the naive baseline of plan §9.2. A corpus
+  // chunked this way is a different corpus — only ever in its own database.
+  CHUNK_RESPECT_SECTIONS: Joi.boolean().default(true),
   INGESTION_CONCURRENCY: Joi.number().integer().min(1).default(2),
 });

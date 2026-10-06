@@ -57,6 +57,11 @@ export const llmSchema = Joi.object({
   /** Anthropic pins its wire format to a date header rather than a URL path. */
   ANTHROPIC_VERSION: Joi.string().default('2023-06-01'),
 
+  /** A stand-in of the API for load tests, like VOYAGE_BASE_URL. */
+  ANTHROPIC_BASE_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .empty(''),
+
   OLLAMA_BASE_URL: Joi.string()
     .uri({ scheme: ['http', 'https'] })
     .default('http://127.0.0.1:11434'),

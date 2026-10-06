@@ -43,6 +43,12 @@ export const embeddingsSchema = Joi.object({
     otherwise: Joi.optional(),
   }),
 
+  // Only for pointing the client at a stand-in of the API — the load tests'
+  // stub. Unset means the real endpoint.
+  VOYAGE_BASE_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .empty(''),
+
   // Chunks per embedding request. Voyage accepts up to 1 000 texts and, for
   // voyage-law-2, 120K tokens per request; 100 chunks of at most 800 tokens
   // stay well inside both.

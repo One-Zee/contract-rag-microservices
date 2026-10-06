@@ -73,4 +73,9 @@ export const retrievalSchema = Joi.object({
     then: Joi.required(),
     otherwise: Joi.optional(),
   }),
+
+  // A stand-in of the API for load tests, like VOYAGE_BASE_URL.
+  COHERE_BASE_URL: Joi.string()
+    .uri({ scheme: ['http', 'https'] })
+    .empty(''),
 });

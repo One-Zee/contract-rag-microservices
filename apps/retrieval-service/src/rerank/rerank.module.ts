@@ -16,6 +16,7 @@ export function createReranker(config: AppConfigService): Reranker {
       reranker = new CohereReranker({
         apiKey: config.cohereApiKey,
         model: config.rerankModel,
+        baseUrl: config.cohereBaseUrl,
       });
       break;
     case 'none':

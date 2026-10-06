@@ -20,6 +20,7 @@ export function createEmbeddingProvider(
         apiKey: config.voyageApiKey,
         model: config.embeddingModel,
         dimensions,
+        baseUrl: config.voyageBaseUrl,
       });
       break;
     case 'fake':
