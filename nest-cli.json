@@ -109,6 +109,15 @@
         "tsConfigPath": "monolith/tsconfig.app.json"
       }
     },
+    "express-auth": {
+      "type": "application",
+      "root": "bench/express-auth",
+      "entryFile": "main",
+      "sourceRoot": "bench/express-auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "bench/express-auth/tsconfig.app.json"
+      }
+    },
     "rpc": {
       "type": "library",
       "root": "libs/rpc",

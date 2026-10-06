@@ -35,14 +35,15 @@ COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci \
     && node -e "require('@rspack/binding')"
 
-# ── The bundles: one rspack build per service, and the monolith ──────────────
+# ── The bundles: one rspack build per service, the monolith, the Express twin ─
 FROM deps AS build
 COPY tsconfig.json nest-cli.json ./
 COPY apps apps
 COPY libs libs
 COPY monolith monolith
+COPY bench bench
 RUN npx nest build api-gateway auth-service ingestion-service \
-    indexing-service retrieval-service llm-service monolith
+    indexing-service retrieval-service llm-service monolith express-auth
 
 # ── Runtime dependencies only ─────────────────────────────────────────────────
 FROM ${NODE_IMAGE} AS prod-deps

@@ -49,6 +49,32 @@ module.exports = {
       },
     },
     {
+      name: 'nothing-imports-the-benchmarks',
+      comment:
+        'bench/ holds comparison twins written without Nest; the system never ' +
+        'depends on them.',
+      severity: 'error',
+      from: { path: '^(apps|libs|monolith)/' },
+      to: { path: '^bench/' },
+    },
+    {
+      name: 'benchmarks-stay-nest-free',
+      comment:
+        'A twin may share libraries, but never a service, the monolith, or a ' +
+        "library's barrel — every barrel that matters re-exports a Nest module, " +
+        'and a twin that loads Nest measures Nest.',
+      severity: 'error',
+      from: { path: '^bench/' },
+      to: {
+        path: [
+          '^apps/',
+          '^monolith/',
+          '^libs/[^/]+/src/index\\.ts$',
+          '@nestjs/',
+        ],
+      },
+    },
+    {
       name: 'no-circular',
       severity: 'error',
       comment:
