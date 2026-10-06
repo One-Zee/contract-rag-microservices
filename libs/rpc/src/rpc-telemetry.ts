@@ -13,11 +13,11 @@ import {
 import { isObservable, Observable, of } from 'rxjs';
 
 /**
- * `nestjs_tcp` between processes, `in_process` inside the monolith. The same
- * pattern measured under both values is what §9.5 calls the cost of the
- * transport abstraction .
+ * `nestjs_tcp` or `nestjs_rmq` between processes, `in_process` inside the
+ * monolith. The same pattern measured under each value is what §9.5 calls
+ * the cost of the transport abstraction.
  */
-export type RpcSystem = 'nestjs_tcp' | 'in_process';
+export type RpcSystem = 'nestjs_tcp' | 'nestjs_rmq' | 'in_process';
 
 /**
  * `rejected` is a 4xx from the other side — the caller's mistake, not a

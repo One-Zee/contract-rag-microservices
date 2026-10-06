@@ -13,7 +13,7 @@ export const RETRIEVAL_CLIENT = 'RETRIEVAL_CLIENT';
         imports: [AppConfigModule],
         inject: [AppConfigService],
         useFactory: (config: AppConfigService) =>
-          rpcClient({ host: config.retrievalHost, port: config.retrievalPort }),
+          rpcClient(config.rpcEndpoint('retrieval')),
       },
     ]),
   ],

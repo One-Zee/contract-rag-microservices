@@ -1,12 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppEnvironment } from './enums/app-environment.enum.js';
+import type { RpcTransport } from './schemas/base.schema.js';
 import type { EmbeddingProviderName } from './schemas/embeddings.schema.js';
 import type { LlmProvider } from './schemas/llm.schema.js';
 import type {
   LexicalMatch,
   RerankProviderName,
 } from './schemas/retrieval.schema.js';
+
+/** The services that answer requests; indexing only consumes events. */
+export type RpcService = 'auth' | 'ingestion' | 'retrieval' | 'llm';
+
+/** Structurally the `RpcEndpoint` of `@app/rpc`, which config does not import. */
+export interface RpcEndpointConfig {
+  name: RpcService;
+  host: string;
+  port: number;
+  transport: RpcTransport;
+  rabbitmqUrl?: string;
+}
 
 @Injectable()
 export class AppConfigService {
@@ -71,6 +84,34 @@ export class AppConfigService {
 
   get llmPort(): number {
     return this.configService.get<number>('LLM_PORT', 3005);
+  }
+
+  get rpcTransport(): RpcTransport {
+    return this.configService.get<RpcTransport>('RPC_TRANSPORT', 'tcp');
+  }
+
+  /**
+   * Everything `rpcClient` / `rpcServer` need to reach or serve one service,
+   * whichever transport is configured.
+   */
+  rpcEndpoint(service: RpcService): RpcEndpointConfig {
+    const addresses: Record<RpcService, [string, number]> = {
+      auth: [this.authHost, this.authPort],
+      ingestion: [this.ingestionHost, this.ingestionPort],
+      retrieval: [this.retrievalHost, this.retrievalPort],
+      llm: [this.llmHost, this.llmPort],
+    };
+    const [host, port] = addresses[service];
+    const transport = this.rpcTransport;
+    return {
+      name: service,
+      host,
+      port,
+      transport,
+      // Read only for rmq: over TCP the URL is optional, and getOrThrow would
+      // fail a gateway that has no broker configured.
+      rabbitmqUrl: transport === 'rmq' ? this.rabbitmqUrl : undefined,
+    };
   }
 
   // ── Database ───────────────────────────────────────────────────────────────

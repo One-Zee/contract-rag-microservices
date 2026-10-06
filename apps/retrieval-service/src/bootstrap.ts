@@ -2,7 +2,7 @@ import { ConsoleLogger, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { MicroserviceOptions } from '@nestjs/microservices';
 import { AppConfigModule, AppConfigService, baseSchema } from '@app/config';
-import { rpcServer } from '@app/rpc';
+import { rpcAddress, rpcServer } from '@app/rpc';
 import { RetrievalServiceModule } from './retrieval-service.module.js';
 
 async function readTransportOptions() {
@@ -11,7 +11,7 @@ async function readTransportOptions() {
     { logger: false },
   );
   const config = context.get(AppConfigService);
-  const options = { host: config.retrievalHost, port: config.retrievalPort };
+  const options = config.rpcEndpoint('retrieval');
   await context.close();
 
   // `logger: false` above silenced the static logger for the whole process,
@@ -31,7 +31,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
   await app.listen();
   Logger.log(
-    `retrieval-service listening on tcp://${options.host}:${options.port}`,
+    `retrieval-service listening on ${rpcAddress(options)}`,
     'Bootstrap',
   );
 }

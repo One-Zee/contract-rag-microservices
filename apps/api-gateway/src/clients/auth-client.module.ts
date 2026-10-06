@@ -13,7 +13,7 @@ export const AUTH_CLIENT = 'AUTH_CLIENT';
         imports: [AppConfigModule],
         inject: [AppConfigService],
         useFactory: (config: AppConfigService) =>
-          rpcClient({ host: config.authHost, port: config.authPort }),
+          rpcClient(config.rpcEndpoint('auth')),
       },
     ]),
   ],
