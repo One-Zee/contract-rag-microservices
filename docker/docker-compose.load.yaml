@@ -1,0 +1,85 @@
+# Load tests — merged over docker-compose.yaml, the observability
+# file, one topology file and that topology's load file:
+#
+#   node eval/load/run-load.ts up services      (or monolith, rmq, bench)
+#
+# What this file adds, whichever topology runs:
+#   - stub-apis: Voyage, Anthropic and Cohere at the network boundary, with
+#     calibrated latencies, so a load test measures the system and costs
+#     nothing (eval/load/stub-apis.ts, mounted — not baked into the image);
+#   - k6, under a profile: started per run by the orchestrator;
+#   - fixed limits for the infrastructure, so two topologies compete for the
+#     same database, broker and storage;
+#   - Jaeger and Grafana off: a trace per request would be measured too, and
+#     this Docker VM has 3.8 GB. Prometheus stays.
+
+services:
+  stub-apis:
+    image: clauseiq:local
+    pull_policy: never
+    init: true
+    working_dir: /load
+    command: ['node', 'stub-apis.ts']
+    volumes: ['../eval/load:/load:ro']
+    environment:
+      STUB_EMBED_MS: ${STUB_EMBED_MS:-150}
+      STUB_EMBED_PER_TEXT_MS: ${STUB_EMBED_PER_TEXT_MS:-2}
+      STUB_RERANK_MS: ${STUB_RERANK_MS:-200}
+      STUB_LLM_TTFT_MS: ${STUB_LLM_TTFT_MS:-600}
+      STUB_LLM_TOKEN_MS: ${STUB_LLM_TOKEN_MS:-10}
+      STUB_LLM_TOKENS: ${STUB_LLM_TOKENS:-120}
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 128M }
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:8080/health').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  k6:
+    image: grafana/k6:2.3.0
+    profiles: [k6]
+    # Root only to write results into the bind mount on a Linux host.
+    user: '0'
+    volumes:
+      - ../eval/load/k6:/scripts:ro
+      - ../eval/dataset:/dataset:ro
+      - ../eval/results/load/raw:/results
+    deploy:
+      resources:
+        limits: { cpus: '1.5', memory: 384M }
+
+  migrate:
+    environment:
+      DATABASE_URL: postgresql://app:dev@postgres:5432/${LOAD_DB:-contracts_load}
+
+  postgres:
+    deploy:
+      resources:
+        limits: { cpus: '1.5', memory: 768M }
+  rabbitmq:
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 512M }
+  minio:
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 256M }
+  redis:
+    deploy:
+      resources:
+        limits: { cpus: '0.25', memory: 64M }
+  prometheus:
+    deploy:
+      resources:
+        limits: { cpus: '0.5', memory: 192M }
+
+  jaeger:
+    profiles: [traces]
+  grafana:
+    profiles: [dashboards]

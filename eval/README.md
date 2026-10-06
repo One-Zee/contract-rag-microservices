@@ -78,3 +78,34 @@ the retrieval-service log for `Reranking failed` after a run.
 database, keys and validation rules. `npm run eval:parity` sends one sequence
 of requests to the gateway and to the twin and compares statuses and
 response shapes.
+
+## Load (§9.4, §9.5)
+
+```bash
+node eval/load/run-load.ts up services        # or rmq, monolith; --bench adds the twin
+node eval/load/run-load.ts seed               # once: 200 contracts into contracts_load
+node eval/load/run-load.ts run search --label services --vus 10,50,100 --reps 3
+node eval/load/run-load.ts run query  --label services --vus 10,50,100 --reps 3
+node eval/load/run-load.ts burst --label services
+node eval/load/run-load.ts up monolith --bench --overhead
+node eval/load/run-load.ts run overhead --label express-1cpu --endpoint user --vus 50 --target http://express-auth:3100
+node eval/load/summarize.ts                   # eval/results/load/summary.md
+node eval/load/run-load.ts down               # then `npm run infra:up` for development
+```
+
+The paid APIs are replaced by `eval/load/stub-apis.ts` at the network
+boundary. Its latencies come from the real runs:
+`node eval/load/calibrate-stub.ts` writes `eval/results/load/stub.env`, which
+every later `up` uses. Raw output is gitignored (`results/**/raw/`); the
+summaries are committed.
+
+Never alongside `npm run dev`: the orchestrator refuses to start while a local
+process listens on port 3000.
+
+On macOS, run a whole series under one `caffeinate -i` (for example
+`caffeinate -i bash my-series.sh`), plugged in and with the lid open. Each
+orchestrator invocation keeps the machine awake while it runs, but the moment
+between two invocations is enough for a laptop set to sleep after a minute of
+idleness — and a nap in the middle of a run stretches every request in flight
+without a single error (`summarize.ts` drops runs that took far longer than
+planned).

@@ -56,7 +56,10 @@
     "eval:judge": "node eval/scripts/judge.ts",
     "eval:agreement": "node eval/scripts/agreement.ts",
     "eval:parity": "node eval/scripts/parity-auth.ts",
-    "eval:nest": "node eval/scripts/nest-metrics.ts"
+    "eval:nest": "node eval/scripts/nest-metrics.ts",
+    "load": "node eval/load/run-load.ts",
+    "load:summary": "node eval/load/summarize.ts",
+    "load:calibrate": "node eval/load/calibrate-stub.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1123.0",
