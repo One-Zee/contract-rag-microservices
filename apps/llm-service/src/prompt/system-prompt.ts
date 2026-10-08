@@ -8,6 +8,23 @@ export const ABSTENTION_SENTENCE =
   'I do not have that information in the provided documents.';
 
 /**
+ * Whether the model's reply is the abstention sentence. Rule 3 asks for
+ * exactly that sentence, but a model tends to go on after it — a remark about
+ * something beside the question, with a citation — and the citation check
+ * alone would then count the reply as an answer. Only the opening counts: a
+ * reply that answers one part of a question and declines another is still an
+ * answer. Quotes around it are allowed, since rule 3 shows the sentence in
+ * quotes, and so is a missing full stop. Only the English sentence is
+ * recognised: rule 5 lets a question in another language be declined in it.
+ */
+export function declinesInWords(reply: string): boolean {
+  return reply
+    .trimStart()
+    .replace(/^["'\u201c\u2018]+/, '')
+    .startsWith(ABSTENTION_SENTENCE.replace(/\.$/, ''));
+}
+
+/**
  * The system prompt — "uloga pravnog asistenta, obavezno citiranje,
  * zabrana izmišljanja".
  *

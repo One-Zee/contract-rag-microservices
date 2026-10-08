@@ -1,0 +1,45 @@
+# Caddy in front of the gateway and Grafana (docker/docker-compose.prod.yaml).
+#
+# SITE_ADDRESS is the server's public IP address until there is a domain, and
+# the domain afterwards. CADDY_TLS is `internal` with an IP address — a
+# certificate from Caddy's own CA, which a browser warns about until that
+# root is trusted (deploy/README.md) — and an e-mail address with a domain,
+# which turns on Let's Encrypt. Nothing else changes between the two.
+{
+	# A client that connects to an IP address sends no server name, and behind
+	# Docker's port forwarding the address it reached is not one Caddy sees
+	# either: this names the certificate to answer with.
+	default_sni {$SITE_ADDRESS}
+}
+
+{$SITE_ADDRESS} {
+	tls {$CADDY_TLS:internal}
+
+	# The gateway enforces the upload limit; this keeps a body far beyond it
+	# from being read at all.
+	request_body {
+		max_size 16MB
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		-Server
+		-X-Powered-By
+	}
+
+	# No access log on purpose: `GET /search?q=` carries the question in its
+	# URL, which the telemetry exporter strips and a log would keep. One that
+	# is turned on must delete it (`format filter { request>uri query { delete q } }`).
+
+	redir /grafana /grafana/
+	handle /grafana/* {
+		reverse_proxy grafana:3000
+	}
+
+	# `POST /query` answers as a server-sent event stream; Caddy flushes
+	# text/event-stream responses as they arrive.
+	handle {
+		reverse_proxy api-gateway:3000
+	}
+}

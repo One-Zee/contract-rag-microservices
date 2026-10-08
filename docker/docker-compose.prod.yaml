@@ -1,0 +1,128 @@
+# Production on one server: the six services from the image CI published,
+# behind Caddy. Merged over docker-compose.yaml, the observability file and
+# docker-compose.services.yaml — deploy/deploy.sh runs it:
+#
+#   docker compose --project-name clauseiq --env-file .env \
+#     -f docker/docker-compose.yaml -f docker/docker-compose.observability.yaml \
+#     -f docker/docker-compose.services.yaml -f docker/docker-compose.prod.yaml \
+#     up -d --wait --remove-orphans
+#
+# What differs from the local stack:
+#   - the image is the one published for the deployed commit, not a local
+#     build;
+#   - every credential comes from .env (deploy/production.env.example): the
+#     development ones in docker-compose.yaml and stack.env are overridden
+#     here, and a missing variable stops `up` before anything starts;
+#   - NODE_ENV=production, so the fake providers are refused; registration
+#     is off unless .env turns it on; throttling is on, and the gateway counts
+#     clients by the address Caddy saw;
+#   - Caddy is the only container on a public interface: the API on /,
+#     Grafana on /grafana/. Everything else keeps its 127.0.0.1 port, for an
+#     SSH tunnel;
+#   - every container comes back after a reboot.
+
+x-image: &image
+  image: ${CLAUSEIQ_IMAGE:?set by deploy/deploy.sh to the published image}
+  pull_policy: missing
+
+x-app: &app
+  <<: *image
+  # Over env_file (.env, then stack.env with the development URLs): what is
+  # set here wins.
+  environment:
+    NODE_ENV: production
+    DATABASE_URL: postgresql://app:${POSTGRES_PASSWORD:?}@postgres:5432/contracts
+    RABBITMQ_URL: amqp://${RABBITMQ_USER:?}:${RABBITMQ_PASSWORD:?}@rabbitmq:5672
+    AUTH_REGISTRATION_ENABLED: ${AUTH_REGISTRATION_ENABLED:-false}
+    THROTTLE_ENABLED: 'true'
+    # Caddy, and nothing else, stands in front of the gateway.
+    TRUST_PROXY: '1'
+
+x-restart: &restart
+  restart: unless-stopped
+
+services:
+  migrate:
+    <<: *image
+    environment:
+      DATABASE_URL: postgresql://app:${POSTGRES_PASSWORD:?}@postgres:5432/contracts
+
+  api-gateway: *app
+  auth-service: *app
+  ingestion-service: *app
+  indexing-service: *app
+  retrieval-service: *app
+  llm-service: *app
+
+  # The password applies when the volume is first initialised; changing it
+  # later means ALTER USER as well.
+  postgres:
+    <<: *restart
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+
+  # No volume, as locally: the services declare the topology at boot, and the
+  # indexing sweep picks up documents whose event was lost.
+  rabbitmq:
+    <<: *restart
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?}
+
+  redis:
+    <<: *restart
+
+  minio:
+    <<: *restart
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:?}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:?}
+
+  # Traces stay in memory, bounded: past the limit the oldest go first, so a
+  # busy month cannot grow the container past its memory.
+  jaeger:
+    <<: *restart
+    command:
+      - --set=extensions.jaeger_storage.backends.some_storage.memory.max_traces=10000
+    deploy:
+      resources:
+        limits: { memory: 1G }
+
+  prometheus:
+    <<: *restart
+
+  # Behind Caddy on /grafana/, with its own login.
+  grafana:
+    <<: *restart
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?}
+      GF_SERVER_ROOT_URL: https://${SITE_ADDRESS:?}/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
+      GF_SECURITY_COOKIE_SECURE: 'true'
+
+  caddy:
+    image: caddy:2.11.7
+    <<: *restart
+    # Public on purpose — the one service that is. 443/udp is HTTP/3.
+    ports: ['80:80', '443:443', '443:443/udp']
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?}
+      CADDY_TLS: ${CADDY_TLS:-internal}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificates and Caddy's own CA: losing them means a new root to trust.
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on:
+      api-gateway: { condition: service_healthy }
+      grafana: { condition: service_started }
+    # The admin endpoint answers once the configuration is loaded.
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:2019/config/']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  caddydata:
+  caddyconfig:

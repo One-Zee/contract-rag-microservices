@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppConfigService } from '@app/config';
 import { ApiGatewayModule } from './api-gateway.module.js';
 import { configureHttpApp } from './http-app.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApiGatewayModule);
+  const app =
+    await NestFactory.create<NestExpressApplication>(ApiGatewayModule);
   const config = app.get(AppConfigService);
 
   configureHttpApp(app);

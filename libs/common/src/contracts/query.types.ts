@@ -20,7 +20,7 @@ export type QueryEventType = (typeof QUERY_EVENT_TYPES)[number];
 
 /**
  * Why the system declined to answer. The first two are decided before the model is called and cost
- * nothing; the third is only knowable afterwards.
+ * nothing; the last two are only knowable afterwards.
  */
 export const ABSTAIN_REASONS = [
   /** Retrieval returned no chunk at all — nothing visible matched. */
@@ -29,6 +29,8 @@ export const ABSTAIN_REASONS = [
   'below_threshold',
   /** The model answered, but cited nothing that was in the context. */
   'no_citations',
+  /** The model replied with the abstention sentence, whatever it cited besides. */
+  'declined',
 ] as const;
 export type AbstainReason = (typeof ABSTAIN_REASONS)[number];
 

@@ -81,17 +81,50 @@ response shapes.
 
 ## Load (§9.4, §9.5)
 
+The whole series is one command: every topology, scenario and repetition,
+with the topologies rotated from one repetition to the next so that none is
+always the first to run.
+
 ```bash
-node eval/load/run-load.ts up services        # or rmq, monolith; --bench adds the twin
+npm run load:series -- --dry-run     # the steps and an estimate (about 3.6 h)
+npm run load:series                  # refuses uncommitted changes; --allow-dirty for a trial
+```
+
+The topologies:
+
+- `services`: the six containers, 0.5 CPU each.
+- `budget`: the same 3 CPUs, split by role (`docker/docker-compose.load.budget.yaml`):
+  retrieval 1.25, llm 0.75, gateway 0.5, auth 0.25, ingestion and indexing 0.125 each.
+- `monolith`: 3 CPUs.
+- `rmq`: RPC over RabbitMQ. It is not in the series.
+
+Single steps, for runs of your own:
+
+```bash
+node eval/load/run-load.ts up services        # or budget, rmq, monolith; --bench adds the twin
 node eval/load/run-load.ts seed               # once: 200 contracts into contracts_load
 node eval/load/run-load.ts run search --label services --vus 10,50,100 --reps 3
 node eval/load/run-load.ts run query  --label services --vus 10,50,100 --reps 3
-node eval/load/run-load.ts burst --label services
+node eval/load/run-load.ts burst --label services --rep 1
 node eval/load/run-load.ts up monolith --bench --overhead
 node eval/load/run-load.ts run overhead --label express-1cpu --endpoint user --vus 50 --target http://express-auth:3100
 node eval/load/summarize.ts                   # eval/results/load/summary.md
 node eval/load/run-load.ts down               # then `npm run infra:up` for development
 ```
+
+`--rep` numbers the first repetition a command writes (`…-r<n>`,
+`burst-r<n>`), so coming back to a topology adds repetitions instead of
+overwriting them.
+
+Every run records:
+
+- the commit, and whether tracked files differed from it;
+- the image ID;
+- the machine Docker runs on;
+- on Linux, the share of CPU time the hypervisor took away while the run lasted (steal).
+
+The summary names all of these and flags a series that mixes machines or
+commits.
 
 The paid APIs are replaced by `eval/load/stub-apis.ts` at the network
 boundary. Its latencies come from the real runs:
@@ -102,10 +135,25 @@ summaries are committed.
 Never alongside `npm run dev`: the orchestrator refuses to start while a local
 process listens on port 3000.
 
-On macOS, run a whole series under one `caffeinate -i` (for example
-`caffeinate -i bash my-series.sh`), plugged in and with the lid open. Each
-orchestrator invocation keeps the machine awake while it runs, but the moment
-between two invocations is enough for a laptop set to sleep after a minute of
-idleness — and a nap in the middle of a run stretches every request in flight
-without a single error (`summarize.ts` drops runs that took far longer than
-planned).
+### The final figures
+
+The final figures come from a Linux host with dedicated cores, not from a
+laptop:
+
+1. Provision the host as `deploy/README.md` describes.
+2. Check out a pushed commit and `npm ci`.
+3. Fetch the corpus: `npm run eval:fetch`.
+4. Create `.env`. It needs only the JWT pair, since every provider is stubbed.
+5. Run `npm run load:series` inside `tmux`.
+6. Copy `eval/results/load/raw/` back into an empty `raw/` and run
+   `npm run load:summary`. Runs left from another machine would otherwise
+   mix in; the summary would flag them.
+
+### On macOS
+
+`load:series` holds one wake lock for the whole series, plugged in and with
+the lid open. Separate orchestrator commands each keep the machine awake only
+while they run. The moment between two of them is enough for a laptop set to
+sleep after a minute of idleness, and a nap in the middle of a run stretches
+every request in flight without a single error. Run such a sequence under one
+`caffeinate -i`. `summarize.ts` drops runs that took far longer than planned.

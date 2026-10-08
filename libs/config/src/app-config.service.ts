@@ -237,6 +237,11 @@ export class AppConfigService {
     return this.configService.get<number>('THROTTLE_STRICT_LIMIT', 10);
   }
 
+  /** Reverse proxies in front of the gateway; 0 believes no X-Forwarded-For. */
+  get trustProxyHops(): number {
+    return this.configService.get<number>('TRUST_PROXY', 0);
+  }
+
   // ── AI layer ───────────────────────────────────────────────────────────────
   get llmProvider(): LlmProvider {
     return this.configService.get<LlmProvider>('LLM_PROVIDER', 'ollama');

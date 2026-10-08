@@ -29,7 +29,11 @@ import { RETRIEVAL_CLIENT } from '../clients/retrieval-client.module.js';
 import { LLM, LlmError, type LlmProvider } from '../llm/llm-provider.js';
 import { extractMarkers, validateCitations } from '../prompt/citations.js';
 import { buildContext, buildPrompt } from '../prompt/context-block.js';
-import { ABSTENTION_SENTENCE, SYSTEM_PROMPT } from '../prompt/system-prompt.js';
+import {
+  ABSTENTION_SENTENCE,
+  declinesInWords,
+  SYSTEM_PROMPT,
+} from '../prompt/system-prompt.js';
 import { QueryCancellationRegistry } from './cancellation.registry.js';
 import { queryInstruments } from './query.metrics.js';
 import { QueryRepository } from './query.repository.js';
@@ -363,10 +367,19 @@ export class QueryService {
     const offered = extractMarkers(answer);
     const { valid, invalid } = validateCitations(offered, pipeline.used.length);
 
-    // The second abstention path: the model answered, but grounded none of it
-    // in the excerpts it was given. An answer that cites nothing is not one
-    // this system is willing to claim (plan §9.3).
-    const abstained = failure === null && valid.length === 0;
+    // The second abstention path, after the model: it declined in the system
+    // prompt's words — whatever it went on to cite beside the question — or it
+    // answered without grounding any of it in the excerpts it was given. An
+    // answer that cites nothing is not one this system is willing to claim
+    // (plan §9.3).
+    const abstainReason: AbstainReason | null = failure
+      ? null
+      : declinesInWords(answer)
+        ? 'declined'
+        : valid.length === 0
+          ? 'no_citations'
+          : null;
+    const abstained = abstainReason !== null;
     const status: QueryStatus = failure
       ? cancelled
         ? 'abandoned'
@@ -380,7 +393,7 @@ export class QueryService {
       tokensIn,
       tokensOut,
       abstained,
-      abstainReason: abstained ? 'no_citations' : null,
+      abstainReason,
       finishReason: failure
         ? cancelled
           ? 'cancelled'
@@ -414,7 +427,7 @@ export class QueryService {
       valid,
       invalid,
       abstained,
-      abstainReason: abstained ? 'no_citations' : null,
+      abstainReason,
       status,
       tokensIn,
       tokensOut,

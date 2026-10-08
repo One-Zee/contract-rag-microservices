@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppConfigModule, AppConfigService } from '@app/config';
 import { QUEUES, rmqConsumerOptions } from '@app/messaging';
 import { inProcessServer, useInProcessTransport } from '@app/rpc';
@@ -19,7 +20,7 @@ async function bootstrap() {
   useInProcessTransport();
 
   const { MonolithModule } = await import('./monolith.module.js');
-  const app = await NestFactory.create(MonolithModule);
+  const app = await NestFactory.create<NestExpressApplication>(MonolithModule);
   const config = app.get(AppConfigService);
 
   configureHttpApp(app);

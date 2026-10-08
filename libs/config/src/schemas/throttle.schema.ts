@@ -22,4 +22,12 @@ export const throttleSchema = Joi.object({
   // Counted separately from THROTTLE_LIMIT, so a value above it changes
   // nothing: the general budget runs out first.
   THROTTLE_STRICT_LIMIT: Joi.number().integer().min(1).default(10),
+
+  // How many reverse proxies stand in front of the gateway — Express's
+  // `trust proxy` as a hop count. The budgets count by `req.ip`, which behind
+  // a proxy is the proxy's own address: every client would share one budget.
+  // With N, the address N hops back in X-Forwarded-For counts instead. 0 (the
+  // default) believes no X-Forwarded-For at all, which is right whenever
+  // clients connect directly — any higher value lets them pick their address.
+  TRUST_PROXY: Joi.number().integer().min(0).empty('').default(0),
 });

@@ -14,6 +14,7 @@ export const abstainReason = pgEnum('abstain_reason', [
   'no_context',
   'below_threshold',
   'no_citations',
+  'declined',
 ]);
 
 /**
