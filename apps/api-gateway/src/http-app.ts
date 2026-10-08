@@ -1,16 +1,21 @@
-import type { INestApplication } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppConfigService } from '@app/config';
 import { createValidationPipe } from './validation.js';
 
 /**
- * Everything about the HTTP application that a module cannot declare: the
- * global validation pipe and Swagger.
+ * Everything about the HTTP application that a module cannot declare: who the
+ * client is behind a proxy, the global validation pipe and Swagger.
  *
  * Shared by the gateway's bootstrap and the monolith's (ADR 021), so both
  * answer HTTP with the same pipe and the same document — a comparison between
  * the two topologies must not be measuring a difference in configuration.
  */
-export function configureHttpApp(app: INestApplication): void {
+export function configureHttpApp(app: NestExpressApplication): void {
+  // The rate limits count by `req.ip`; behind a reverse proxy that is the
+  // proxy's address unless Express is told how many hops to look back.
+  app.set('trust proxy', app.get(AppConfigService).trustProxyHops);
+
   app.useGlobalPipes(createValidationPipe());
 
   const swagger = new DocumentBuilder()
