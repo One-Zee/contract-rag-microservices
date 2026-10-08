@@ -1,0 +1,44 @@
+# The six services under load with the monolith's total CPU split by role
+# instead of evenly — merged after docker-compose.load.services.yaml:
+#
+#   node eval/load/run-load.ts up budget
+#
+# Under search and query load the work is in retrieval-service and
+# llm-service, and an even split leaves them at their limit while the others
+# idle; the monolith gives all of its CPU to whichever module is busy. This is
+# the same total, given where the work is: what scaling one service on its own
+# buys. Memory stays SERVICE_MEMORY each, as in the even split.
+#
+# The defaults add up to MONOLITH_CPUS (3); run-load.ts refuses a split that
+# does not, and records the one it used.
+
+services:
+  api-gateway:
+    deploy:
+      resources:
+        limits: { cpus: '${BUDGET_GATEWAY_CPUS:-0.5}' }
+  auth-service:
+    deploy:
+      resources:
+        limits: { cpus: '${BUDGET_AUTH_CPUS:-0.25}' }
+  # An eighth of a CPU takes most of the healthcheck's 100 seconds to boot
+  # (91 s on a laptop's Docker VM); failures within the start period do not
+  # count against it.
+  ingestion-service:
+    deploy:
+      resources:
+        limits: { cpus: '${BUDGET_INGESTION_CPUS:-0.125}' }
+    healthcheck: { start_period: 180s }
+  indexing-service:
+    deploy:
+      resources:
+        limits: { cpus: '${BUDGET_INDEXING_CPUS:-0.125}' }
+    healthcheck: { start_period: 180s }
+  retrieval-service:
+    deploy:
+      resources:
+        limits: { cpus: '${BUDGET_RETRIEVAL_CPUS:-1.25}' }
+  llm-service:
+    deploy:
+      resources:
+        limits: { cpus: '${BUDGET_LLM_CPUS:-0.75}' }

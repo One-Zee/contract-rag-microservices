@@ -3,12 +3,13 @@
 // series per burst run for the figure.
 //
 //   node eval/load/summarize.ts
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseCsv, toCsv } from '../lib/csv.ts';
 import { readJson, writeText } from '../lib/json.ts';
 import { EVAL_ROOT } from '../lib/paths.ts';
 import { percentile } from '../lib/stats.ts';
+import type { Provenance } from './host.ts';
 
 const ROOT = join(EVAL_ROOT, 'results', 'load');
 const RAW = join(ROOT, 'raw');
@@ -113,23 +114,35 @@ interface Row {
   postgresCpu: number;
 }
 
+/** What run.json and burst.json record besides the run's own settings. */
+type Origin = Partial<Provenance> & { stealPct?: number | null };
+
 const rows: Row[] = [];
 const invalid: string[] = [];
-const bursts: { label: string; dir: string }[] = [];
+const origins: Origin[] = [];
+const bursts: { label: string; rep: number; dir: string }[] = [];
 for (const label of existsSync(RAW) ? readdirSync(RAW) : []) {
   const labelDir = join(RAW, label);
-  if (label.startsWith('.') || label === 'smoke') continue;
+  if (label.startsWith('.') || label === 'smoke' || !isDirectory(labelDir))
+    continue;
   for (const run of readdirSync(labelDir)) {
     const dir = join(labelDir, run);
-    if (run === 'burst') {
-      bursts.push({ label, dir });
+    // `burst` before repetitions were numbered, `burst-r<n>` since.
+    const burst = /^burst(?:-r(\d+))?$/.exec(run);
+    if (burst) {
+      bursts.push({ label, rep: Number(burst[1] ?? 1), dir });
+      if (existsSync(join(dir, 'burst.json'))) {
+        origins.push(readJson<Origin>(join(dir, 'burst.json')));
+      }
       continue;
     }
     const match = /^(.*)-(\d+)vu-r(\d+)$/.exec(run);
     if (!match || !existsSync(join(dir, 'summary.json'))) continue;
     const summary = readJson<any>(join(dir, 'summary.json'));
     const meta = existsSync(join(dir, 'run.json'))
-      ? readJson<{ duration: string; target?: string }>(join(dir, 'run.json'))
+      ? readJson<{ duration: string; target?: string } & Origin>(
+          join(dir, 'run.json'),
+        )
       : { duration: '60s', target: undefined };
     // The scenario's own requests: the sub-metric leaves out the setup login,
     // which k6 also counts into the run's duration — so the rate is taken
@@ -151,6 +164,7 @@ for (const label of existsSync(RAW) ? readdirSync(RAW) : []) {
       );
       continue;
     }
+    origins.push(meta);
     rows.push({
       label,
       scenario: match[1],
@@ -208,6 +222,8 @@ const md: string[] = [
   '',
   "Medians over the repetitions (column `n`). App CPU is the sum of the measured containers' mean CPU % (100 % = one core) and app MiB the sum of their peaks — the target alone for the Express twin and the 1-CPU monolith, every application container otherwise. Stubbed providers, tracing off, throttling off.",
   '',
+  ...describeOrigins(origins),
+  '',
 ];
 for (const scenario of new Set(medians.map((m) => m.scenario))) {
   md.push(
@@ -227,7 +243,15 @@ for (const scenario of new Set(medians.map((m) => m.scenario))) {
 // ── Bursts: search latency before, during and after a batch of uploads ─────
 const WINDOW_S = 10;
 const burstRows: Record<string, unknown>[] = [];
-for (const { label, dir } of bursts) {
+const PHASES = ['before', 'during', 'after'] as const;
+interface BurstRun {
+  vus: number;
+  uploaded: number;
+  indexed: number[];
+  phases: Record<(typeof PHASES)[number], number[]>;
+}
+const burstRuns = new Map<string, BurstRun[]>();
+for (const { label, rep, dir } of bursts.sort((a, b) => a.rep - b.rep)) {
   if (!existsSync(join(dir, 'burst.json')) || !existsSync(join(dir, 'k6.csv')))
     continue;
   const burst = readJson<any>(join(dir, 'burst.json'));
@@ -251,28 +275,19 @@ for (const { label, dir } of bursts) {
   const drainedAt = burst.burstAt + Math.max(0, ...indexed);
   const phase = (from: number, to: number) =>
     samples.filter((s) => s.t >= from && s.t < to).map((s) => s.ms);
-  const before = phase(burst.startedAt, burst.burstAt);
-  const during = phase(burst.burstAt, drainedAt);
-  const after = phase(drainedAt, Number.POSITIVE_INFINITY);
-  md.push(
-    `## burst — ${label}`,
-    '',
-    `${burst.documents.length} contracts uploaded at once, ${indexed.length} indexed; the last one ${fixed(Math.max(0, ...indexed) / 1000, 1)} s after the burst (median ${fixed(median(indexed) / 1000, 1)} s). Search load ${burst.vus} VUs throughout.`,
-    '',
-    '| phase | searches | p50 ms | p95 ms | p99 ms |',
-    '|---|---|---|---|---|',
-    ...(
-      [
-        ['before', before],
-        ['during', during],
-        ['after', after],
-      ] as const
-    ).map(
-      ([name, values]) =>
-        `| ${name} | ${values.length} | ${fixed(percentile([...values], 50))} | ${fixed(percentile([...values], 95))} | ${fixed(percentile([...values], 99))} |`,
-    ),
-    '',
-  );
+  burstRuns.set(label, [
+    ...(burstRuns.get(label) ?? []),
+    {
+      vus: burst.vus,
+      uploaded: burst.documents.length,
+      indexed,
+      phases: {
+        before: phase(burst.startedAt, burst.burstAt),
+        during: phase(burst.burstAt, drainedAt),
+        after: phase(drainedAt, Number.POSITIVE_INFINITY),
+      },
+    },
+  ]);
   const start = burst.startedAt;
   const windows = new Map<number, number[]>();
   for (const sample of samples) {
@@ -296,6 +311,7 @@ for (const { label, dir } of bursts) {
     );
     burstRows.push({
       label,
+      rep,
       second: window,
       searches: values.length,
       p50: percentile(values, 50).toFixed(1),
@@ -306,6 +322,27 @@ for (const { label, dir } of bursts) {
     });
   }
 }
+// Each repetition is summarised on its own, then the median of those figures
+// is taken, as for the runs above — pooling the samples would let the longest
+// repetition decide.
+for (const [label, runs] of burstRuns) {
+  const across = (pick: (run: BurstRun) => number) => median(runs.map(pick));
+  const at = (values: number[], p: number) =>
+    values.length ? percentile([...values], p) : Number.NaN;
+  md.push(
+    `## burst — ${label}`,
+    '',
+    `${runs[0].uploaded} contracts uploaded at once, under a search load of ${runs[0].vus} VUs throughout; medians over ${runs.length} repetition${runs.length === 1 ? '' : 's'}. The last contract indexed ${fixed(across((run) => Math.max(0, ...run.indexed)) / 1000, 1)} s after the burst (median contract ${fixed(across((run) => at(run.indexed, 50)) / 1000, 1)} s), ${fixed(across((run) => run.indexed.length))} of ${runs[0].uploaded} indexed.`,
+    '',
+    '| phase | n | searches | p50 ms | p95 ms | p99 ms |',
+    '|---|---|---|---|---|---|',
+    ...PHASES.map(
+      (name) =>
+        `| ${name} | ${runs.length} | ${fixed(across((run) => run.phases[name].length))} | ${fixed(across((run) => at(run.phases[name], 50)))} | ${fixed(across((run) => at(run.phases[name], 95)))} | ${fixed(across((run) => at(run.phases[name], 99)))} |`,
+    ),
+    '',
+  );
+}
 
 writeText(join(ROOT, 'summary.md'), `${md.join('\n')}\n`);
 writeText(join(ROOT, 'summary.csv'), toCsv(medians));
@@ -313,3 +350,50 @@ if (burstRows.length) {
   writeText(join(ROOT, 'burst-series.csv'), toCsv(burstRows));
 }
 console.log(md.join('\n'));
+
+function isDirectory(path: string): boolean {
+  return statSync(path).isDirectory();
+}
+
+/**
+ * Where the numbers come from: the machine, the commit and the image of every
+ * run, and the most CPU a hypervisor took from any of them. A series that
+ * mixes machines or commits is flagged here, not averaged quietly.
+ */
+function describeOrigins(all: Origin[]): string[] {
+  const distinct = (describe: (origin: Origin) => string) => {
+    const counts = new Map<string, number>();
+    for (const origin of all) {
+      const key = describe(origin);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return [...counts];
+  };
+  const machine = (origin: Origin) =>
+    origin.docker
+      ? `${origin.docker.cpus} CPUs and ${origin.docker.memoryGiB} GiB for Docker (${origin.docker.os}, kernel ${origin.docker.kernel}, Docker ${origin.docker.version}) on ${origin.host?.cpu ?? 'an unknown CPU'}`
+      : 'not recorded';
+  const commit = (origin: Origin) =>
+    origin.commit
+      ? `${origin.commit}${origin.dirty ? ' with uncommitted changes' : ''}`
+      : 'not recorded';
+  const image = (origin: Origin) =>
+    origin.image
+      ? origin.image.replace(/^sha256:/, '').slice(0, 12)
+      : 'not recorded';
+  const line = (name: string, values: [string, number][]) =>
+    values.length === 1
+      ? `- ${name}: ${values[0][0]}`
+      : `- ${name} — **mixed**, ${values.map(([value, n]) => `${value} (${n} runs)`).join('; ')}`;
+  const steal = all
+    .map((origin) => origin.stealPct)
+    .filter((value): value is number => typeof value === 'number');
+  return [
+    `Provenance of the ${all.length} runs:`,
+    '',
+    line('machine', distinct(machine)),
+    line('commit', distinct(commit)),
+    line('image', distinct(image)),
+    `- CPU steal: ${steal.length ? `at most ${Math.max(...steal).toFixed(2)} % of CPU time in any run (${steal.length} measured)` : 'not measured (only on a Linux host)'}`,
+  ];
+}

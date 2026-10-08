@@ -2,15 +2,17 @@
 // this script, on any host with Docker — the same commands produce the final
 // figures on Linux.
 //
-//   node eval/load/run-load.ts up <services|rmq|monolith> [--bench] [--overhead] [--build]
+//   node eval/load/run-load.ts up <services|budget|rmq|monolith> [--bench] [--overhead] [--build]
 //   node eval/load/run-load.ts seed
 //   node eval/load/run-load.ts run <search|query|overhead> --label <name>
-//        [--vus 10,50,100] [--reps 3] [--duration 60s] [--target <url>] [--endpoint health]
-//   node eval/load/run-load.ts burst --label <name> [--vus 20] [--uploads 40] [--duration 240s]
+//        [--vus 10,50,100] [--reps 3] [--rep 1] [--duration 60s] [--target <url>] [--endpoint health]
+//   node eval/load/run-load.ts burst --label <name> [--rep 1] [--vus 20] [--uploads 40] [--duration 240s]
 //   node eval/load/run-load.ts down
 //
 // Results land in eval/results/load/raw/<label>/…; summarize.ts turns them
-// into tables. Never alongside `npm run dev`, stack:up or monolith:up.
+// into tables. `--rep` numbers the first repetition, so a series that comes
+// back to a topology (series.ts) adds repetitions instead of overwriting them.
+// Never alongside `npm run dev`, stack:up or monolith:up.
 import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
 import {
   createWriteStream,
@@ -26,6 +28,7 @@ import { loadContracts } from '../lib/dataset.ts';
 import { args, loadEnv } from '../lib/env.ts';
 import { readJson, writeJson } from '../lib/json.ts';
 import { CONTRACTS_FILE, EVAL_ROOT, REPO_ROOT } from '../lib/paths.ts';
+import { cpuTicks, imageId, provenance, stealPct } from './host.ts';
 
 loadEnv();
 const options = args();
@@ -44,26 +47,53 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 /**
  * The resource budget: equal totals per topology. Defaults fit a
  * Docker VM of 8 CPUs and 3.8 GB; every value can be overridden from the
- * environment, and the run records what it used.
+ * environment, and the run records what it used — the settings that change
+ * what a search does included.
  */
-function budget(overhead: boolean): Record<string, string> {
+function budget(topology: string, overhead: boolean): Record<string, string> {
   const pick = (name: string, fallback: string) =>
     process.env[name] ?? fallback;
+  const monolithCpus = pick('MONOLITH_CPUS', '3');
   return {
     SERVICE_CPUS: pick('SERVICE_CPUS', '0.5'),
     SERVICE_MEMORY: pick('SERVICE_MEMORY', '256M'),
     // The overhead runs compare one process with one process.
-    MONOLITH_CPUS: overhead
-      ? pick('OVERHEAD_CPUS', '1')
-      : pick('MONOLITH_CPUS', '3'),
+    MONOLITH_CPUS: overhead ? pick('OVERHEAD_CPUS', '1') : monolithCpus,
     MONOLITH_MEMORY: overhead
       ? pick('OVERHEAD_MEMORY', '512M')
       : pick('MONOLITH_MEMORY', '1536M'),
     OVERHEAD_CPUS: pick('OVERHEAD_CPUS', '1'),
     OVERHEAD_MEMORY: pick('OVERHEAD_MEMORY', '512M'),
+    ...(topology === 'budget' ? perServiceCpus(monolithCpus) : {}),
+    LEXICAL_MATCH: pick('LEXICAL_MATCH', 'all'),
+    LOAD_RERANK: pick('LOAD_RERANK', 'none'),
     LOAD_DB,
     ...stubLatencies(),
   };
+}
+
+/**
+ * The `budget` topology: the six services with the monolith's total, split
+ * by the work each does under search and query load rather than evenly — what
+ * scaling one service independently buys. The total must stay the
+ * monolith's, or the comparison is between budgets, not topologies.
+ */
+function perServiceCpus(total: string): Record<string, string> {
+  const split: Record<string, string> = {
+    BUDGET_GATEWAY_CPUS: process.env.BUDGET_GATEWAY_CPUS ?? '0.5',
+    BUDGET_AUTH_CPUS: process.env.BUDGET_AUTH_CPUS ?? '0.25',
+    BUDGET_INGESTION_CPUS: process.env.BUDGET_INGESTION_CPUS ?? '0.125',
+    BUDGET_INDEXING_CPUS: process.env.BUDGET_INDEXING_CPUS ?? '0.125',
+    BUDGET_RETRIEVAL_CPUS: process.env.BUDGET_RETRIEVAL_CPUS ?? '1.25',
+    BUDGET_LLM_CPUS: process.env.BUDGET_LLM_CPUS ?? '0.75',
+  };
+  const sum = Object.values(split).reduce((a, b) => a + Number(b), 0);
+  if (Math.abs(sum - Number(total)) > 1e-9) {
+    throw new Error(
+      `The per-service CPUs add up to ${sum}, the monolith has ${total}`,
+    );
+  }
+  return split;
 }
 
 /**
@@ -89,6 +119,8 @@ interface State {
   files: string[];
   env: Record<string, string>;
   target: string;
+  /** The image under test, by content. */
+  image: string | null;
 }
 
 /**
@@ -158,6 +190,12 @@ function files(topology: string, bench: boolean): string[] {
       'docker/docker-compose.load.yaml',
       'docker/docker-compose.load.services.yaml',
     ],
+    budget: [
+      'docker/docker-compose.services.yaml',
+      'docker/docker-compose.load.yaml',
+      'docker/docker-compose.load.services.yaml',
+      'docker/docker-compose.load.budget.yaml',
+    ],
     rmq: [
       'docker/docker-compose.services.yaml',
       'docker/docker-compose.load.yaml',
@@ -172,7 +210,7 @@ function files(topology: string, bench: boolean): string[] {
   };
   if (!byTopology[topology]) {
     throw new Error(
-      `Unknown topology "${topology}": services, rmq or monolith`,
+      `Unknown topology "${topology}": services, budget, rmq or monolith`,
     );
   }
   return [
@@ -192,7 +230,20 @@ const readState = (): State => {
 async function up(): Promise<void> {
   assertNoLocalGateway();
   const topology = subject ?? 'services';
-  const env = budget(options.has('overhead'));
+  const env = budget(topology, options.has('overhead'));
+  if (
+    options.has('build') ||
+    spawnSync('docker', ['image', 'inspect', 'clauseiq:local']).status !== 0
+  ) {
+    const built = spawnSync('npm', ['run', 'image:build'], {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+    });
+    // Going on would measure whatever image was built last.
+    if (built.status !== 0) {
+      throw new Error('The image did not build');
+    }
+  }
   const state: State = {
     topology,
     files: files(topology, options.has('bench')),
@@ -201,16 +252,8 @@ async function up(): Promise<void> {
       topology === 'monolith'
         ? 'http://monolith:3000'
         : 'http://api-gateway:3000',
+    image: imageId('clauseiq:local'),
   };
-  if (
-    options.has('build') ||
-    spawnSync('docker', ['image', 'inspect', 'clauseiq:local']).status !== 0
-  ) {
-    spawnSync('npm', ['run', 'image:build'], {
-      cwd: REPO_ROOT,
-      stdio: 'inherit',
-    });
-  }
   // The database must exist before the migrate service runs against it.
   compose({ files: ['docker/docker-compose.yaml'], env }, [
     'up',
@@ -241,13 +284,21 @@ async function up(): Promise<void> {
  * one — a whole run against the wrong system, without an error.
  */
 function assertNoLocalGateway(): void {
-  const listeners = spawnSync('lsof', ['-nP', '-iTCP:3000', '-sTCP:LISTEN'], {
+  const lsof = spawnSync('lsof', ['-nP', '-iTCP:3000', '-sTCP:LISTEN'], {
     encoding: 'utf8',
-  }).stdout;
-  const local = listeners
-    .split('\n')
-    .slice(1)
-    .filter((line) => /^node\s/.test(line));
+  });
+  // A minimal Linux host may have no lsof; ss lists the same listeners there.
+  const local = lsof.error
+    ? (
+        spawnSync('ss', ['-ltnpH', 'sport = :3000'], { encoding: 'utf8' })
+          .stdout ?? ''
+      )
+        .split('\n')
+        .filter((line) => line.includes('"node"'))
+    : lsof.stdout
+        .split('\n')
+        .slice(1)
+        .filter((line) => /^node\s/.test(line));
   if (local.length > 0) {
     throw new Error(
       `A local process listens on port 3000 — stop npm run dev first:\n${local.join('\n')}`,
@@ -357,6 +408,7 @@ async function run(): Promise<void> {
     .split(',')
     .map(Number);
   const reps = Number(options.get('reps') ?? 3);
+  const firstRep = Number(options.get('rep') ?? 1);
   const duration = String(options.get('duration') ?? '60s');
   const endpoint = String(options.get('endpoint') ?? 'health');
   const target = options.get('target')
@@ -376,10 +428,11 @@ async function run(): Promise<void> {
         ENDPOINT: endpoint,
       }),
     );
-    for (let rep = 1; rep <= reps; rep++) {
+    for (let rep = firstRep; rep < firstRep + reps; rep++) {
       const out = `${label}/${name}-${vus}vu-r${rep}`;
       mkdirSync(join(RESULTS, out), { recursive: true });
       const sampler = sampleStats(join(RESULTS, out, 'stats.jsonl'));
+      const ticks = cpuTicks();
       const startedAt = Date.now();
       try {
         compose(
@@ -405,6 +458,8 @@ async function run(): Promise<void> {
         at: new Date(startedAt).toISOString(),
         wallMs: Date.now() - startedAt,
         power: powerSource(),
+        stealPct: stealPct(ticks, cpuTicks()),
+        ...provenance(state.image),
       });
       await sleep(5000);
     }
@@ -424,7 +479,8 @@ async function burst(): Promise<void> {
   const vus = String(options.get('vus') ?? '20');
   const uploads = Number(options.get('uploads') ?? 40);
   const duration = String(options.get('duration') ?? '240s');
-  const out = `${label}/burst`;
+  const rep = Number(options.get('rep') ?? 1);
+  const out = `${label}/burst-r${rep}`;
   const dir = join(RESULTS, out);
   mkdirSync(dir, { recursive: true, mode: 0o777 });
 
@@ -433,6 +489,7 @@ async function burst(): Promise<void> {
   const contracts = loadContracts().slice(0, uploads);
 
   const sampler = sampleStats(join(dir, 'stats.jsonl'));
+  const ticks = cpuTicks();
   const queue = createWriteStream(join(dir, 'queue.jsonl'));
   const queueTimer = setInterval(() => {
     fetch('http://localhost:15672/api/queues/%2F/indexing', {
@@ -463,6 +520,9 @@ async function burst(): Promise<void> {
     ],
     { cwd: REPO_ROOT, env: { ...process.env, ...state.env }, stdio: 'inherit' },
   );
+  // Listened for from the start: k6 may finish before indexing does, and an
+  // `exit` that has already happened is never delivered to a later listener.
+  const loadDone = new Promise((resolve) => load.on('exit', resolve));
   const startedAt = Date.now();
   await sleep(60_000);
 
@@ -504,16 +564,19 @@ async function burst(): Promise<void> {
     }
     await sleep(1000);
   }
-  await new Promise((resolve) => load.on('exit', resolve));
+  await loadDone;
   clearInterval(queueTimer);
   queue.end();
   sampler.kill();
 
   writeJson(join(dir, 'burst.json'), {
     topology: state.topology,
+    rep,
     vus: Number(vus),
     duration,
     budget: state.env,
+    stealPct: stealPct(ticks, cpuTicks()),
+    ...provenance(state.image),
     startedAt,
     burstAt,
     documents: documents.map((d) => ({

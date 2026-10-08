@@ -58,6 +58,7 @@
     "eval:parity": "node eval/scripts/parity-auth.ts",
     "eval:nest": "node eval/scripts/nest-metrics.ts",
     "load": "node eval/load/run-load.ts",
+    "load:series": "node eval/load/series.ts",
     "load:summary": "node eval/load/summarize.ts",
     "load:calibrate": "node eval/load/calibrate-stub.ts"
   },
