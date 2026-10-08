@@ -1,8 +1,8 @@
-import { NestFactory } from '@nestjs/core';
-import { IndexingServiceModule } from './indexing-service.module.js';
+import { startTelemetry } from '@app/telemetry/start.js';
 
-async function bootstrap() {
-  const app = await NestFactory.create(IndexingServiceModule);
-  await app.listen(process.env.port ?? 3000);
-}
-await bootstrap();
+// Nothing else is imported statically. In ESM every static import is loaded
+// before the first statement runs, so the application would arrive before the
+// instrumentation hooks did; it comes in through a dynamic import once they
+// are in place (ADR 019).
+await startTelemetry('indexing-service');
+await import('./bootstrap.js');

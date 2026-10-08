@@ -1,0 +1,28 @@
+# The image build context is the repository root (docker/Dockerfile).
+#
+# First and foremost: `.env` holds real key material and must never reach a
+# layer — an image keeps every file ever copied into it, in its history, for
+# anyone who can pull it (ADR 020).
+.env
+.env.*
+
+# Rebuilt inside the image, or of no use to it.
+node_modules
+dist
+coverage
+.git
+.github
+.vscode
+.idea
+*.log
+
+# Documentation, tests, the evaluation harness (with its CUAD download,
+# hundreds of MB) and the server scripts: not needed to build or run anything. The load tests'
+# stub and k6 scripts are mounted into their containers, not baked in.
+docs
+test
+eval
+deploy
+plan.md
+CLAUDE.md
+README.md

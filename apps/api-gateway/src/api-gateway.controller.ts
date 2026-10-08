@@ -1,12 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiGatewayService } from './api-gateway.service.js';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 
-@Controller()
-export class ApiGatewayController {
-  constructor(private readonly apiGatewayService: ApiGatewayService) {}
-
+@ApiTags('health')
+// Docker polls this every few seconds; a throttled healthcheck would report
+// a healthy gateway as down.
+@SkipThrottle()
+@Controller('health')
+export class HealthController {
   @Get()
-  getHello(): string {
-    return this.apiGatewayService.getHello();
+  @ApiOperation({ summary: 'Liveness probe' })
+  check(): { status: string; service: string } {
+    return { status: 'ok', service: 'api-gateway' };
   }
 }

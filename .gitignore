@@ -3,6 +3,16 @@
 /node_modules
 /build
 
+# TS output ne smije završiti u izvornom stablu. Neuspio `tsc -b` (npr. kad
+# apps/*/tsconfig.app.json nema `references` na lib koji importuje) emituje .js
+# i .d.ts pored .ts izvora umjesto u dist/.
+apps/**/src/**/*.js
+apps/**/src/**/*.d.ts
+apps/**/src/**/*.js.map
+libs/**/src/**/*.js
+libs/**/src/**/*.d.ts
+libs/**/src/**/*.js.map
+
 # Logs
 logs
 *.log
@@ -56,6 +66,11 @@ pids
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# other files
+# Evaluation: the CUAD download and raw run output stay local (eval/README.md)
+/eval/data/
+/eval/results/**/raw/
 
+# other files
+docs/adr
+docs/izmjene
 plan.md

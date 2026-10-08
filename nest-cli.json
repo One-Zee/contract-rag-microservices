@@ -37,6 +37,15 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "config": {
+      "type": "library",
+      "root": "libs/config",
+      "entryFile": "index",
+      "sourceRoot": "libs/config/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/config/tsconfig.lib.json"
+      }
+    },
     "database": {
       "type": "library",
       "root": "libs/database",
@@ -44,6 +53,15 @@
       "sourceRoot": "libs/database/src",
       "compilerOptions": {
         "tsConfigPath": "libs/database/tsconfig.lib.json"
+      }
+    },
+    "embeddings": {
+      "type": "library",
+      "root": "libs/embeddings",
+      "entryFile": "index",
+      "sourceRoot": "libs/embeddings/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/embeddings/tsconfig.lib.json"
       }
     },
     "indexing-service": {
@@ -80,6 +98,33 @@
       "sourceRoot": "libs/messaging/src",
       "compilerOptions": {
         "tsConfigPath": "libs/messaging/tsconfig.lib.json"
+      }
+    },
+    "monolith": {
+      "type": "application",
+      "root": "monolith",
+      "entryFile": "main",
+      "sourceRoot": "monolith/src",
+      "compilerOptions": {
+        "tsConfigPath": "monolith/tsconfig.app.json"
+      }
+    },
+    "express-auth": {
+      "type": "application",
+      "root": "bench/express-auth",
+      "entryFile": "main",
+      "sourceRoot": "bench/express-auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "bench/express-auth/tsconfig.app.json"
+      }
+    },
+    "rpc": {
+      "type": "library",
+      "root": "libs/rpc",
+      "entryFile": "index",
+      "sourceRoot": "libs/rpc/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/rpc/tsconfig.lib.json"
       }
     },
     "retrieval-service": {

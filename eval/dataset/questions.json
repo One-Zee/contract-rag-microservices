@@ -1,0 +1,952 @@
+{
+  "status": "draft",
+  "note": "Drafted from CUAD annotations by eval/scripts/draft-questions.ts. Review the wording of each question, keep id/contract/category/gold as they are, then set status to \"reviewed\".",
+  "questions": [
+    {
+      "id": "q01",
+      "kind": "answerable",
+      "contract": "c01",
+      "category": "Anti-Assignment",
+      "question": "Can the Endorsement Agreement between Kathy Ireland, Inc. and Kathy Ireland be assigned without the other party's consent?",
+      "gold": [
+        {
+          "text": "KI, Inc. may assign its rights hereunder, but shall furnish written notice of such assignment to Diplomat.",
+          "start": 33805
+        },
+        {
+          "text": "This Agreement and all rights and duties hereunder are personal to Diplomat and shall not, without the written consent of KI, Inc., be assigned, mortgaged, sublicensed or otherwise encumbered by Diplomat or by operation of law.",
+          "start": 33521
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q02",
+      "kind": "answerable",
+      "contract": "c02",
+      "category": "License Grant",
+      "question": "What license is granted under the Sponsorship Agreement between National Processing Company and National City Bank of Kentucky?",
+      "gold": [
+        {
+          "text": "NCB agrees that NPC may use NCB's name and its BIN, ICA and any other Visa and MasterCard identification numbers to the extent necessary or appropriate to perform the Merchant Processing Services.",
+          "start": 2712
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q03",
+      "kind": "answerable",
+      "contract": "c03",
+      "category": "Notice Period To Terminate Renewal",
+      "question": "How much notice is needed to stop the Transportation Services Agreement between PennTex North Louisiana Operating, LLC and MRD Operating LLC from renewing?",
+      "gold": [
+        {
+          "text": "This Agreement shall commence on the Effective Date and continue in full force and effect until the end of the fifteenth (15th) Contract Year, and shall continue in full force and effect thereafter until terminated by either Party by providing thirty (30) calendar days' prior written notice of termination to the other Party (such fifteen (15) Contract Year period, as may be further extended as provided herein is referred to as the \"Term\").",
+          "start": 11577
+        }
+      ],
+      "normalized": "30 days"
+    },
+    {
+      "id": "q04",
+      "kind": "answerable",
+      "contract": "c04",
+      "category": "Expiration Date",
+      "question": "When does the Domain Name and Content License Agreement between Beijing SINA Internet Information Service Co., Ltd. and Beijing Yisheng Leju Information Services Co., Ltd. expire?",
+      "gold": [
+        {
+          "text": "The initial term of this Agreement (the \"Initial Term\") shall commence on the Effective Date and shall continue for a period of ten (10)  years thereafter.",
+          "start": 21014
+        }
+      ],
+      "normalized": ""
+    },
+    {
+      "id": "q05",
+      "kind": "answerable",
+      "contract": "c05",
+      "category": "Exclusivity",
+      "question": "What exclusivity does the Supply Agreement between Cremer Oleo GmbH & Co KG and Ultragenyx Pharmaceutical Inc. grant?",
+      "gold": [
+        {
+          "text": "Cremer shall supply Ultragenyx exclusively with the Product worldwide",
+          "start": 1603
+        },
+        {
+          "text": "Ultragenyx shall purchase the Product exclusively from Cremer.",
+          "start": 1824
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q06",
+      "kind": "answerable",
+      "contract": "c06",
+      "category": "Governing Law",
+      "question": "Which jurisdiction's law governs the Development Agreement between BP America Production Company and True North Energy Corp.?",
+      "gold": [
+        {
+          "text": "This Agreement and all matters pertaining hereto shall be governed by and construed under the laws of the State of Louisiana, except to the extent that the conflict of law rules of said state would require that the laws of another state would govern its validity, construction, or interpretation.",
+          "start": 36201
+        }
+      ],
+      "normalized": "Louisiana"
+    },
+    {
+      "id": "q07",
+      "kind": "answerable",
+      "contract": "c07",
+      "category": "Warranty Duration",
+      "question": "How long is the warranty period under the Promotion and Distribution Agreement between Whitesmoke Inc. and Google Inc?",
+      "gold": [
+        {
+          "text": "Google warrants that the Distribution Products will for a period of [ * ] from the date of their supply to Distributor be free from any defect  which has a materially adverse effect on their use or operation.",
+          "start": 29560
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q08",
+      "kind": "answerable",
+      "contract": "c08",
+      "category": "Cap On Liability",
+      "question": "How is liability limited under the Outsourcing Agreement between Photronics, Inc. and Dai Nippon Printing Co., Ltd.?",
+      "gold": [
+        {
+          "text": "THESE LIMITATIONS SHALL APPLY NOTWITHSTANDING ANY FAILURE OF ESSENTIAL PURPOSE OF ANY REMEDY.",
+          "start": 20254
+        },
+        {
+          "text": "EXCEPT FOR LIABILITY ARISING FROM BREACHES OF A PARTY'S CONFIDENTIALITY OBLIGATIONS CONTAINED IN THE NON-DISCLOSURE CLAUSE IN SECTION 12.17 OF THE CHINA JV OPERATING AGREEMENT, BREACHES OF LICENSE GRANTS CONTAINED HEREIN, AND EXCEPT FOR AMOUNTS PAYABLE TO THIRD PARTIES TO FULFILL INDEMNITY OBLIGATIONS DESCRIBED IN ARTICLE 8, (A) IN NO EVENT SHALL ANY PARTY HAVE ANY LIABILITY TO THE OTHERS, OR TO ANY PARTY CLAIMING THROUGH OR UNDER THE OTHER, FOR ANY LOST PROFITS, ANY INDIRECT, INCIDENTAL, SPECIAL OR CONSEQUENTIAL DAMAGES OF ANY KIND IN ANY WAY ARISING OUT OF OR RELATED TO THIS AGREEMENT, HOWEVER CAUSED AND UNDER ANY THEORY OF LIABILITY, EVEN IF SUCH PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES; AND (B) IN NO EVENT SHALL A PARTY'S CUMULATIVE LIABILITY ARISING OUT OF THIS AGREEMENT EXCEED THE AMOUNTS ACTUALLY PAID, PAYABLE, RECEIVED OR RECEIVABLE BY SUCH PARTY FOR THE PRODUCTS CONCERNED THEREWITH HEREUNDER PURSUANT TO THIS AGREEMENT DURING THE TWELVE (12) MONTHS PRIOR TO THE OCCURRENCE OF THE INITIAL EVENT FOR WHICH A PARTY RECOVERS DAMAGES HEREUNDER.",
+          "start": 19175
+        },
+        {
+          "text": "Without limiting the remedies specified in Article 8 and Section 9.2, this Section 6.1 states the exclusive remedy of the Company for failure of a Product to conform to the warranty provisions set forth in this Section 6.1.",
+          "start": 14664
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q09",
+      "kind": "answerable",
+      "contract": "c09",
+      "category": "Audit Rights",
+      "question": "What audit rights does the Service Agreement between The Victory Portfolios and Hartford Life Insurance Co., Inc. provide?",
+      "gold": [
+        {
+          "text": "Upon the request of the Trust or its designee, Administrator shall provide copies of all the historical records relating to transactions between the Funds and the Plans, written communications regarding the Funds to or from such Plans and other materials, in each case (i) as are maintained by Administrator in the ordinary course of its business and in compliance with laws and regulations governing transfer agents, and (ii) as may reasonably be requested to enable the Trust or its representatives, including without limitation its auditors or legal counsel, to (a) monitor and review the Services, (b) comply with any request of a governmental body or self-regulatory organization or a Plan, (c) verify compliance by Administrator with the terms of this Agreement, (d) make required regulatory reports, or (e) perform general customer supervision. Administrator agrees that it will permit the Trust or such representatives to have reasonable access to its personnel and records in order to facilitate the monitoring of the quality of the Services.",
+          "start": 10382
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q10",
+      "kind": "answerable",
+      "contract": "c10",
+      "category": "Non-Compete",
+      "question": "What non-compete restrictions does the Turn - Key Manufacturing Agreement between INVASIX LTD. and FLEXTRONICS ISRAEL LTD. impose?",
+      "gold": [
+        {
+          "text": "During the Term, of this Agreement and for an additional period of two (2) years from the date of termination of this Agreement, the Contractor undertakes not to develop on its own account any Product.",
+          "start": 32147
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q11",
+      "kind": "answerable",
+      "contract": "c11",
+      "category": "Renewal Term",
+      "question": "How does the Maintenance Agreement between SAGEM S.A. and XIMAGE corporation renew after its initial term?",
+      "gold": [
+        {
+          "text": "This      Agreement shall automatically renew for consecutive one (1) year terms      at XIMAGE's then prevailing rates at the end of each one (1) year term      unless either party gives at least sixty (60) days prior written notice      of the non-renewal of this Agreement.",
+          "start": 4752
+        }
+      ],
+      "normalized": "successive 1 year"
+    },
+    {
+      "id": "q12",
+      "kind": "answerable",
+      "contract": "c12",
+      "category": "Minimum Commitment",
+      "question": "What minimum commitment does the Distributor Agreement between Snotarator LLC and SMSA Ballinger Acquisition Corp. require?",
+      "gold": [
+        {
+          "text": "*Minimum order of 1,000 Units",
+          "start": 16977
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q13",
+      "kind": "answerable",
+      "contract": "c13",
+      "category": "Non-Compete",
+      "question": "What non-compete restrictions does the Non-competition and Non-solicitation Agreement between Quaker Chemical Corporation and Gulf Houghton Lubricants Ltd. impose?",
+      "gold": [
+        {
+          "text": "Gulf Oil and Gulf India each agree during the Non-Compete Period not to acquire, directly or indirectly, control of any businesses involved in, or otherwise competing with, the business of the Combined Business from any entity on Schedule 1 hereto.",
+          "start": 8597
+        },
+        {
+          "text": "Each Seller agrees that for a period commencing on the Effective Date and ending two years after the Closing Date (the \"Non- Compete Period\"), it shall not, other than solely through its direct or indirect ownership of Buyer's capital stock or any other interests in Buyer, directly, or indirectly, including through or on behalf of a subsidiary, anywhere in the world, excluding India: (i) own, manage, operate or control any business which competes with any Combined Business or (ii) be or become a shareholder, partner, member or owner of any Person who is engaged in any Combined Business;",
+          "start": 6662
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q14",
+      "kind": "answerable",
+      "contract": "c14",
+      "category": "Post-Termination Services",
+      "question": "What obligations continue after the Co-branding and Advertising Agreement between I-ESCROW, INC. and 2THEMART.COM, INC. ends?",
+      "gold": [
+        {
+          "text": "Notwithstanding the foregoing, unless this Agreement was terminated for a material breach, all provisions of this Agreement shall survive to the extent necessary for i-Escrow to complete any Customer transactions which are pending at the time of expiration or termination.",
+          "start": 18086
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q15",
+      "kind": "answerable",
+      "contract": "c15",
+      "category": "Expiration Date",
+      "question": "When does the Cooperation Agreement between Beike Internet Security Technology Co., Ltd. and Baidu Online Network Technology expire?",
+      "gold": [
+        {
+          "text": "This Agreement is effective on the day of May 1, 2013 and the effective term is the same as the Cooperation Ter",
+          "start": 5506
+        },
+        {
+          "text": "The Cooperation Term of the parties shall be two years from May 1, 2013 to April 30, 2015.",
+          "start": 5237
+        }
+      ],
+      "normalized": "4/30/15"
+    },
+    {
+      "id": "q16",
+      "kind": "answerable",
+      "contract": "c16",
+      "category": "Termination For Convenience",
+      "question": "Can the Joint Venture Agreemen between MJ Syndicated, Inc. and SIMPLY HERBAL be terminated without cause, and on what notice?",
+      "gold": [
+        {
+          "text": "Written notice of intention to withdraw must be served in writing upon the remaining Participants at least Thirty (30) business days prior to the withdrawal date.",
+          "start": 9408
+        },
+        {
+          "text": "Any Participant will have the right to voluntarily withdraw from the Joint Venture at any time",
+          "start": 9312
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q17",
+      "kind": "answerable",
+      "contract": "c17",
+      "category": "Governing Law",
+      "question": "Which jurisdiction's law governs the License and Hosting Agreement between Transaction Applications Group, Inc. and Legacy Marketing Group, Inc.?",
+      "gold": [
+        {
+          "text": "RATHER THESE RIGHTS AND OBLIGATIONS SHALL BE GOVERNED BY THE LAWS, OTHER THAN CHOICE OF LAW RULES, OF THE STATE OF GEORGIA.",
+          "start": 53291
+        }
+      ],
+      "normalized": "Georgia"
+    },
+    {
+      "id": "q18",
+      "kind": "answerable",
+      "contract": "c18",
+      "category": "Termination For Convenience",
+      "question": "Can the Consulting Agreement between EMERALD HEALTH NATURALS, INC and DR. GAETANO MORELLO N.D. INC be terminated without cause, and on what notice?",
+      "gold": [
+        {
+          "text": "The Contractor may terminate this Agreement and his or her engagement for any reason at any time upon providing 30 days advance notice in writing to Emerald. Termination will be effective, at Emeralds' election, on a date which is no earlier than the date such notice is received and no later than the date which is 30 days following that date.",
+          "start": 5267
+        },
+        {
+          "text": "The Company may terminate this Agreement and the engagement of the Contractor without Cause at any time on 30 days prior written notice.",
+          "start": 6090
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q19",
+      "kind": "answerable",
+      "contract": "c19",
+      "category": "Insurance",
+      "question": "What insurance must be maintained under the License and Reseller Agreement between EHAVE, INC. and COMPANION HEALTHCARE TECHNOLOGIES CORP?",
+      "gold": [
+        {
+          "text": "In the event of any material change or cancellation of the required insurance policies, the applicable Party will provide the other Party with thirty (30) calendar days' prior written notice and will promptly replace such insurance policy in accordance with this Section 15, without lapse in coverage.",
+          "start": 72648
+        },
+        {
+          "text": "Upon the execution of this Agreement or at any time at a Party's request during the term of this Agreement, the other Party shall provide the requesting Party with evidence of the aforementioned insurance coverage in the form of a certificate of insurance acceptable to the requesting Party.",
+          "start": 72356
+        },
+        {
+          "text": "Both Parties shall, at all times during the currency of this Agreement and for a period of one (1) year after the termination or expiration of this Agreement, maintain the following policies of insurance in effect: (i) a comprehensive general liability insurance policy, with minimum coverage of $1,000,000 per occurrence and in the annual aggregate for product liability and completed operations, covering bodily and personal injury, including death, and property damage, including loss of use; and (ii) an information and network technology blended liability insurance policy with an insured limit of at least $1,000,000 in the aggregate.",
+          "start": 71688
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q20",
+      "kind": "answerable",
+      "contract": "c20",
+      "category": "Notice Period To Terminate Renewal",
+      "question": "How much notice is needed to stop the Franchise Agreement between Pretzel Time, Inc. doing business as Pretzel Time and FRANCHISOR) from renewing?",
+      "gold": [
+        {
+          "text": "Pretzel Time shall notify Franchisee  of the  nonrenewal  not  less  than  six  (6)  months  prior  to the expiration  of the term of this  Agreement.",
+          "start": 57024
+        }
+      ],
+      "normalized": "6 months"
+    },
+    {
+      "id": "q21",
+      "kind": "answerable",
+      "contract": "c21",
+      "category": "Anti-Assignment",
+      "question": "Can the Intellectual Property Agreement between The Babcock and Wilcox Company and Babcock and Wilcox Enterprises, Inc. be assigned without the other party's consent?",
+      "gold": [
+        {
+          "text": "This Agreement may not be assigned by either Party, except with the prior written consent of the other Party.",
+          "start": 78188
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q22",
+      "kind": "answerable",
+      "contract": "c22",
+      "category": "Insurance",
+      "question": "What insurance must be maintained under the Product Sale and Marketing Agreement between Calm.com, Inc. and XpresSpa Group, Inc.?",
+      "gold": [
+        {
+          "text": "With respect to the foregoing, XSPA shall provide to Calm certificate(s) evidencing such insurance prior to or upon execution of this Agreement.",
+          "start": 37197
+        },
+        {
+          "text": "The foregoing insurance policies shall name XSPA as the insured and Calm as additional insured (except for Workers' Compensation Insurance).",
+          "start": 36881
+        },
+        {
+          "text": "In no event shall any insurer have a Best's Insurance rating of less than (A-) of class size VII.",
+          "start": 37666
+        },
+        {
+          "text": "If any such insurance is on a \"claims made\" basis, XSPA shall maintain coverage thereunder for a period of at least two (2) years following the termination of this Agreement.",
+          "start": 37022
+        },
+        {
+          "text": "XSPA shall obtain, and thereafter maintain during the Term, the following insurance: (a) Special form property policy covering all stock on premises of the Store, including with respect to all Product Collateral; (b) Workers' Compensation Insurance in the statutorily required amount (or XSPA shall participate in the appropriate state fund if such insurance is not available or allowed), together with Employer's Liability Insurance with a limit of $1,000,000 for each accident; and (c) Commercial General Liability insurance, (including fire liability, contractual liability, personal injury, product liability and completed operations coverage) in the amount of not less than $3,000,000 combined single limit with umbrella liability coverage with a limit of not less than $10,000,000;",
+          "start": 36093
+        },
+        {
+          "text": "The certificates shall provide that Calm will be given at least thirty (30) days prior written notice of cancellation or any material change in these policies.",
+          "start": 37342
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q23",
+      "kind": "answerable",
+      "contract": "c23",
+      "category": "Anti-Assignment",
+      "question": "Can the Strategic' Alliance Agreement between Lightbridge Corporation and Lloyds Register FNMA be assigned without the other party's consent?",
+      "gold": [
+        {
+          "text": "No Party may assign this Agreement without the prior written consent of the other Party.",
+          "start": 16992
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q24",
+      "kind": "answerable",
+      "contract": "c24",
+      "category": "Minimum Commitment",
+      "question": "What minimum commitment does the Agency Agreement between Biopure Corporation and Agent require?",
+      "gold": [
+        {
+          "text": "(i) make all field sales representatives of the Agent available to       work with field sales representatives of the Company at least two (2) full       business days per agreement year.\n\n         (j) maintain sales and promotion of the Company's Products so as to       meet or exceed the previous years annual sales within the same competitive       environment.",
+          "start": 8021
+        },
+        {
+          "text": "Except as otherwise expressly provided in the Business Plan, the Agent will at its sole expense",
+          "start": 4324
+        },
+        {
+          "text": "All orders will be shipped to the Customer in minimum quantities of one box (two (2) bags).",
+          "start": 13983
+        },
+        {
+          "text": "(h) make all field sales personnel of the Agent available for at       least four (4) hours, and telesales personnel available for at least one       (1) hour, of initial Products sales and marketing training by the Company,       and for such supplemental training by the Company as the Company may deem       appropriate from time to time, in each case, at such times and locations       as may be mutually agreed upon by the Company and the Agent.",
+          "start": 7514
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q25",
+      "kind": "answerable",
+      "contract": "c25",
+      "category": "Cap On Liability",
+      "question": "How is liability limited under the Network Affiliate Agreement between National CineMedia, LLC and Digital Cinema Destinations Corp.?",
+      "gold": [
+        {
+          "text": "The obligations under this Section 10.3 state the  entire liability of NCM and are Network Affiliate's sole and exclusive remedies, with respect to intellectual property infringement.",
+          "start": 77564
+        },
+        {
+          "text": "EXCEPT IN CONNECTION WITH A BREACH OF ARTICLE XIV HEREUNDER, AND WITH THE EXCEPTION OF THE  INDEMNIFICATION OBLIGATIONS OF THE PARTIES UNDER ARTICLE X, THE AGGREGATE TOTAL LIABILITY OF EITHER PARTY TO  THE OTHER PARTY AND TO ALL OTHER PERSONS AND ENTITIES UNDER THIS AGREEMENT SHALL UNDER NO CIRCUMSTANCES  EXCEED THE AMOUNT OF THE NET REVENUE RECEIVED BY NCM PURSUANT TO SECTION 7.2 OF THIS AGREEMENT DURING THE FIVE  (5) YEAR PERIOD PRECEDING SUCH LIABILITY, LESS IN ANY CASE THE AGGREGATE OF ANY AMOUNTS PAID BY NCM HEREUNDER  ON ACCOUNT OF PREVIOUS EVENTS OF LIABILITY.",
+          "start": 80166
+        },
+        {
+          "text": "EXCEPT IN CONNECTION WITH A BREACH OF ARTICLE XIII OF THIS AGREEMENT AND WITH THE EXCEPTION OF  THE INDEMNIFICATION OBLIGATIONS OF THE PARTIES UNDER ARTICLE X, IN NO EVENT SHALL EITHER PARTY BE LIABLE TO THE  OTHER PARTY OR ANY OTHER PERSON OR ENTITY FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, PUNITIVE,  EXEMPLARY, OR EXTRA-CONTRACTUAL DAMAGES OF ANY KIND WHATSOEVER ARISING FROM OR CONNECTED WITH THIS  AGREEMENT, INCLUDING, BUT NOT LIMITED TO, LOST PROFITS, LOST REVENUES, OR LOSS OF BUSINESS, REGARDLESS OF LEGAL  THEORY, WHETHER OR NOT FORESEEABLE, EVEN IF EITHER PARTY HERETO HAS BEEN ADVISED OF THE POSSIBILITY OR  PROBABILITY OF SUCH DAMAGES AND EVEN IF THE REMEDIES OTHERWISE PROVIDED BY THIS AGREEMENT FAIL OF THEIR  ESSENTIAL PURPOSE.",
+          "start": 78908
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q26",
+      "kind": "answerable",
+      "contract": "c26",
+      "category": "License Grant",
+      "question": "What license is granted under the Endorsement Agreement between SQUARE TWO GOLF INC. and KATHY WHITWORTH?",
+      "gold": [
+        {
+          "text": "The Professional hereby grants to the Company the worldwide right during the Term and for a period of six (6) months after the Term as provided in Section 2.8 to use, reproduce, print, publish, distribute, broadcast, modify, edit, condense, or expand any materials containing her name, image, likeness or personal identification that are created hereunder.",
+          "start": 3638
+        },
+        {
+          "text": "The Professional hereby grants an exclusive, worldwide license to the Company to use the name, likeness, image and personal identification of the Professional, during the Term and for a period of six (6) months after the Term as provided in Section 2.8, in connection with the creation, manufacture, marketing, sale and promotion of the Products.",
+          "start": 6228
+        },
+        {
+          "text": "The Professional hereby grants to the Company an exclusive license to use her name, likeness, image and personal identification, singly or in any combination, in connection with the production, use, marketing and sale of a \"Kathy Whitworth\" signature line of women's golf clubs (the \"Products\"), as described more fully in Section 3 below.",
+          "start": 1926
+        },
+        {
+          "text": "The Professional hereby grants to the Company the exclusive and worldwide right to use her name, likeness, image and personal identification, singly or in any combination, during the Term and for a period of six (6) months after the Term as provided in Section 2.8, in the creation of two (2) print advertisements per year and one (1) television advertisement per year (together, the \"Advertisements\") for any golf equipment, along with all rights in any images, videos, advertisement copy or other materials created by the Professional or others.",
+          "start": 2847
+        },
+        {
+          "text": "The Professional hereby grants to the Company an exclusive license to use her name, likeness, image and personal identification in the Company's catalog of products.",
+          "start": 4009
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q27",
+      "kind": "answerable",
+      "contract": "c27",
+      "category": "Audit Rights",
+      "question": "What audit rights does the Sponsorship Agreement between Excite, Inc.Excite and CyberShop Client provide?",
+      "gold": [
+        {
+          "text": "Should             these results differ to those provided by Client's server by more             than 10%, Client may, once per quarter during Excite's regular             business hours and at Client's sole expense, review these records to             verify the accuracy and appropriate accounting of XXXXXXXXX             delivered pursuant to the Agreement.",
+          "start": 24300
+        },
+        {
+          "text": "In addition, Excite may, upon no less             than thirty (30) days prior written notice to Client, cause an             independent Certified Public Accountant to inspect the records of             Client reasonably related to the calculation of such payments during             Client's normal business hours.",
+          "start": 29001
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q28",
+      "kind": "answerable",
+      "contract": "c28",
+      "category": "Exclusivity",
+      "question": "What exclusivity does the Marketing and Transportation Services Agreement between Purolator Courier Ltd. and Parcelway Courier Systems Canada Ltd. a subsidiary of Dynamex Inc. grant?",
+      "gold": [
+        {
+          "text": "Dynamex agrees not to provide sameday delivery services for any other        provider of next day or multiple day courier services.",
+          "start": 7970
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q29",
+      "kind": "answerable",
+      "contract": "c29",
+      "category": "Renewal Term",
+      "question": "How does the Content License Agreement between PACIFICAP ENTERTAINMENT and THE HENRY FILM AND ENTERTAINMENT CORPORATION renew after its initial term?",
+      "gold": [
+        {
+          "text": "After the Initial Term, this Agreement will be automatically renewed for successive additional 3~year periods (\"Extension Terms\"), unless otherwise terminated by either party by giving notice to the other party not less than sixty (60) days prior to the end of a Term.",
+          "start": 9276
+        }
+      ],
+      "normalized": "successive 3 years"
+    },
+    {
+      "id": "q30",
+      "kind": "answerable",
+      "contract": "c30",
+      "category": "Audit Rights",
+      "question": "What audit rights does the Master Supply Agreement between Premier Nutrition Company, LLC and Fonterra provide?",
+      "gold": [
+        {
+          "text": "in a way that is inconsistent with the Specifications, in which case an audit may be performed at any time during the Term.",
+          "start": 10182
+        },
+        {
+          "text": "For routine visits and audits, PNC will provide [***] if facilities located in the US and with [***] if facilities are located [***], provided that such examination will be conducted during Supplier's normal business hours and in such a manner as to reasonably minimize disruption to Supplier's business, unless food safety is at issue, in which case such examination may be conducted at any time.",
+          "start": 10306
+        },
+        {
+          "text": "PNC or its contracted third-party auditors may enter and audit/inspect Supplier's facilities where the Ingredients are produced, stored, packaged or otherwise processed [***] unless food safety is at issue or PNC has a good faith reason to believe the Ingredients are being stored, packaged, or processed",
+          "start": 9869
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q31",
+      "kind": "answerable",
+      "contract": "c31",
+      "category": "Renewal Term",
+      "question": "How does the Blockchain Administration and Development Agreement between ARCA U.S. TREASURY FUND and ARCA CAPITAL MANAGEMENT, LLC renew after its initial term?",
+      "gold": [
+        {
+          "text": "This Agreement shall continue in effect for two years from the date hereof, and thereafter shall continue automatically for successive annual periods, provided that such continuance is specifically approved at least annually by (A) the vote of the Board, or by the vote of a majority of the outstanding voting securities of the Fund and (B) the vote of a majority of the Fund's directors who are not parties to this Agreement or \"interested persons\" (as such term is defined in Section 2(a)(19) of the Investment Fund Act) of any such party, in accordance with the requirements of the Investment Fund Act.",
+          "start": 13148
+        }
+      ],
+      "normalized": "successive 1 year"
+    },
+    {
+      "id": "q32",
+      "kind": "answerable",
+      "contract": "c32",
+      "category": "Post-Termination Services",
+      "question": "What obligations continue after the Promotion Agreement between MiddleBrook Pharmaceuticals, Inc. and DoctorDirectory.com, Inc ends?",
+      "gold": [
+        {
+          "text": "If the Agreement is terminated in years 2 or 3 by MBRK providing notice to DD  within 60 days of the then current anniversary date of its intent not to renew, then MBRK will pay DD the End of  Agreement Fee but no Early Termination Fee.",
+          "start": 43271
+        },
+        {
+          "text": "Upon  termination or expiration of this Agreement, if specifically requested by MBRK, DD shall provide originals or copies of  such records to MBRK.",
+          "start": 15849
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q33",
+      "kind": "answerable",
+      "contract": "c33",
+      "category": "Warranty Duration",
+      "question": "How long is the warranty period under the Asp and Outsourcing Agreement Order Form between E.PIPHANY, INC. and HIGH SPEED NET SOLUTIONS, INC.?",
+      "gold": [
+        {
+          "text": "E.piphany warrants that for a period of one (1) year from Effective Date, the Application as used within the scope of this Agreement will perform substantially in accordance with the functions described in the Documentation.",
+          "start": 9112
+        },
+        {
+          "text": "E.piphany further warrants that its Maintenance, training and Professional Services will be rendered consistent with generally accepted industry standards for a period of ninety (90) days from performance of such services.",
+          "start": 9507
+        },
+        {
+          "text": "E.piphany warrants the Application media is free from material defects in materials and workmanship under normal use for ninety (90) days from the applicable Order Form.",
+          "start": 9337
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q34",
+      "kind": "answerable",
+      "contract": "c34",
+      "category": "Expiration Date",
+      "question": "When does the Service Agreement between Theravance Biopharma UK Limited and Brett Haumann expire?",
+      "gold": [
+        {
+          "text": "The Executive's employment with the Company will commence on the Commencement Date and shall continue, subject to the remaining terms of this Agreement, until terminated by either party giving the other the following minimum advance written notice: 2.1.1 6 weeks' notice;\n\n2.1.2 such other longer period as required by law.",
+          "start": 4382
+        }
+      ],
+      "normalized": "perpetual"
+    },
+    {
+      "id": "q35",
+      "kind": "answerable",
+      "contract": "c35",
+      "category": "Governing Law",
+      "question": "Which jurisdiction's law governs the Manufacturing and Supply Agreement between VAPOTHERM, INC and MEDICA S.p.A.?",
+      "gold": [
+        {
+          "text": "This Agreement is governed by the laws of the State of New York without giving effect to principles of conflict of laws.",
+          "start": 66274
+        }
+      ],
+      "normalized": "New York"
+    },
+    {
+      "id": "q36",
+      "kind": "answerable",
+      "contract": "c36",
+      "category": "Cap On Liability",
+      "question": "How is liability limited under the Yield Maintenance Agreement between Wells Fargo Bank on behalf of Wells Fargo Mortgage Backed Securities 2006-6 Trust and UBS AG?",
+      "gold": [
+        {
+          "text": "Notwithstanding any provision herein or in the ISDA Form         to the contrary, the obligations of Counterparty hereunder are limited         recourse obligations of Counterparty, payable solely from the Trust         Estate (as defined in the Pooling and Servicing Agreement) and the         proceeds thereof to satisfy Counterparty's obligations hereunder.",
+          "start": 12185
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q37",
+      "kind": "answerable",
+      "contract": "c37",
+      "category": "Post-Termination Services",
+      "question": "What obligations continue after the Multiple Linac and Multi-modality Distributor Agreement between ACCURAY INCORPORATED and SIEMENS AKTIENGESELLSCHAFT ends?",
+      "gold": [
+        {
+          "text": "Accuray and Distributor agree to negotiate in good faith an orderly transition of Distributor's  distribution responsibilities and activities to Accuray or a third party designated by Accuray and Distributor agrees to  assist in the transition.",
+          "start": 48024
+        },
+        {
+          "text": "Furthermore, each of the parties agree to cooperate fully with the other for  any reasonable transition assistance required in the case of termination or expiration of this Agreement.",
+          "start": 48758
+        },
+        {
+          "text": "Upon a termination of this Agreement, Accuray shall continue to make available to Customers support services on  commercially reasonable terms, including, without limitation, spare parts for the Systems for a minimum period of 10 years after the  last shipment of a System pursuant to this Agreement.",
+          "start": 38022
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q38",
+      "kind": "answerable",
+      "contract": "c38",
+      "category": "Non-Compete",
+      "question": "What non-compete restrictions does the Non Competition Agreement and Right of First Offer between Glamis Gold Ltd. and all of its subsidiaries and other Affiliates and Western Copper Corporation and all of its subsidiaries and other Affiliates impose?",
+      "gold": [
+        {
+          "text": "Western Copper covenants and agrees with Glamis that, for a period of 2 years after the Effective Date, it will not, directly or indirectly, either individually or in partnership or  jointly or in conjunction with any Person, which will include being a principal, agent,  shareholder, or advisor of such Person or in any other manner whatsoever,\n\n(a) carry on or be engaged in Mining Activities, or",
+          "start": 5833
+        },
+        {
+          "text": "(b) advise, lend money to, guarantee the debts or obligations of or permit its name to  be used by any Person who carries on or is engaged in Mining Activities,\n\nin the Area of Non-Competition.",
+          "start": 6254
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q39",
+      "kind": "answerable",
+      "contract": "c39",
+      "category": "Exclusivity",
+      "question": "What exclusivity does the Product Development and Co-branding Agreement between INTEGRITY INCORPORATED and TIME LIFE, INC. d/b/a Time Life Music grant?",
+      "gold": [
+        {
+          "text": "Integrity will hold exclusive                   worldwide rights to promote and sell the product to/through                   the following distribution channels: Christian retail (CBA or                   Christian Booksellers Association markets), direct mail                   (including continuity sales, church sales, digital and                   e-commerce sales.)",
+          "start": 6086
+        },
+        {
+          "text": "TL will hold exclusive worldwide                   rights to promote and sell the product through the following                   distribution channels: Outgoing telemarketing, General Market                   retail, and General Market catalogs, and exclusive rights                   within the United States for Television Direct response.",
+          "start": 5158
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q40",
+      "kind": "answerable",
+      "contract": "c40",
+      "category": "Expiration Date",
+      "question": "When does the Cooperation Agreement between Dazzle Interactive Network Technologies Co., Ltd. and Shenzhen iDreamSky Technology Co., Ltd. expire?",
+      "gold": [
+        {
+          "text": "This Agreement shall come into force as of January 1, 2013 and remain valid for 1 year.",
+          "start": 60704
+        },
+        {
+          "text": "As of the effective date hereof, the original cooperation of mobile game business executed between the Parties shall terminate automatically.",
+          "start": 60792
+        }
+      ],
+      "normalized": "1/1/14"
+    },
+    {
+      "id": "q41",
+      "kind": "answerable",
+      "contract": "c13",
+      "category": "Governing Law",
+      "question": "Which jurisdiction's law governs the Non-competition and Non-solicitation Agreement between Quaker Chemical Corporation and Gulf Houghton Lubricants Ltd.?",
+      "gold": [
+        {
+          "text": "THIS AGREEMENT SHALL BE GOVERNED BY AND CONSTRUED IN ACCORDANCE WITH THE INTERNAL LAWS OF THE COMMONWEALTH OF PENNSYLVANIA WITHOUT GIVING EFFECT TO ANY CHOICE OR CONFLICT OF LAW PROVISION OR RULE (WHETHER OF THE COMMONWEALTH OF PENNSYLVANIA OR ANY OTHER JURISDICTION).",
+          "start": 13379
+        }
+      ],
+      "normalized": "Pennsylvania"
+    },
+    {
+      "id": "q42",
+      "kind": "answerable",
+      "contract": "c20",
+      "category": "License Grant",
+      "question": "What license is granted under the Franchise Agreement between Pretzel Time, Inc. doing business as Pretzel Time and FRANCHISOR)?",
+      "gold": [
+        {
+          "text": "Pretzel  Time hereby  grants to  Franchisee  and  Franchisee  agrees to undertake,  during the term of this  Agreement and upon the terms and conditions stated in this Agreement, the right, license and privilege to operate,  conduct,\n\n\n\n\n\nand do business  and to use certain  trade  names,  trademarks,  service  marks, logos,  and other  commercial  symbols,  including  Pretzel Time (referred to as \"Marks\") solely and  exclusively for the operation of one retail  franchise Unit (referred to as \"Franchise\"), which is in the form of a (Store/Kiosk/Cart),  and to sell  those  Products  known as  Pretzel  Time  pretzels  and  other  Pretzel Time-approved   menu  items  and  Products   further   described  in  Section  2 (hereinafter \"Products\") in accordance with the provisions of this Agreement and in accordance with rules,  standards,  systems,  and procedures as prescribed by Pretzel Time which may be changed,  improved and further  developed from time to time,  (hereinafter  \"Pretzel  Time  System\"),  at one (1) location  only,  such location to be\n\n (hereinafter \"Site\").",
+          "start": 31815
+        },
+        {
+          "text": "Franchisee  agrees and grants to Pretzel Time and its Affiliates a perpetual and worldwide  right to use and  authorize  other  Pretzel  Time Units or other food service businesses  operated by Pretzel Time or its Affiliates,  franchisees and designees  to  use  such  ideas,  recipes,  formulas,   concepts,  methods,  and techniques  relating to the development  and/or  operation of a dessert or snack food business.",
+          "start": 221470
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q43",
+      "kind": "answerable",
+      "contract": "c10",
+      "category": "Termination For Convenience",
+      "question": "Can the Turn - Key Manufacturing Agreement between INVASIX LTD. and FLEXTRONICS ISRAEL LTD. be terminated without cause, and on what notice?",
+      "gold": [
+        {
+          "text": "Notwithstanding anything to the contrary stated in this Agreement, either party may terminate this Agreement at any time without cause by giving to the other party, not less than four (4) months written notice.",
+          "start": 23617
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q44",
+      "kind": "answerable",
+      "contract": "c36",
+      "category": "Anti-Assignment",
+      "question": "Can the Yield Maintenance Agreement between Wells Fargo Bank on behalf of Wells Fargo Mortgage Backed Securities 2006-6 Trust and UBS AG be assigned without the other party's consent?",
+      "gold": [
+        {
+          "text": "No transfer, amendment, waiver, supplement, assignment or other modification of this Transaction (other than the pledge of this Transaction to the Master Servicer pursuant to the Pooling and Servicing Agreement) shall be permitted by either party unless Moody's and Fitch have been provided notice of the same and confirm in writing (including by facsimile transmission) that they will not downgrade, qualify, withdraw or otherwise modify its then-current rating of the Certificates; provided however that except with respect to a transfer at the direction of UBS, nothing in this provision shall impose any obligation on UBS to give notice to any rating agency.",
+          "start": 24904
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q45",
+      "kind": "answerable",
+      "contract": "c34",
+      "category": "Termination For Convenience",
+      "question": "Can the Service Agreement between Theravance Biopharma UK Limited and Brett Haumann be terminated without cause, and on what notice?",
+      "gold": [
+        {
+          "text": "The Company may, in its sole and absolute discretion, terminate the Executive's employment under this Agreement at any time and with immediate effect by notifying the Executive that the Company is exercising its right under this clause 17 and that it will make a payment in l ieu of  not ice (\"PILON\") to the Executive.",
+          "start": 18678
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q46",
+      "kind": "answerable",
+      "contract": "c24",
+      "category": "Warranty Duration",
+      "question": "How long is the warranty period under the Agency Agreement between Biopure Corporation and Agent?",
+      "gold": [
+        {
+          "text": "The Company hereby warrants that all Products sold to the\n\n\n\n\n\nCustomer hereunder, at the time of shipment to the Customer, (a) will be merchantable and of generally commercially salable quality; and (b) will have a then remaining shelf life of at least twelve (12) months. The Company further    8\n\n                                    -7-\n\nwarrants that the Products have been manufactured, labeled and packaged, and when in the Company's possession or under its control, have been handled, stored and shipped, in compliance with all applicable federal, state and local laws. The Customer's exclusive remedy for a breach of any of the foregoing warranties will be the replacement, at the delivery point thereof, freight prepaid, of any Product furnished hereunder that fails to meet the foregoing standards. In no event will the Company be liable for incidental or consequential damages. All claims by the Customer and/or Agent under this Paragraph 2.6 must be submitted in accordance with the Company's published bulletins concerning such claims, as such bulletins may be amended by the Company from time to time and furnished to the Agent.",
+          "start": 16052
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q47",
+      "kind": "answerable",
+      "contract": "c08",
+      "category": "Warranty Duration",
+      "question": "How long is the warranty period under the Outsourcing Agreement between Photronics, Inc. and Dai Nippon Printing Co., Ltd.?",
+      "gold": [
+        {
+          "text": "Each of the Suppliers warrants that the Products shall comply with the specifications and documentation agreed by the relevant Supplier and the Company in writing that is applicable to such Products for the Warranty Period.",
+          "start": 13890
+        },
+        {
+          "text": "\"Warranty Period\" means a period of [***]from the relevant Supplier's shipment of the Product.",
+          "start": 24464
+        },
+        {
+          "text": "If a Product fails to comply with the foregoing warranty, the relevant Supplier shall, at its option, either [***]such Product, or, in the event the foregoing options are not commercially practicable, [***]to the Company any amounts paid for the applicable Product.",
+          "start": 14398
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q48",
+      "kind": "answerable",
+      "contract": "c04",
+      "category": "Post-Termination Services",
+      "question": "What obligations continue after the Domain Name and Content License Agreement between Beijing SINA Internet Information Service Co., Ltd. and Beijing Yisheng Leju Information Services Co., Ltd. ends?",
+      "gold": [
+        {
+          "text": "Upon termination (but not expiration) of this Agreement for any reason, Licensee shall be entitled to use the Licensed Domain Names and  Licensed Content for a limited period of time, not to exceed ninety (90) days, during which it shall diligently work to transition to another solution.",
+          "start": 23829
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q49",
+      "kind": "answerable",
+      "contract": "c30",
+      "category": "Notice Period To Terminate Renewal",
+      "question": "How much notice is needed to stop the Master Supply Agreement between Premier Nutrition Company, LLC and Fonterra from renewing?",
+      "gold": [
+        {
+          "text": "This Agreement will commence on the Effective Date and continue for an Initial Term of five (5) years, and will automatically renew for additional periods of five (5) years unless one Party notifies the other of its intention not to renew, no less than 12 months prior to the expiration of the then-current term, unless terminated as permitted under this Agreement.",
+          "start": 21036
+        }
+      ],
+      "normalized": "12 months"
+    },
+    {
+      "id": "q50",
+      "kind": "answerable",
+      "contract": "c29",
+      "category": "Minimum Commitment",
+      "question": "What minimum commitment does the Content License Agreement between PACIFICAP ENTERTAINMENT and THE HENRY FILM AND ENTERTAINMENT CORPORATION require?",
+      "gold": [
+        {
+          "text": "In the event of THE HENRY FILM AND ENTERTAINMENT CORPORATION, not fulfilling this minimum PERFORMANCE, PACIFICAP ENTERTAINMENT may cancel this Agreement",
+          "start": 6471
+        },
+        {
+          "text": "PERFORMANCE: In lieu of PACIFICAP ENTERTAINMENT granting a 10 year Exclusive Content License to THE HENRY FILM AND ENTERTAINMENT CORPORATION, THE HENRY FILM AND ENTERTAINMENT CORPORATION agrees to share a minimum of $50,000.00 annually for each year of this Agreement.",
+          "start": 6202
+        }
+      ],
+      "normalized": "Yes"
+    },
+    {
+      "id": "q51",
+      "kind": "absent",
+      "contract": "c17",
+      "category": "Source Code Escrow",
+      "question": "Under what conditions is source code released from escrow under the License and Hosting Agreement between Transaction Applications Group, Inc. and Legacy Marketing Group, Inc.?",
+      "gold": [],
+      "normalized": "No"
+    },
+    {
+      "id": "q52",
+      "kind": "absent",
+      "contract": "c04",
+      "category": "Non-Disparagement",
+      "question": "What non-disparagement obligations does the Domain Name and Content License Agreement between Beijing SINA Internet Information Service Co., Ltd. and Beijing Yisheng Leju Information Services Co., Ltd. impose?",
+      "gold": [],
+      "normalized": "No"
+    },
+    {
+      "id": "q53",
+      "kind": "absent",
+      "contract": "c23",
+      "category": "Covenant Not To Sue",
+      "question": "What covenant not to sue does the Strategic' Alliance Agreement between Lightbridge Corporation and Lloyds Register FNMA contain?",
+      "gold": [],
+      "normalized": "No"
+    },
+    {
+      "id": "q54",
+      "kind": "absent",
+      "contract": "c08",
+      "category": "Liquidated Damages",
+      "question": "What liquidated damages are payable under the Outsourcing Agreement between Photronics, Inc. and Dai Nippon Printing Co., Ltd.?",
+      "gold": [],
+      "normalized": "No"
+    },
+    {
+      "id": "q55",
+      "kind": "absent",
+      "contract": "c26",
+      "category": "Most Favored Nation",
+      "question": "What most-favored-nation pricing does the Endorsement Agreement between SQUARE TWO GOLF INC. and KATHY WHITWORTH guarantee?",
+      "gold": [],
+      "normalized": "No"
+    },
+    {
+      "id": "q56",
+      "kind": "absent",
+      "contract": "c03",
+      "category": "Liquidated Damages",
+      "question": "What liquidated damages are payable under the Transportation Services Agreement between PennTex North Louisiana Operating, LLC and MRD Operating LLC?",
+      "gold": [],
+      "normalized": "No"
+    },
+    {
+      "id": "q57",
+      "kind": "out_of_corpus",
+      "contract": "INTRICONCORP_03_10_2009-EX-10.22-Strategic Alliance Agreement",
+      "category": "Governing Law",
+      "question": "Which jurisdiction's law governs the Strategic Alliance Agreement between IntriCon Corporation and Dynamic Hearing Pty Ltd?",
+      "gold": [],
+      "normalized": "Victoria, Australia"
+    },
+    {
+      "id": "q58",
+      "kind": "out_of_corpus",
+      "contract": "ImpresseCorp_20000322_S-1A_EX-10.11_5199234_EX-10.11_Co-Branding Agreement",
+      "category": "Governing Law",
+      "question": "Which jurisdiction's law governs the Co-branding Agreement between VerticalNet, Inc. and Impresse Corporation?",
+      "gold": [],
+      "normalized": "Delaware"
+    },
+    {
+      "id": "q59",
+      "kind": "out_of_corpus",
+      "contract": "COOLTECHNOLOGIES,INC_10_25_2017-EX-10.71-Strategic Alliance Agreement",
+      "category": "Governing Law",
+      "question": "Which jurisdiction's law governs the Strategic Alliance Agreement between Cool Technologies Inc. and VETERAN TECHNOLOGY GROUP, LLC?",
+      "gold": [],
+      "normalized": "Missouri"
+    },
+    {
+      "id": "q60",
+      "kind": "out_of_corpus",
+      "contract": "VERICELCORP_08_06_2019-EX-10.10-SUPPLY AGREEMENT",
+      "category": "Governing Law",
+      "question": "Which jurisdiction's law governs the Supply Agreement between Vericel Corporation and MediWound Ltd.?",
+      "gold": [],
+      "normalized": "New York"
+    }
+  ]
+}

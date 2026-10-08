@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "rootDir": "./src",
+    "outDir": "../../dist/libs/config",
+    // Without an explicit path TS derives it from outDir and the common source
+    // root; as soon as a lib gains `references` that root moves up to libs/ and
+    // two libs target the same file (TS6377).
+    "tsBuildInfoFile": "../../dist/libs/config/tsconfig.lib.tsbuildinfo"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+}

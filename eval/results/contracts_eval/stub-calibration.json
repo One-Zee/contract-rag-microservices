@@ -1,0 +1,15 @@
+{
+  "values": {
+    "STUB_EMBED_MS": 363,
+    "STUB_RERANK_MS": 537,
+    "STUB_LLM_TTFT_MS": 836,
+    "STUB_LLM_TOKEN_MS": 10.6,
+    "STUB_LLM_TOKENS": 109
+  },
+  "basis": {
+    "experiment": "contracts_eval",
+    "retrievalRecords": 180,
+    "rerankedRecords": 60,
+    "answers": 51
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "noEmit": true,
+    // eval/ runs as TypeScript straight under Node 24 (type stripping): imports
+    // name the `.ts` file, and only syntax Node can erase is allowed.
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true
+  },
+  "include": ["*.config.ts", "vitest.aliases.ts", "eval/**/*.ts"]
+}
