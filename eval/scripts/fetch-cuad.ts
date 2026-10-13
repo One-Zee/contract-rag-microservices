@@ -1,7 +1,3 @@
-// Downloads CUAD v1 from Zenodo into eval/data/ (gitignored) and unpacks it.
-// Idempotent: a zip with the right checksum is not downloaded again.
-//
-//   npm run eval:fetch
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
@@ -18,8 +14,6 @@ import { CUAD_DIR, DATA_DIR } from '../lib/paths.ts';
 
 const SOURCE =
   'https://zenodo.org/records/4595826/files/CUAD_v1.zip?download=1';
-// Pinned on the first download (2026-10-04). A different file is a different
-// dataset, and every number in the thesis would silently refer to it.
 const SHA256 =
   '88b694d99007d39777fa44cd72daf8297773d285dc3eab0091ba32078888d18e';
 const ZIP = join(DATA_DIR, 'CUAD_v1.zip');
@@ -50,9 +44,12 @@ if (!existsSync(ZIP) || (await sha256(ZIP)) !== SHA256) {
 console.log(`CUAD_v1.zip ok (sha256 ${SHA256.slice(0, 12)}…)`);
 
 if (!existsSync(join(CUAD_DIR, 'CUAD_v1.json'))) {
-  const unzip = spawnSync('unzip', ['-q', '-o', ZIP, '-d', DATA_DIR], {
-    stdio: 'inherit',
-  });
+  const unzip =
+    process.platform === 'win32'
+      ? spawnSync('tar', ['-xf', ZIP, '-C', DATA_DIR], { stdio: 'inherit' })
+      : spawnSync('unzip', ['-q', '-o', ZIP, '-d', DATA_DIR], {
+          stdio: 'inherit',
+        });
   if (unzip.status !== 0) {
     throw new Error('unzip failed');
   }

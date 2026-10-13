@@ -1,21 +1,13 @@
-// Where a load run's numbers come from: the commit and image under test, the
-// machine Docker runs on, and how much CPU the hypervisor took away while the
-// run lasted. Recorded with every run, so a table can name its machine and a
-// mixed series cannot pass for one.
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { cpus, platform, release } from 'node:os';
 import { REPO_ROOT } from '../lib/paths.ts';
 
 export interface Provenance {
   commit: string;
-  /** Tracked files differ from the commit: the numbers are not reproducible from it. */
   dirty: boolean;
-  /** The image the containers ran, by content — a rebuild from other sources changes it. */
   image: string | null;
-  /** The machine the orchestrator and k6's results came from. */
   host: { platform: string; release: string; cpu: string; cpus: number };
-  /** What Docker sees — on macOS the VM, not the Mac. */
   docker: {
     version: string;
     os: string;
@@ -29,6 +21,41 @@ const run = (command: string, args: string[]): string | null => {
   const result = spawnSync(command, args, { cwd: REPO_ROOT, encoding: 'utf8' });
   return result.status === 0 ? result.stdout.trim() : null;
 };
+
+const encode = (script: string): string =>
+  Buffer.from(script, 'utf16le').toString('base64');
+
+export function powershell(script: string): string | null {
+  return run('powershell', [
+    '-NoProfile',
+    '-NonInteractive',
+    '-EncodedCommand',
+    encode(script),
+  ]);
+}
+
+export function keepAwake(): void {
+  if (process.platform === 'darwin') {
+    spawn('caffeinate', ['-i', '-w', String(process.pid)], {
+      stdio: 'ignore',
+    })
+      .on('error', () => undefined)
+      .unref();
+  } else if (process.platform === 'win32') {
+    const script = [
+      `$power = Add-Type -Name Power -Namespace LoadTest -PassThru -MemberDefinition '[DllImport("kernel32.dll")] public static extern uint SetThreadExecutionState(uint flags);'`,
+      '[void]$power::SetThreadExecutionState(2147483649)',
+      `Wait-Process -Id ${process.pid}`,
+    ].join('; ');
+    spawn(
+      'powershell',
+      ['-NoProfile', '-NonInteractive', '-EncodedCommand', encode(script)],
+      { stdio: 'ignore', windowsHide: true },
+    )
+      .on('error', () => undefined)
+      .unref();
+  }
+}
 
 export function imageId(tag: string): string | null {
   return run('docker', ['image', 'inspect', tag, '--format', '{{.Id}}']);
@@ -59,26 +86,17 @@ export function provenance(image: string | null): Provenance {
   };
 }
 
-/** Tracked files differ from HEAD — or there is no git to ask, which counts the same. */
 export function isDirty(): boolean {
   return run('git', ['status', '--porcelain', '--untracked-files=no']) !== '';
 }
 
-/**
- * The machine-wide CPU counters of /proc/stat, in clock ticks — Linux only.
- * Steal is time a virtual CPU was ready to run and the hypervisor ran someone
- * else: on shared cores a neighbour's load shows up here, and in latency.
- */
 export function cpuTicks(): { total: number; steal: number } | null {
   if (!existsSync('/proc/stat')) return null;
   const line = readFileSync('/proc/stat', 'utf8').split('\n')[0];
-  // user nice system idle iowait irq softirq steal [guest guest_nice]: the
-  // guest columns are already inside user and nice.
   const ticks = line.trim().split(/\s+/).slice(1, 9).map(Number);
   return { total: ticks.reduce((a, b) => a + b, 0), steal: ticks[7] ?? 0 };
 }
 
-/** Steal as a share of all CPU time between two readings, in percent. */
 export function stealPct(
   before: ReturnType<typeof cpuTicks>,
   after: ReturnType<typeof cpuTicks>,

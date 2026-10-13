@@ -1,18 +1,3 @@
-// The load-test orchestrator. Every number of §9.4 comes out of
-// this script, on any host with Docker — the same commands produce the final
-// figures on Linux.
-//
-//   node eval/load/run-load.ts up <services|budget|rmq|monolith> [--bench] [--overhead] [--build]
-//   node eval/load/run-load.ts seed
-//   node eval/load/run-load.ts run <search|query|overhead> --label <name>
-//        [--vus 10,50,100] [--reps 3] [--rep 1] [--duration 60s] [--target <url>] [--endpoint health]
-//   node eval/load/run-load.ts burst --label <name> [--rep 1] [--vus 20] [--uploads 40] [--duration 240s]
-//   node eval/load/run-load.ts down
-//
-// Results land in eval/results/load/raw/<label>/…; summarize.ts turns them
-// into tables. `--rep` numbers the first repetition, so a series that comes
-// back to a topology (series.ts) adds repetitions instead of overwriting them.
-// Never alongside `npm run dev`, stack:up or monolith:up.
 import { type ChildProcess, spawn, spawnSync } from 'node:child_process';
 import {
   createWriteStream,
@@ -28,15 +13,20 @@ import { loadContracts } from '../lib/dataset.ts';
 import { args, loadEnv } from '../lib/env.ts';
 import { readJson, writeJson } from '../lib/json.ts';
 import { CONTRACTS_FILE, EVAL_ROOT, REPO_ROOT } from '../lib/paths.ts';
-import { cpuTicks, imageId, provenance, stealPct } from './host.ts';
+import {
+  cpuTicks,
+  imageId,
+  keepAwake,
+  powershell,
+  provenance,
+  stealPct,
+} from './host.ts';
 
 loadEnv();
 const options = args();
 const [command, subject] = process.argv
   .slice(2)
   .filter((arg) => !arg.startsWith('--'));
-// Raw run output is gitignored; summarize.ts writes the committed tables one
-// level up, in eval/results/load/.
 const RESULTS = join(EVAL_ROOT, 'results', 'load', 'raw');
 const STATE = join(RESULTS, '.state.json');
 const LOAD_DB = process.env.LOAD_DB ?? 'contracts_load';
@@ -44,12 +34,6 @@ const LOAD_EMAIL = process.env.LOAD_EMAIL ?? 'load@clauseiq.test';
 const LOAD_PASSWORD = process.env.LOAD_PASSWORD ?? 'load-test-only-password';
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/**
- * The resource budget: equal totals per topology. Defaults fit a
- * Docker VM of 8 CPUs and 3.8 GB; every value can be overridden from the
- * environment, and the run records what it used — the settings that change
- * what a search does included.
- */
 function budget(topology: string, overhead: boolean): Record<string, string> {
   const pick = (name: string, fallback: string) =>
     process.env[name] ?? fallback;
@@ -57,7 +41,6 @@ function budget(topology: string, overhead: boolean): Record<string, string> {
   return {
     SERVICE_CPUS: pick('SERVICE_CPUS', '0.5'),
     SERVICE_MEMORY: pick('SERVICE_MEMORY', '256M'),
-    // The overhead runs compare one process with one process.
     MONOLITH_CPUS: overhead ? pick('OVERHEAD_CPUS', '1') : monolithCpus,
     MONOLITH_MEMORY: overhead
       ? pick('OVERHEAD_MEMORY', '512M')
@@ -72,12 +55,6 @@ function budget(topology: string, overhead: boolean): Record<string, string> {
   };
 }
 
-/**
- * The `budget` topology: the six services with the monolith's total, split
- * by the work each does under search and query load rather than evenly — what
- * scaling one service independently buys. The total must stay the
- * monolith's, or the comparison is between budgets, not topologies.
- */
 function perServiceCpus(total: string): Record<string, string> {
   const split: Record<string, string> = {
     BUDGET_GATEWAY_CPUS: process.env.BUDGET_GATEWAY_CPUS ?? '0.5',
@@ -96,10 +73,6 @@ function perServiceCpus(total: string): Record<string, string> {
   return split;
 }
 
-/**
- * The stub's latencies from calibrate-stub.ts, when it has run; the stub's
- * placeholder defaults otherwise. Either way they are recorded with the run.
- */
 function stubLatencies(): Record<string, string> {
   const file = join(EVAL_ROOT, 'results', 'load', 'stub.env');
   if (!existsSync(file)) {
@@ -119,28 +92,11 @@ interface State {
   files: string[];
   env: Record<string, string>;
   target: string;
-  /** The image under test, by content. */
   image: string | null;
 }
 
-/**
- * A laptop that idle-sleeps mid-run stretches every request in flight by the
- * length of the nap — the first local runs measured 40-second logins that
- * were 42 seconds of sleep. On macOS the orchestrator keeps the machine awake
- * for as long as it runs (lid-close sleep it cannot stop: plug in, keep it
- * open); summarize.ts still rejects any run that took far longer than planned.
- * `unref()` is load-bearing: caffeinate waits for this process to exit, and a
- * referenced child would keep this process waiting for caffeinate.
- */
-if (process.platform === 'darwin') {
-  spawn('caffeinate', ['-i', '-w', String(process.pid)], {
-    stdio: 'ignore',
-  })
-    .on('error', () => undefined)
-    .unref();
-}
+keepAwake();
 
-/** "AC Power" or "Battery Power" on macOS — a laptop on battery may run slower. */
 function powerSource(): string | null {
   if (process.platform !== 'darwin') return null;
   const out = spawnSync('pmset', ['-g', 'batt'], { encoding: 'utf8' }).stdout;
@@ -168,8 +124,6 @@ function compose(
       encoding: 'utf8',
     },
   );
-  // 99 is k6 reporting a crossed threshold (errors above 1 %): under enough
-  // load that is the result being measured, not a failure of the run.
   const k6Threshold =
     composeArgs[composeArgs.indexOf('k6') + 1] === 'run' &&
     result.status === 99;
@@ -235,11 +189,11 @@ async function up(): Promise<void> {
     options.has('build') ||
     spawnSync('docker', ['image', 'inspect', 'clauseiq:local']).status !== 0
   ) {
-    const built = spawnSync('npm', ['run', 'image:build'], {
+    const built = spawnSync('npm run image:build', {
       cwd: REPO_ROOT,
       stdio: 'inherit',
+      shell: true,
     });
-    // Going on would measure whatever image was built last.
     if (built.status !== 0) {
       throw new Error('The image did not build');
     }
@@ -254,7 +208,6 @@ async function up(): Promise<void> {
         : 'http://api-gateway:3000',
     image: imageId('clauseiq:local'),
   };
-  // The database must exist before the migrate service runs against it.
   compose({ files: ['docker/docker-compose.yaml'], env }, [
     'up',
     '-d',
@@ -278,17 +231,20 @@ async function up(): Promise<void> {
   console.log(`${topology} is up (${JSON.stringify(env)})`);
 }
 
-/**
- * A local `npm run dev` gateway and the container can both listen on port
- * 3000 (one on ::1, one on 127.0.0.1), and `localhost` then reaches the local
- * one — a whole run against the wrong system, without an error.
- */
-function assertNoLocalGateway(): void {
+function localListeners(): string[] {
+  if (process.platform === 'win32') {
+    return (
+      powershell(
+        "Get-NetTCPConnection -State Listen -LocalPort 3000 -ErrorAction SilentlyContinue | ForEach-Object { $p = Get-Process -Id $_.OwningProcess; '{0} pid {1}' -f $p.ProcessName, $p.Id }",
+      ) ?? ''
+    )
+      .split(/\r?\n/)
+      .filter((line) => /^node\b/i.test(line.trim()));
+  }
   const lsof = spawnSync('lsof', ['-nP', '-iTCP:3000', '-sTCP:LISTEN'], {
     encoding: 'utf8',
   });
-  // A minimal Linux host may have no lsof; ss lists the same listeners there.
-  const local = lsof.error
+  return lsof.error
     ? (
         spawnSync('ss', ['-ltnpH', 'sport = :3000'], { encoding: 'utf8' })
           .stdout ?? ''
@@ -299,6 +255,10 @@ function assertNoLocalGateway(): void {
         .split('\n')
         .slice(1)
         .filter((line) => /^node\s/.test(line));
+}
+
+function assertNoLocalGateway(): void {
+  const local = localListeners();
   if (local.length > 0) {
     throw new Error(
       `A local process listens on port 3000 — stop npm run dev first:\n${local.join('\n')}`,
@@ -308,7 +268,6 @@ function assertNoLocalGateway(): void {
 
 async function seed(): Promise<void> {
   assertNoLocalGateway();
-  // The load account must exist and may upload; setup-corpus does both.
   const extra = join(EVAL_ROOT, 'dataset', 'load-contracts.json');
   const result = spawnSync(
     'node',
@@ -334,17 +293,11 @@ async function seed(): Promise<void> {
   }
 }
 
-/**
- * `docker stats` for the whole run, one JSON line per container per refresh.
- * `t` is when the line arrived, not when it was measured: into a pipe the
- * refreshes come in a few large chunks, so summarize.ts works per container.
- */
 function sampleStats(file: string): ChildProcess {
   const out = createWriteStream(file);
   const child = spawn('docker', ['stats', '--format', '{{json .}}']);
   let buffer = '';
   child.stdout.on('data', (chunk: Buffer) => {
-    // `docker stats` clears the screen between refreshes even into a pipe.
     // oxlint-disable-next-line no-control-regex
     buffer += chunk.toString('utf8').replace(/\u001b\[[0-9;]*[A-Za-z]/g, '');
     const lines = buffer.split('\n');
@@ -358,9 +311,7 @@ function sampleStats(file: string): ChildProcess {
         out.write(
           `${JSON.stringify({ t: Date.now(), name: row.Name, cpu: parseFloat(row.CPUPerc), mem: used.trim() })}\n`,
         );
-      } catch {
-        // a partial line; the next refresh repeats it
-      }
+      } catch {}
     }
   });
   return child;
@@ -418,7 +369,6 @@ async function run(): Promise<void> {
     scenario === 'overhead' ? `overhead-${endpoint}` : (scenario as string);
 
   for (const vus of levels) {
-    // A short warm-up per level: JIT, connection pools, the HNSW pages.
     compose(
       state,
       k6(state, `${scenario}.js`, `${label}/warmup`, {
@@ -466,12 +416,6 @@ async function run(): Promise<void> {
   }
 }
 
-/**
- * Plan §9.4: what happens when indexing is swamped. A steady search load runs
- * throughout; a minute in, a batch of contracts is uploaded at once. Recorded:
- * search latency over time (k6 CSV), the indexing queue depth, and how long
- * each document took from upload to indexed.
- */
 async function burst(): Promise<void> {
   assertNoLocalGateway();
   const state = readState();
@@ -520,8 +464,6 @@ async function burst(): Promise<void> {
     ],
     { cwd: REPO_ROOT, env: { ...process.env, ...state.env }, stdio: 'inherit' },
   );
-  // Listened for from the start: k6 may finish before indexing does, and an
-  // `exit` that has already happened is never delivered to a later listener.
   const loadDone = new Promise((resolve) => load.on('exit', resolve));
   const startedAt = Date.now();
   await sleep(60_000);
@@ -584,7 +526,6 @@ async function burst(): Promise<void> {
       indexedAfterMs: d.indexedAt ? d.indexedAt - burstAt : null,
     })),
   });
-  // The next burst must start from the same corpus.
   for (const document of documents) {
     await fetch(`http://localhost:3000/documents/${document.id}`, {
       method: 'DELETE',
